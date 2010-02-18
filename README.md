@@ -11,10 +11,8 @@ This is my first attempt at this kind of project, and I'm open to people who'd l
 ### Goals
 
 * This is intended to be a low-level, parser-only engine.
-* Instead of producing HTML, it will produce an XML (JSON?) representation of the code comments.
+* Instead of producing HTML, it will produce an XML (and maybe JSON) representation of the code comments.
 	* This will allow others to take the XML and generate their own documentation templates.
-* Support the inlining of external code as examples.
-	* This will likely follow the current format used in the [CloudFusion](http://getcloudfusion.com) docs.
 * Support grabbing the actual source code for the methods/properties.
 * Generate various indexes.
 
@@ -22,7 +20,7 @@ This is my first attempt at this kind of project, and I'm open to people who'd l
 
 * Will not produce HTML or CSS content.
 	* The goal here is just the raw data in an easy to work with format.
-* Will not support languages other than PHP.
+* Will not support parsing languages other than PHP.
 
 ## License & Copyright
 

@@ -1,273 +1,83 @@
 <?php
 /**
- * File: CloudFusion
- * 	Core functionality and default settings shared across all CloudFusion classes.
- * 	This is a base class containing shared functionality. All methods and properties in this class are inherited by the service-specific classes.
+ * File: Amazon EC2
+ * 	Amazon Elastic Compute Cloud (http://aws.amazon.com/ec2)
  *
  * Version:
- * 	2009.10.10
+ * 	2010.01.10
  *
  * Copyright:
- * 	2006-2010 Ryan Parman, Foleeo, Inc., and contributors.
+ * 	2006-2009 Foleeo, Inc., and contributors.
  *
  * License:
  * 	Simplified BSD License - http://opensource.org/licenses/bsd-license.php
  *
  * See Also:
  * 	CloudFusion - http://getcloudfusion.com
+ * 	Amazon EC2 - http://aws.amazon.com/ec2
  */
-
-
-/*%******************************************************************************************%*/
-// CORE DEPENDENCIES
-
-// Include the CloudFusion config file
-if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php'))
-{
-	include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc.php';
-}
 
 
 /*%******************************************************************************************%*/
 // CONSTANTS
 
 /**
- * Constant: CLOUDFUSION_NAME
- * Name of the software.
+ * Constant: EC2_DEFAULT_URL
+ * 	Specify the default queue URL.
  */
-define('CLOUDFUSION_NAME', 'CloudFusion');
+define('EC2_DEFAULT_URL', 'ec2.amazonaws.com');
 
 /**
- * Constant: CLOUDFUSION_VERSION
- * Version of the software.
+ * Constant: EC2_LOCATION_US
+ * 	Specify the queue URL for the U.S.-specific hostname.
  */
-define('CLOUDFUSION_VERSION', '2.5.1-dev');
+define('EC2_LOCATION_US', 'us-east-1.');
 
 /**
- * Constant: CLOUDFUSION_BUILD
- * Build ID of the software.
+ * Constant: EC2_LOCATION_EU
+ * 	Specify the queue URL for the E.U.-specific hostname.
  */
-define('CLOUDFUSION_BUILD', gmdate('YmdHis', strtotime(substr('$Date$', 7, 25)) ? strtotime(substr('$Date$', 7, 25)) : filemtime(__FILE__)));
-
-/**
- * Constant: CLOUDFUSION_URL
- * URL to learn more about the software.
- */
-define('CLOUDFUSION_URL', 'http://getcloudfusion.com');
-
-/**
- * Constant: CLOUDFUSION_USERAGENT
- * User agent string used to identify CloudFusion
- * > CloudFusion/2.5 (Cloud Computing Toolkit; http://getcloudfusion.com) Build/20090824000000
- */
-define('CLOUDFUSION_USERAGENT', CLOUDFUSION_NAME . '/' . CLOUDFUSION_VERSION . ' (Cloud Computing Toolkit; ' . CLOUDFUSION_URL . ') Build/' . CLOUDFUSION_BUILD);
-
-/**
- * Constant: DATE_FORMAT_RFC2616
- * Define the RFC 2616-compliant date format
- */
-define('DATE_FORMAT_RFC2616', 'D, d M Y H:i:s \G\M\T');
-
-/**
- * Constant: DATE_FORMAT_ISO8601
- * Define the ISO-8601-compliant date format
- */
-define('DATE_FORMAT_ISO8601', 'Y-m-d\TH:i:s\Z');
-
-/**
- * Constant: DATE_FORMAT_MYSQL
- * Define the MySQL-compliant date format
- */
-define('DATE_FORMAT_MYSQL', 'Y-m-d H:i:s');
-
-/**
- * Constant: HTTP_GET
- * HTTP method type: Get
- */
-define('HTTP_GET', 'GET');
-
-/**
- * Constant: HTTP_POST
- * HTTP method type: Post
- */
-define('HTTP_POST', 'POST');
-
-/**
- * Constant: HTTP_PUT
- * HTTP method type: Put
- */
-define('HTTP_PUT', 'PUT');
-
-/**
- * Constant: HTTP_DELETE
- * HTTP method type: Delete
- */
-define('HTTP_DELETE', 'DELETE');
-
-/**
- * Constant: HTTP_HEAD
- * HTTP method type: Head
- */
-define('HTTP_HEAD', 'HEAD');
+define('EC2_LOCATION_EU', 'eu-west-1.');
 
 
 /*%******************************************************************************************%*/
 // EXCEPTIONS
 
 /**
- * Exception: CloudFusion_Exception
- * 	Default CloudFusion Exception.
+ * Exception: EC2_Exception
+ * 	Default EC2 Exception.
  */
-class CloudFusion_Exception extends Exception {}
+class EC2_Exception extends Exception {}
 
 
 /*%******************************************************************************************%*/
-// CLASS
+// MAIN CLASS
 
 /**
- * Class: CloudFusion
- * 	Container for all shared methods. This is not intended to be instantiated directly, but is extended by the service-specific classes.
+ * Class: AmazonEC2
+ * 	Container for all Amazon EC2-related methods. Inherits additional methods from CloudFusion.
+ *
+ * Extends:
+ * 	CloudFusion
+ *
+ * Example Usage:
+ * (start code)
+ * require_once('cloudfusion.class.php');
+ *
+ * // Instantiate a new AmazonEC2 object using the settings from the config.inc.php file.
+ * $s3 = new AmazonEC2();
+ *
+ * // Instantiate a new AmazonEC2 object using these specific settings.
+ * $s3 = new AmazonEC2($key, $secret_key);
+ * (end)
  */
-class CloudFusion
+class AmazonEC2 extends CloudFusion
 {
 	/**
-	 * Property: key
-	 * The Amazon API Key. This is inherited by all service-specific classes.
+	 * Property: hostname
+	 * Stores the hostname to use to make the request.
 	 */
-	var $key;
-
-	/**
-	 * Property: secret_key
-	 * The Amazon API Secret Key. This is inherited by all service-specific classes.
-	 */
-	var $secret_key;
-
-	/**
-	 * Property: account_id
-	 * The Amazon Account ID, sans hyphens. This is inherited by all service-specific classes.
-	 */
-	var $account_id;
-
-	/**
-	 * Property: assoc_id
-	 * The Amazon Associates ID. This is inherited by all service-specific classes.
-	 */
-	var $assoc_id;
-
-	/**
-	 * Property: util
-	 * Handle for the utility functions. This is inherited by all service-specific classes.
-	 */
-	var $util;
-
-	/**
-	 * Property: service
-	 * An identifier for the current AWS service. This is inherited by all service-specific classes.
-	 */
-	var $service = null;
-
-	/**
-	 * Property: api_version
-	 * The supported API version. This is inherited by all service-specific classes.
-	 */
-	var $api_version = null;
-
-	/**
-	 * Property: utilities_class
-	 * The default class to use for Utilities (defaults to <CFUtilities>). This is inherited by all service-specific classes.
-	 */
-	var $utilities_class = 'CFUtilities';
-
-	/**
-	 * Property: request_class
-	 * The default class to use for HTTP Requests (defaults to <RequestCore>). This is inherited by all service-specific classes.
-	 */
-	var $request_class = 'RequestCore';
-
-	/**
-	 * Property: response_class
-	 * The default class to use for HTTP Responses (defaults to <ResponseCore>). This is inherited by all service-specific classes.
-	 */
-	var $response_class = 'ResponseCore';
-
-	/**
-	 * Property: adjust_offset
-	 * The number of seconds to adjust the request timestamp by (defaults to 0). This is inherited by all service-specific classes.
-	 */
-	var $adjust_offset = 0;
-
-	/**
-	 * Property: enable_ssl
-	 * 	Whether SSL/HTTPS should be enabled by default. This is inherited by all service-specific classes.
-	 */
-	var $enable_ssl = true;
-
-	/**
-	 * Property: set_proxy
-	 * 	Sets the proxy to use for connecting. This is inherited by all service-specific classes.
-	 */
-	var $set_proxy = null;
-
-	/**
-	 * Property: devpay_tokens
-	 * 	Stores the Amazon DevPay tokens to use, if any. This is inherited by all service-specific classes.
-	 */
-	var $devpay_tokens;
-
-	/**
-	 * Property: set_hostname
-	 * 	Stores the alternate hostname to use, if any. This is inherited by all service-specific classes.
-	 */
-	var $hostname = null;
-
-
-	/*%******************************************************************************************%*/
-	// AUTO-LOADER
-
-	/**
-	 * Method: autoloader()
-	 * 	Automatically load classes that aren't included.
-	 *
-	 * Access:
-	 * 	public static
-	 *
-	 * Parameters:
-	 * 	class_name - _string_ (Required) The classname to load.
-	 *
-	 * Returns:
-	 * 	void
-	 */
-	public static function autoloader($class)
-	{
-		$path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-
-		if (strstr($class, 'Amazon'))
-		{
-			$path .= 'services/' . str_ireplace('Amazon', '', strtolower($class)) . '.class.php';
-		}
-		elseif (strstr($class, 'CF'))
-		{
-			$path .= 'services/' . str_ireplace('CF', '_', strtolower($class)) . '.class.php';
-		}
-		elseif (strstr($class, 'Cache'))
-		{
-			if (file_exists($ipath = 'lib' . DIRECTORY_SEPARATOR . 'cachecore' . DIRECTORY_SEPARATOR . 'icachecore.interface.php'))
-			{
-				require_once($ipath);
-			}
-
-			$path .= 'lib' . DIRECTORY_SEPARATOR . 'cachecore' . DIRECTORY_SEPARATOR . strtolower($class) . '.class.php';
-		}
-		elseif (strstr($class, 'RequestCore') || strstr($class, 'ResponseCore'))
-		{
-			$path .= 'lib' . DIRECTORY_SEPARATOR . 'requestcore' . DIRECTORY_SEPARATOR . 'requestcore.class.php';
-		}
-
-		if (file_exists($path) && !is_dir($path))
-		{
-			require_once($path);
-		}
-	}
+	var $hostname;
 
 
 	/*%******************************************************************************************%*/
@@ -275,7 +85,7 @@ class CloudFusion
 
 	/**
 	 * Method: __construct()
-	 * 	The constructor. You would not normally instantiate this class directly. Rather, you would instantiate a service-specific class.
+	 * 	The constructor
 	 *
 	 * Access:
 	 * 	public
@@ -283,651 +93,1306 @@ class CloudFusion
 	 * Parameters:
 	 * 	key - _string_ (Optional) Your Amazon API Key. If blank, it will look for the <AWS_KEY> constant.
 	 * 	secret_key - _string_ (Optional) Your Amazon API Secret Key. If blank, it will look for the <AWS_SECRET_KEY> constant.
-	 * 	account_id - _string_ (Optional) Your Amazon account ID without the hyphens. Required for EC2. If blank, it will look for the <AWS_ACCOUNT_ID> constant.
-	 * 	assoc_id - _string_ (Optional) Your Amazon Associates ID. Required for AAWS. If blank, it will look for the <AWS_ASSOC_ID> constant.
+	 * 	account_id - _string_ (Optional) Your Amazon Account ID, without hyphens. If blank, it will look for the <AWS_ACCOUNT_ID> constant.
 	 *
 	 * Returns:
-	 * 	boolean FALSE if no valid values are set, otherwise true.
+	 * 	_boolean_ false if no valid values are set, otherwise true.
+ 	 *
+	 * See Also:
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/__construct.phps
 	 */
-	public function __construct($key = null, $secret_key = null, $account_id = null, $assoc_id = null)
+	public function __construct($key = null, $secret_key = null, $account_id = null)
 	{
-		// Instantiate the utilities class.
-		$this->util = new $this->utilities_class();
+		$this->api_version = '2008-12-01';
+		$this->hostname = EC2_DEFAULT_URL;
 
-		// Determine the current service.
-		$this->service = get_class($this);
-
-		// Set default values
-		$this->key = null;
-		$this->secret_key = null;
-		$this->account_id = null;
-		$this->assoc_id = null;
-
-		// Set the Account ID
-		if ($account_id)
+		if (!$key && !defined('AWS_KEY'))
 		{
-			$this->account_id = $account_id;
-		}
-		elseif (defined('AWS_ACCOUNT_ID'))
-		{
-			$this->account_id = AWS_ACCOUNT_ID;
+			throw new EC2_Exception('No account key was passed into the constructor, nor was it set in the AWS_KEY constant.');
 		}
 
-		// Set the Associates ID
-		if ($assoc_id)
+		if (!$secret_key && !defined('AWS_SECRET_KEY'))
 		{
-			$this->assoc_id = $assoc_id;
-		}
-		elseif (defined('AWS_ASSOC_ID'))
-		{
-			$this->assoc_id = AWS_ASSOC_ID;
+			throw new EC2_Exception('No account secret was passed into the constructor, nor was it set in the AWS_SECRET_KEY constant.');
 		}
 
-		// If both a key and secret key are passed in, use those.
-		if ($key && $secret_key)
+		if (!$account_id && !defined('AWS_ACCOUNT_ID'))
 		{
-			$this->key = $key;
-			$this->secret_key = $secret_key;
-			return true;
-		}
-		// If neither are passed in, look for the constants instead.
-		else if (defined('AWS_KEY') && defined('AWS_SECRET_KEY'))
-		{
-			$this->key = AWS_KEY;
-			$this->secret_key = AWS_SECRET_KEY;
-			return true;
+			throw new EC2_Exception('No Amazon account ID was passed into the constructor, nor was it set in the AWS_ACCOUNT_ID constant.');
 		}
 
-		// Otherwise set the values to blank and return false.
-		else
-		{
-			throw new CloudFusion_Exception('No valid credentials were used to authenticate with AWS.');
-		}
+		return parent::__construct($key, $secret_key, $account_id);
 	}
 
 
 	/*%******************************************************************************************%*/
-	// SET CUSTOM SETTINGS
+	// MISCELLANEOUS
 
 	/**
-	 * Method: adjust_offset()
-	 * 	Allows you to adjust the current time, for occasions when your server is out of sync with Amazon's servers.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
+	 * Method: set_locale()
+	 * 	By default EC2 will self-select the most appropriate locale. This allows you to explicitly sets the locale for EC2 to use.
 	 *
 	 * Access:
 	 * 	public
 	 *
 	 * Parameters:
-	 * 	seconds - _integer_ (Required) The number of seconds to adjust the sent timestamp by.
+	 * 	locale - _string_ (Required) The locale to explicitly set for EC2. Available options are <EC2_LOCATION_US> and <EC2_LOCATION_EU>.
 	 *
 	 * Returns:
 	 * 	void
  	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/adjust_offset.phpt:
+	 * See Also:
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/set_locale.phps
 	 */
-	public function adjust_offset($seconds)
+	public function set_locale($locale)
 	{
-		$this->adjust_offset = $seconds;
-	}
-
-	/**
-	 * Method: set_proxy()
-	 * 	Set the proxy settings to use for connecting.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
-	 *
-	 * Parameters:
-	 * 	proxy - _string_ (Required) Accepts proxy credentials in the following format: proxy://user:pass@hostname:port
-	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/set_proxy.phpt:
-	 */
-	public function set_proxy($proxy)
-	{
-		$this->set_proxy = $proxy;
-	}
-
-	/**
-	 * Method: set_hostname()
-	 * 	Set the hostname to use for connecting. This is useful for alternate services that are API-compatible with AWS, but run from a different hostname.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
-	 *
-	 * Parameters:
-	 * 	hostname - _string_ (Required) The alternate hostname to use in place of the default one. Useful for API-compatible applications living on different hostnames.
-	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/set_hostname.phpt:
-	 */
-	public function set_hostname($hostname)
-	{
-		$this->hostname = $hostname;
-	}
-
-	/**
-	 * Method: disable_ssl()
-	 * 	Disables SSL/HTTPS connections for hosts that don't support them. Some services, however, still REQUIRE SSL support.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
-	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/disable_ssl.phpt:
-	 */
-	public function disable_ssl()
-	{
-		$this->enable_ssl = false;
+		$this->hostname = $locale . EC2_DEFAULT_URL;
 	}
 
 
 	/*%******************************************************************************************%*/
-	// SET CUSTOM CLASSES
+	// AVAILABILITY ZONES
 
 	/**
-	 * Method: set_utilities_class()
-	 * 	Set a custom class for this functionality. Perfect for extending/overriding existing classes with new functionality.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
+	 * Method: describe_availability_zones()
+	 * 	Describes availability zones that are currently available to the account and their states.
 	 *
 	 * Access:
 	 * 	public
 	 *
 	 * Parameters:
-	 * 	class - _string_ (Optional) The name of the new class to use for this functionality. Defaults to the default class.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
 	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/set_utilities_class.phpt:
-	 */
-	function set_utilities_class($class = 'CFUtilities')
-	{
-		$this->utilities_class = $class;
-		$this->util = new $this->utilities_class();
-	}
-
-	/**
-	 * Method: set_request_class()
-	 * 	Set a custom class for this functionality. Perfect for extending/overriding existing classes with new functionality.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
-	 *
-	 * Parameters:
-	 * 	class - _string_ (Optional) The name of the new class to use for this functionality. Defaults to the default class.
-	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/set_request_class.phpt:
-	 */
-	function set_request_class($class = 'RequestCore')
-	{
-		$this->request_class = $class;
-	}
-
-	/**
-	 * Method: set_response_class()
-	 * 	Set a custom class for this functionality. Perfect for extending/overriding existing classes with new functionality.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
-	 *
-	 * Parameters:
-	 * 	class - _string_ (Optional) The name of the new class to use for this functionality. Defaults to the default class.
-	 *
-	 * Returns:
-	 * 	void
- 	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/set_response_class.phpt:
-	 */
-	function set_response_class($class = 'ResponseCore')
-	{
-		$this->response_class = $class;
-	}
-
-
-	/*%******************************************************************************************%*/
-	// AUTHENTICATION
-
-	/**
-	 * Method: authenticate()
-	 * 	Default, shared method for authenticating a connection to AWS. Overridden on a class-by-class basis as necessary.
-	 * 	This method is inherited by all service-specific classes. This should not be used directly unless you're writing custom methods for this class.
-	 *
-	 * Access:
-	 * 	public
- 	 *
-	 * Parameters:
-	 * 	action - _string_ (Required) Indicates the action to perform.
-	 * 	opt - _array_ (Optional) Associative array of parameters for authenticating. See the individual methods for allowed keys.
-	 * 	domain - _string_ (Optional) The URL of the queue to perform the action on.
-	 * 	message - _string_ (Optional) This parameter is only used by the send_message() method.
-	 *
-	 * Returns:
-	 * 	<ResponseCore> object
-	 */
-	public function authenticate($action, $opt = null, $domain = null, $message = null)
-	{
-		$return_curl_handle = false;
-		$key_prepend = 'AWSAccessKeyId=' . $this->key . '&';
-
-		// Manage the key-value pairs that are used in the query.
-		$query['Action'] = $action;
-		$query['SignatureMethod'] = 'HmacSHA256';
-		$query['SignatureVersion'] = 2;
-		$query['Timestamp'] = gmdate(DATE_FORMAT_ISO8601, time() + $this->adjust_offset);
-		$query['Version'] = $this->api_version;
-
-		// Merge in any options that were passed in
-		if (is_array($opt))
-		{
-			$query = array_merge($query, $opt);
-		}
-
-		$return_curl_handle = isset($query['returnCurlHandle']) ? $query['returnCurlHandle'] : false;
-		unset($query['returnCurlHandle']);
-
-		// Do a case-insensitive, natural order sort on the array keys.
-		uksort($query, 'strcasecmp');
-
-		// Create the string that needs to be hashed.
-		$canonical_query_string = $key_prepend . $this->util->to_signable_string($query);
-
-		// Set the proper verb.
-		$verb = HTTP_GET;
-		if ($message) $verb = HTTP_POST;
-
-		// Remove the default scheme from the domain.
-		$domain = str_replace(array('http://', 'https://'), '', $domain);
-
-		// Parse our request.
-		$parsed_url = parse_url('http://' . $domain);
-
-		// Set the proper host header.
-		$host_header = strtolower($parsed_url['host']);
-
-		// Set the proper request URI.
-		$request_uri = isset($parsed_url['path']) ? $parsed_url['path'] : '/';
-
-		// Prepare the string to sign
-		$stringToSign = "$verb\n$host_header\n$request_uri\n$canonical_query_string";
-
-		// Hash the AWS secret key and generate a signature for the request.
-		$query['Signature'] = $this->util->hex_to_base64(hash_hmac('sha256', $stringToSign, $this->secret_key));
-
-		// Generate the querystring from $query
-		$querystring = $key_prepend . $this->util->to_query_string($query);
-
-		// Gather information to pass along to other classes.
-		$helpers = array(
-			'utilities' => $this->utilities_class,
-			'request' => $this->request_class,
-			'response' => $this->response_class,
-		);
-
-		// Compose the request.
-		$request_url = (($this->enable_ssl) ? 'https://' : 'http://') . $domain;
-		$request_url .= !isset($parsed_url['path']) ? '/' : '';
-		$request_url .= '?' . $querystring;
-		$request = new $this->request_class($request_url, $this->set_proxy, $helpers);
-		$request->set_useragent(CLOUDFUSION_USERAGENT);
-
-		// Set DevPay tokens if we have them.
-		if ($this->devpay_tokens)
-		{
-			$request->add_header('x-amz-security-token', $this->devpay_tokens);
-		}
-
-		// Tweak some things if we have a message (i.e. AmazonSQS::send_message()).
-		if ($message)
-		{
-			$request->add_header('Content-Type', 'text/plain');
-			$request->set_method(HTTP_POST);
-			$request->set_body($message);
-		}
-
-		// If we have a "true" value for returnCurlHandle, do that instead of completing the request.
-		if ($return_curl_handle)
-		{
-			return $request->prep_request();
-		}
-
-		// Send!
-		$request->send_request();
-
-		// Prepare the response.
-		$headers = $request->get_response_header();
-		$headers['x-cloudfusion-requesturl'] = $request_url;
-		$headers['x-cloudfusion-stringtosign'] = $stringToSign;
-		if ($message) $headers['x-cloudfusion-body'] = $message;
-		$data = new $this->response_class($headers, new SimpleXMLElement($request->get_response_body()), $request->get_response_code());
-
-		// Return!
-		return $data;
-	}
-
-
-	/*%******************************************************************************************%*/
-	// CACHING LAYER
-
-	/**
-	 * Method: cache_response()
-	 * 	Caches a ResponseCore object using the preferred caching method.
-	 * 	This method is inherited by all service-specific classes. You would call this from those classes, not CloudFusion().
-	 *
-	 * Access:
-	 * 	public
- 	 *
-	 * Parameters:
-	 * 	method - _string_ (Required) The method of the current object that you want to execute and cache the response for. If the method is not in the $this scope, pass in an array where the correct scope is in the [0] position and the method name is in the [1] position.
-	 * 	location - _string_ (Required) The location to store the cache object in. This may vary by cache method. See below.
-	 * 	expires - _integer_ (Required) The number of seconds until a cache object is considered stale.
-	 * 	params - _array_ (Optional) An indexed array of parameters to pass to the aforementioned method, where array[0] represents the first parameter, array[1] is the second, etc.
-	 * 	gzip - _boolean_ (Optional) Whether data should be gzipped before being stored. Defaults to true.
-	 *
-	 * Example values for $location:
-	 * 	File - Local file system paths such as ./cache (relative) or /tmp/cache/cloudfusion (absolute). Location must be server-writable.
-	 * 	APC - Pass in 'apc' to use this lightweight cache. You must have the APC extension installed. <http://php.net/apc>
-	 * 	XCache - Pass in 'xcache' to use this lightweight cache.  You must have the XCache extension installed. <http://xcache.lighttpd.net/>
-	 * 	Memcached - Pass in an indexed array of associative arrays. Each associative array should have a 'host' and a 'port' value representing a Memcached server to connect to.
-	 * 	PDO - A URL-style string (e.g. pdo.mysql://user:pass@localhost/cloudfusion_cache) or a standard DSN-style string (e.g. pdo.sqlite:/sqlite/cloudfusion_cache.db). MUST be prefixed with 'pdo.'. See <CachePDO> and <http://php.net/pdo> for more details.
+	 * Keys for the $opt parameter:
+	 * 	ZoneName.n - _string_ (Optional) Name of an availability zone.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
 	 *
 	 * Returns:
 	 * 	<ResponseCore> object
  	 *
- 	 * Examples:
- 	 * 	example::cloudfusion/cache_response_apc.phpt:
- 	 * 	example::cloudfusion/cache_response_file.phpt:
- 	 * 	example::cloudfusion/cache_response_memcached.phpt:
- 	 * 	example::cloudfusion/cache_response_pdo_sqlite.phpt:
- 	 * 	example::cloudfusion/cache_response_multi_apc.phpt:
- 	 * 	example::cloudfusion/cache_response_multi_file.phpt:
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeAvailabilityZones.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/describe_availability_zones.phps
 	 */
-	public function cache_response($method, $location, $expires, $params = null, $gzip = true)
+	public function describe_availability_zones($opt = null)
 	{
-		if (!is_array($params))
-		{
-			$params = array();
-		}
+		if (!$opt) $opt = array();
 
-		$_this = $this;
-		if (is_array($method))
-		{
-			$_this = $method[0];
-			$method = $method[1];
-		}
-
-		// If we have an array, we're probably passing in Memcached servers and ports.
-		if (is_array($location))
-		{
-			$CacheMethod = 'CacheMC';
-		}
-		else
-		{
-			// I would expect locations like '/tmp/cache', 'pdo.mysql://user:pass@hostname:port', 'pdo.sqlite:memory:', and 'apc'.
-			$type = strtolower(substr($location, 0, 3));
-			switch ($type)
-			{
-				case 'apc':
-					$CacheMethod = 'CacheAPC';
-					break;
-
-				case 'xca': // First three letters of 'xcache'
-					$CacheMethod = 'CacheXCache';
-					break;
-
-				case 'pdo':
-					$CacheMethod = 'CachePDO';
-					$location = substr($location, 4);
-					break;
-
-				default:
-					$CacheMethod = 'CacheFile';
-					break;
-			}
-		}
-
-		// Once we've determined the preferred caching method, instantiate a new cache.
-		if (isset($_this->key))
-		{
-			$cache_uuid = $method . '-' . $_this->key . '-' . sha1($method . serialize($params));
-		}
-		else
-		{
-			$cache_uuid = $method . '-' . 'nokey' . '-' . sha1($method . serialize($params));
-		}
-
-		$cache = new $CacheMethod($cache_uuid, $location, $expires, $gzip);
-
-		// If the data exists...
-		if ($data = $cache->read())
-		{
-			// It exists, but is it expired?
-			if ($cache->is_expired())
-			{
-				// If so, fetch new data from Amazon.
-				if ($data = call_user_func_array(array($_this, $method), $params))
-				{
-					if (is_array($data))
-					{
-						$copy = array();
-
-						for ($i = 0, $max = sizeof($data); $i < $max; $i++)
-						{
-							// We need to convert the SimpleXML data back to real XML before the cache methods serialize it. <http://bugs.php.net/28152>
-							$copy[$i] = is_object($data[$i]) ? clone($data[$i]) : $data[$i];
-						}
-
-						// Cache the data
-						$cache->update($copy);
-
-						// Free the unused memory.
-						$copy = null;
-						unset($copy);
-					}
-					else
-					{
-						// We need to convert the SimpleXML data back to real XML before the cache methods serialize it. <http://bugs.php.net/28152>
-						$copy = is_object($data) ? clone($data) : $data;
-						if (isset($copy->body) && get_class($copy->body) == 'SimpleXMLElement')
-						{
-							$copy->body = $copy->body->asXML();
-						}
-
-						// Cache the data
-						$cache->update($copy);
-
-						// Free the unused memory.
-						$copy = null;
-						unset($copy);
-					}
-				}
-
-				// We did not get back good data from Amazon...
-				else
-				{
-					// ...so we'll reset the freshness of the cache and use it again (if supported by the caching method).
-					$cache->reset();
-				}
-			}
-
-			// It exists and is still fresh. Let's use it.
-			else
-			{
-				if (is_array($data))
-				{
-					for ($i = 0, $len = sizeof($data); $i < $len; $i++)
-					{
-						if (isset($data[$i]->body))
-						{
-							$data[$i]->body = new SimpleXMLElement($data[$i]->body);
-						}
-					}
-				}
-				else
-				{
-					if (isset($data->body))
-					{
-						$data->body = new SimpleXMLElement($data->body);
-					}
-				}
-			}
-		}
-
-		// The data does not already exist in the cache.
-		else
-		{
-			// Fetch it.
-			if ($data = call_user_func_array(array($_this, $method), $params))
-			{
-				if (is_array($data))
-				{
-					$copy = array();
-
-					for ($i = 0, $max = sizeof($data); $i < $max; $i++)
-					{
-						// We need to convert the SimpleXML data back to real XML before the cache methods serialize it. <http://bugs.php.net/28152>
-						$copy[$i] = is_object($data[$i]) ? clone($data[$i]) : $data[$i];
-					}
-
-					// Cache the data
-					$cache->create($copy);
-
-					// Free the unused memory.
-					$copy = null;
-					unset($copy);
-				}
-				else
-				{
-					// We need to convert the SimpleXML data back to real XML before the cache methods serialize it. <http://bugs.php.net/28152>
-					$copy = is_object($data) ? clone($data) : $data;
-					if (isset($copy->body) && get_class($copy->body) == 'SimpleXMLElement')
-					{
-						$copy->body = $copy->body->asXML();
-					}
-
-					// Cache the data
-					$cache->create($copy);
-
-					// Free the unused memory.
-					$copy = null;
-					unset($copy);
-				}
-			}
-		}
-
-		// We're done. Return the data. Huzzah!
-		return $data;
+		return $this->authenticate('DescribeAvailabilityZones', $opt, $this->hostname);
 	}
 
+
+	/*%******************************************************************************************%*/
+	// ELASTIC IP ADDRESSES
+
 	/**
-	 * Method: delete_cache_response()
-	 * 	Deletes a cached ResponseCore object using the preferred caching method.
+	 * Method: allocate_address()
+	 * 	Acquires an elastic IP address for use with your account.
 	 *
 	 * Access:
 	 * 	public
 	 *
 	 * Parameters:
-	 * 	method - _string_ (Required) The same method you used while caching initially.
-	 * 	location - _string_ (Required) The same location you used while caching initially.
-	 * 	params - _array_ (Optional) The same parameters that you used while caching initially.
-	 *
-	 * Example values for $location:
-	 * 	File - Local file system paths such as ./cache (relative) or /tmp/cache/tarzan (absolute). Location must be server-writable.
-	 * 	APC - Pass in 'apc' to use this lightweight cache. You must have the APC extension installed. <http://php.net/apc>
-	 * 	XCache - Pass in 'xcache' to use this lightweight cache.  You must have the XCache extension installed. <http://xcache.lighttpd.net/>
-	 * 	Memcached - Pass in an indexed array of associative arrays. Each associative array should have a 'host' and a 'port' value representing a Memcached server to connect to.
-	 * 	PDO - A URL-style string (e.g. pdo.mysql://user:pass@localhost/tarzan_cache) or a standard DSN-style string (e.g. pdo.sqlite:/sqlite/tarzan_cache.db). MUST be prefixed with 'pdo.'. See <CachePDO> and <http://php.net/pdo> for more details.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
 	 *
 	 * Returns:
-	 * 	boolean TRUE if cached object exists and is successfully deleted, otherwise FALSE
-	 *
-	 * Examples:
-	 * 	example::cloudfusion/delete_cache_response_apc.phpt:
-	 * 	example::cloudfusion/delete_cache_response_file.phpt:
-	 * 	example::cloudfusion/delete_cache_response_memcached.phpt:
-	 * 	example::cloudfusion/delete_cache_response_pdo_sqlite.phpt:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-AllocateAddress.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <associate_address()>, <describe_addresses()>, <disassociate_address()>, <release_address()>
 	 */
-	public function delete_cache_response($method, $location, $params = null)
+	public function allocate_address($returnCurlHandle = null)
 	{
-		if (!is_array($params))
-		{
-			$params = array();
-		}
+		$opt = array();
+		$opt['returnCurlHandle'] = $returnCurlHandle;
 
-		$_this = $this;
-		if (is_array($method))
-		{
-			$_this = $method[0];
-			$method = $method[1];
-		}
+		return $this->authenticate('AllocateAddress', $opt, $this->hostname);
+	}
 
-		// If we have an array, we're probably passing in Memcached servers and ports.
-		if (is_array($location))
+	/**
+	 * Method: associate_address()
+	 * 	Associates an elastic IP address with an instance.
+	 *
+	 * 	If the IP address is currently assigned to another instance, the IP address is assigned to the new instance. This is an idempotent operation. If you enter it more than once, Amazon EC2 does not return an error.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	instance_id - _string_ (Required) The instance to which the IP address is assigned.
+	 * 	public_ip - _string_ (Required) IP address that you are assigning to the instance, retrieved from <allocate_address()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-AssociateAddress.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <allocate_address()>, <describe_addresses()>, <disassociate_address()>, <release_address()>
+	 */
+	public function associate_address($instance_id, $public_ip, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['InstanceId'] = $instance_id;
+		$opt['PublicIp'] = $public_ip;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('AssociateAddress', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_addresses()
+	 * 	Lists elastic IP addresses assigned to your account.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	PublicIp.1 - _string_ (Required but can be empty) One Elastic IP addresses to describe.
+	 * 	PublicIp.n - _string_ (Optional) More than one Elastic IP addresses to describe.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeAddresses.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <allocate_address()>, <associate_address()>, <disassociate_address()>, <release_address()>
+	 */
+	public function describe_addresses($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeAddresses', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: disassociate_address()
+	 * 	Disassociates the specified elastic IP address from the instance to which it is assigned.
+	 *
+	 * 	This is an idempotent operation. If you enter it more than once, Amazon EC2 does not return an error.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	public_ip - _string_ (Required) IP address that you are disassociating from the instance.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DisassociateAddress.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <allocate_address()>, <associate_address()>, <describe_addresses()>, <release_address()>
+	 */
+	public function disassociate_address($public_ip, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['PublicIp'] = $public_ip;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DisassociateAddress', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: release_address()
+	 * 	Releases an elastic IP address associated with your account. If you run this operation on an elastic IP address that is already released, the address might be assigned to another account which will cause Amazon EC2 to return an error.
+	 *
+	 * 	Releasing an IP address automatically disassociates it from any instance with which it is associated. For more information, see <disassociate_address()>.
+	 *
+	 * 	After releasing an elastic IP address, it is released to the IP address pool and might no longer be available to your account. Make sure to update your DNS records and any servers or devices that communicate with the address.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	public_ip - _string_ (Required) IP address that you are releasing from your account.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-ReleaseAddress.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <allocate_address()>, <associate_address()>, <describe_addresses()>, <disassociate_address()>
+	 */
+	public function release_address($public_ip, $returnCurlHandle = null)
+	{
+		if (!$opt) $opt = array();
+		$opt['PublicIp'] = $public_ip;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('ReleaseAddress', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// EBS SNAPSHOTS TO S3
+
+	/**
+	 * Method: create_snapshot()
+	 * 	Creates a snapshot of an Amazon EBS volume and stores it in Amazon S3. You can use snapshots for backups, to launch instances from identical snapshots, and to save data before shutting down an instance. For more information, see Amazon Elastic Block Store.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	volume_id - _string_ (Required) The ID of the Amazon EBS volume to snapshot. Must be a volume that you own.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-CreateSnapshot.html
+	 * 	Related - <describe_snapshots()>, <delete_snapshot()>
+	 */
+	public function create_snapshot($volume_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['VolumeId'] = $volume_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('CreateSnapshot', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_snapshots()
+	 * 	Describes the status of Amazon EBS snapshots.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	SnapshotId.n - _string_ (Optional) The ID of the Amazon EBS snapshot.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeSnapshots.html
+	 * 	Related - <create_snapshot()>, <delete_snapshot()>
+	 */
+	public function describe_snapshots($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeSnapshots', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: delete_snapshot()
+	 * 	Deletes a snapshot of an Amazon EBS volume that is stored in Amazon S3.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	snapshot_id - _string_ (Optional) The ID of the Amazon EBS snapshot to delete.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DeleteSnapshot.html
+	 * 	Related - <create_snapshot()>, <describe_snapshots()>
+	 */
+	public function delete_snapshot($snapshot_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['SnapshotId'] = $snapshot_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DeleteSnapshot', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// EBS VOLUMES
+
+	/**
+	 * Method: create_volume()
+	 * 	Creates a new Amazon EBS volume that you can mount from any Amazon EC2 instance. You must specify an availability zone when creating a volume. The volume and any instance to which it attaches must be in the same availability zone.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	sizesnapid - _mixed_ (Required) Either the size of the volume in GB as an integer (from 1 to 1024), or the ID of the snapshot from which to create the new volume as a string.
+	 * 	zone - _string_ (Required) The availability zone in which to create the new volume.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-CreateVolume.html
+	 * 	Related - <describe_volumes()>, <attach_volume()>, <detach_volume()>, <delete_volume()>
+	 */
+	public function create_volume($sizesnapid, $zone, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['AvailabilityZone'] = $zone;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		if (is_numeric($sizesnapid))
 		{
-			$CacheMethod = 'CacheMC';
+			$opt['Size'] = $sizesnapid;
 		}
 		else
 		{
-			// I would expect locations like '/tmp/cache', 'pdo.mysql://user:pass@hostname:port', 'pdo.sqlite:memory:', and 'apc'.
-			$type = strtolower(substr($location, 0, 3));
-			switch ($type)
-			{
-				case 'apc':
-					$CacheMethod = 'CacheAPC';
-					break;
-
-				case 'xca': // First three letters of 'xcache'
-					$CacheMethod = 'CacheXCache';
-					break;
-
-				case 'pdo':
-					$CacheMethod = 'CachePDO';
-					$location = substr($location, 4);
-					break;
-
-				default:
-					$CacheMethod = 'CacheFile';
-					break;
-			}
+			$opt['SnapshotId'] = $sizesnapid;
 		}
 
-		// Once we've determined the preferred caching method, instantiate a new cache.
-		if (isset($_this->key))
+		return $this->authenticate('CreateVolume', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_volumes()
+	 * 	Lists one or more Amazon EBS volumes that you own. If you do not specify any volumes, Amazon EBS returns all volumes that you own.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	VolumeId.n - _string_ (Optional) The ID of the volume to list.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeVolumes.html
+	 * 	Related - <create_volume()>, <attach_volume()>, <detach_volume()>, <delete_volume()>
+	 */
+	public function describe_volumes($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeVolumes', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: attach_volume()
+	 * 	Attaches an Amazon EBS volume to an instance.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	volume_id - _string_ (Required) The ID of the Amazon EBS volume.
+	 * 	instance_id - _string_ (Required) The ID of the instance to which the volume attaches.
+	 * 	device - _string_ (Required) Specifies how the device is exposed to the instance (e.g., /dev/sdh). For information on standard storage locations, see Storage Locations.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-AttachVolume.html
+	 * 	Storage Locations - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/instance-storage.html#storage-locations
+	 * 	Related - <create_volume()>, <describe_volumes()>, <detach_volume()>, <delete_volume()>
+	 */
+	public function attach_volume($volume_id, $instance_id, $device, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['VolumeId'] = $volume_id;
+		$opt['InstanceId'] = $instance_id;
+		$opt['Device'] = $device;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('AttachVolume', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: detach_volume()
+	 * 	Detaches an Amazon EBS volume from an instance.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	volume_id - _string_ (Required) The ID of the Amazon EBS volume.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	InstanceId - _string_ (Optional) The ID of the instance from which the volume will detach.
+	 * 	Device - _string_ (Optional) The name of the device.
+	 * 	Force - _boolean_ (Optional) Forces detachment if the previous detachment attempt did not occur cleanly (logging into an instance, unmounting the volume, and detaching normally). This option can lead to data loss or a corrupted file system. Use this option only as a last resort to detach an instance from a failed instance. The instance will not have an opportunity to flush file system caches nor file system meta data. If you use this option, you must perform file system check and repair procedures.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DetachVolume.html
+	 * 	Related - <create_volume()>, <describe_volumes()>, <attach_volume()>, <delete_volume()>
+	 */
+	public function detach_volume($volume_id, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		$opt['VolumeId'] = $volume_id;
+
+		return $this->authenticate('DetachVolume', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: delete_volume()
+	 * 	Deletes an Amazon EBS volume.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	volume_id - _string_ (Required) The ID of the Amazon EBS volume.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DeleteVolume.html
+	 * 	Related - <create_volume()>, <describe_volumes()>, <attach_volume()>, <detach_volume()>
+	 */
+	public function delete_volume($volume_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['VolumeId'] = $volume_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DeleteVolume', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// MISCELLANEOUS
+
+	/**
+	 * Method: get_console_output()
+	 * 	Retrieves console output for the specified instance. Instance console output is buffered and posted shortly after instance boot, reboot, and termination. Amazon EC2 preserves the most recent 64 KB output which will be available for at least one hour after the most recent post.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	instance_id - _string_ (Required) An instance ID returned from a previous call to <run_instances()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-GetConsoleOutput.html
+	 * 	Related - <reboot_instances()>
+	 */
+	public function get_console_output($instance_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['InstanceId'] = $instance_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('GetConsoleOutput', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: reboot_instances()
+	 * 	Requests a reboot of one or more instances. This operation is asynchronous; it only queues a request to reboot the specified instance(s). The operation will succeed if the instances are valid and belong to the user. Requests to reboot terminated instances are ignored.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	InstanceId.1 - _string_ (Required) One instance ID returned from previous calls to <run_instances()>.
+	 * 	InstanceId.n - _string_ (Optional) More than one instance IDs returned from previous calls to <run_instances()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-RebootInstances.html
+	 * 	Related - <get_console_output()>
+	 */
+	public function reboot_instances($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('RebootInstances', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// IMAGES
+
+	/**
+	 * Method: deregister_image()
+	 * 	De-registers an AMI. Once de-registered, instances of the AMI may no longer be launched.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_id - _string_ (Required) Unique ID of a machine image, returned by a call to <register_image()> or <describe_images()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DeregisterImage.html
+	 * 	Related - <describe_images()>, <register_image()>
+	 */
+	public function deregister_image($image_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['ImageId'] = $image_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DeregisterImage', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_images()
+	 * 	The DescribeImages operation returns information about AMIs, AKIs, and ARIs available to the user. Information returned includes image type, product codes, architecture, and kernel and RAM disk IDs. Images available to the user include public images available for any user to launch, private images owned by the user making the request, and private images owned by other users for which the user has explicit launch permissions.
+	 *
+	 * 	Launch permissions fall into three categories: (a) 'public' where the owner of the AMI granted launch permissions for the AMI to the all group. All users have launch permissions for these AMIs. (b) 'explicit' where the owner of the AMI granted launch permissions to a specific user. (c) 'implicit' where a user has implicit launch permissions for all AMIs he or she owns.
+	 *
+	 * 	The list of AMIs returned can be modified by specifying AMI IDs, AMI owners, or users with launch permissions. If no options are specified, Amazon EC2 returns all AMIs for which the user has launch permissions.
+	 *
+	 * 	If you specify one or more AMI IDs, only AMIs that have the specified IDs are returned. If you specify an invalid AMI ID, a fault is returned. If you specify an AMI ID for which you do not have access, it will not be included in the returned results.
+	 *
+	 * 	If you specify one or more AMI owners, only AMIs from the specified owners and for which you have access are returned. The results can include the account IDs of the specified owners, amazon for AMIs owned by Amazon or self for AMIs that you own.
+	 *
+	 * 	If you specify a list of executable users, only users that have launch permissions for the AMIs are returned. You can specify account IDs (if you own the AMI(s)), self for AMIs for which you own or have explicit permissions, or all for public AMIs.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+ 	 * 	ExecutableBy.n - _string_ (Optional) Describe AMIs that the specified users have launch permissions for. Accepts Amazon account ID, 'self', or 'all' for public AMIs.
+	 * 	ImageId.n - _string_ (Optional) A list of image descriptions.
+	 * 	Owner.n - _string_ (Optional) Owners of AMIs to describe.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeImages.html
+	 * 	Related - <deregister_image()>, <register_image()>
+	 */
+	public function describe_images($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeImages', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: register_image()
+	 * 	Registers an AMI with Amazon EC2. Images must be registered before they can be launched. For more information, see <run_instances()>.
+	 *
+	 * 	Each AMI is associated with an unique ID which is provided by the Amazon EC2 service through the <register_image()> operation. During registration, Amazon EC2 retrieves the specified image manifest from Amazon S3 and verifies that the image is owned by the user registering the image.
+	 *
+	 * 	The image manifest is retrieved once and stored within the Amazon EC2. Any modifications to an image in Amazon S3 invalidates this registration. If you make changes to an image, deregister the previous image and register the new image. For more information, see <deregister_image()>.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_location - _string_ (Required) Full path to your AMI manifest in Amazon S3 storage (i.e. mybucket/myimage.manifest.xml).
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-RegisterImage.html
+	 * 	Related - <deregister_image()>, <describe_images()>
+	 */
+	public function register_image($image_location, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['ImageLocation'] = $image_location;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('RegisterImage', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// IMAGE ATTRIBUTES
+
+	/**
+	 * Method: describe_image_attribute()
+	 * 	Returns information about an attribute of an AMI. Only one attribute may be specified per call.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_id - _string_ (Required) ID of the AMI for which an attribute will be described, returned by a call to <register_image()> or <describe_images()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeImageAttribute.html
+	 * 	Related - <modify_image_attribute()>, <reset_image_attribute()>
+	 */
+	public function describe_image_attribute($image_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['ImageId'] = $image_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		// This is the only supported value in the current release.
+		$opt['Attribute'] = 'launchPermission';
+
+		return $this->authenticate('DescribeImageAttribute', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: modify_image_attribute()
+	 * 	Modifies an attribute of an AMI.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_id - _string_ (Required) AMI ID to modify an attribute on.
+	 * 	attribute - _string_ (Required) Specifies the attribute to modify. Supports 'launchPermission' and 'productCodes'.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+ 	 * 	OperationType - _string_ (Required for 'launchPermission' Attribute) Specifies the operation to perform on the attribute. Supports 'add' and 'remove'.
+ 	 * 	UserId.n - _string_ (Required for 'launchPermission' Attribute) User IDs to add to or remove from the 'launchPermission' attribute.
+ 	 * 	UserGroup.n - _string_ (Required for 'launchPermission' Attribute) User groups to add to or remove from the 'launchPermission' attribute. Currently, only the 'all' group is available, specifiying all Amazon EC2 users.
+ 	 * 	ProductCode.n - _string_ (Required for 'productCodes' Attribute) Attaches product codes to the AMI. Currently only one product code may be associated with an AMI. Once set, the product code can not be changed or reset.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-ModifyImageAttribute.html
+	 * 	Related - <describe_image_attribute()>, <reset_image_attribute()>
+	 */
+	public function modify_image_attribute($image_id, $attribute, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		$opt['ImageId'] = $image_id;
+		$opt['Attribute'] = $attribute;
+
+		return $this->authenticate('ModifyImageAttribute', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: reset_image_attribute()
+	 * 	Resets an attribute of an AMI to its default value (the productCodes attribute cannot be reset).
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_id - _string_ (Required) ID of the AMI for which an attribute will be described, returned by a call to <register_image()> or <describe_images()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-ResetImageAttribute.html
+	 * 	Related - <describe_image_attribute()>, <modify_image_attribute()>
+	 */
+	public function reset_image_attribute($image_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['ImageId'] = $image_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		// This is the only supported value in the current release.
+		$opt['Attribute'] = 'launchPermission';
+
+		return $this->authenticate('ResetImageAttribute', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// INSTANCES
+
+	/**
+	 * Method: confirm_product_instance()
+	 * 	Returns true if the given product code is attached to the instance with the given instance ID. The operation returns false if the product code is not attached to the instance.
+	 *
+	 * 	Can only be executed by the owner of the AMI. This feature is useful when an AMI owner is providing support and wants to verify whether a user's instance is eligible.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	product_code - _string_ (Required) The product code to confirm is attached to the instance.
+	 * 	instance_id - _string_ (Required) The instance for which to confirm the product code.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-ConfirmProductInstance.html
+	 * 	Related - <describe_instances()>, <run_instances()>, <terminate_instances()>
+	 */
+	public function confirm_product_instance($product_code, $instance_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['ProductCode'] = $product_code;
+		$opt['InstanceId'] = $instance_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('ConfirmProductInstance', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_instances()
+	 * 	Returns information about instances owned by the user making the request.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	InstanceId.n - _string_ (Required) Set of instances IDs to get the status of.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeInstances.html
+	 * 	Related - <confirm_product_instance()>, <run_instances()>, <terminate_instances()>
+	 */
+	public function describe_instances($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeInstances', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: run_instances()
+	 * 	The RunInstances operation launches a specified number of instances. The Query version of <run_instances()> only allows instances of a single AMI to be launched in one call. This is different from the SOAP API version of the call, but similar to the ec2-run-instances command line tool.
+	 *
+	 * 	If Amazon EC2 cannot launch the minimum number AMIs you request, no instances launch. If there is insufficient capacity to launch the maximum number of AMIs you request, Amazon EC2 launches as many as possible to satisfy the requested maximum values.
+	 *
+	 * 	Every instance is launched in a security group. If you do not specify a security group at launch, the instances start in your default security group. For more information on creating security groups, see <create_security_group()>.
+	 *
+	 * 	You can provide an optional key pair ID for each image in the launch request (for more information, see <create_key_pair()>). All instances that are created from images that use this key pair will have access to the associated public key at boot. You can use this key to provide secure access to an instance of an image on a per-instance basis. Amazon EC2 public images use this feature to provide secure access without passwords. IMPORTANT: Launching public images without a key pair ID will leave them inaccessible.
+	 *
+	 * 	The public key material is made available to the instance at boot time by placing it in the openssh_id.pub file on a logical device that is exposed to the instance as /dev/sda2 (the instance store). The format of this file is suitable for use as an entry within ~/.ssh/authorized_keys (the OpenSSH format). This can be done at boot (e.g., as part of rc.local) allowing for secure access without passwords.
+	 *
+	 * 	Optional user data can be provided in the launch request. All instances that collectively comprise the launch request have access to this data For more information, see Instance Metadata. NOTE: If any of the AMIs have a product code attached for which the user has not subscribed, the <run_instances()> call will fail.
+	 *
+	 * 	IMPORTANT: We strongly recommend using the 2.6.18 Xen stock kernel with the c1.medium and c1.xlarge instances. Although the default Amazon EC2 kernels will work, the new kernels provide greater stability and performance for these instance types. For more information about kernels, see Kernels, RAM Disks, and Block Device Mappings.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	image_id - _string_ (Required) ID of the AMI to launch instances based on.
+	 * 	min_count - _integer_ (Required) Minimum number of instances to launch.
+	 * 	max_count - _integer_ (Required) Maximum number of instances to launch.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	BlockDeviceMapping.n.DeviceName - _string_ (Optional; Required if BlockDeviceMapping.n.VirtualName is used) Specifies the device to which you are mapping a virtual name. For example: sdb.
+	 * 	BlockDeviceMapping.n.VirtualName - _string_ (Optional; Required if BlockDeviceMapping.n.DeviceName is used) 	Specifies the virtual name to map to the corresponding device name. For example: instancestore0.
+	 * 	InstanceType - _string_ (Optional) Specifies the instance type. Options include 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', and 'c1.xlarge'. Defaults to 'm1.small'.
+	 * 	KernelId - _string_ (Optional) 	The ID of the kernel with which to launch the instance. For information on finding available kernel IDs, see ec2-describe-images.
+	 * 	KeyName - _string_ (Optional) Name of the keypair to launch instances with.
+	 * 	Placement.AvailabilityZone - _string_ (Optional) Specifies the availability zone in which to launch the instance(s). To display a list of availability zones in which you can launch the instances, use the <describe_availability_zones()> operation. Default is determined by Amazon EC2.
+	 * 	RamdiskId - _string_ (Optional) The ID of the RAM disk with which to launch the instance. Some kernels require additional drivers at launch. Check the kernel requirements for information on whether you need to specify a RAM disk. To find kernel requirements, go to the Resource Center and search for the kernel ID.
+	 * 	SecurityGroup.n - _string_ (Optional) Names of the security groups to associate the instances with.
+	 * 	UserData - _string_ (Optional) The user data available to the launched instances. This should be base64-encoded. See the UserDataType data type for encoding details.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-RunInstances.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <confirm_product_instance()>, <describe_instances()>, <terminate_instances()>
+	 */
+	public function run_instances($image_id, $min_count, $max_count, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		$opt['ImageId'] = $image_id;
+		$opt['MinCount'] = $min_count;
+		$opt['MaxCount'] = $max_count;
+
+		return $this->authenticate('RunInstances', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: terminate_instances()
+	 * 	Shuts down one or more instances. This operation is idempotent and terminating an instance that is in the process of shutting down (or already terminated) will succeed.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	InstanceId.1 - _string_ (Required) One instance ID returned from previous calls to <run_instances()>.
+	 * 	InstanceId.n - _string_ (Optional) More than one instance IDs returned from previous calls to <run_instances()>.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-TerminateInstances.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/elastic_ip.phps
+	 * 	Related - <confirm_product_instance()>, <describe_instances()>, <run_instances()>
+	 */
+	public function terminate_instances($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('TerminateInstances', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// KEYPAIRS
+
+	/**
+	 * Method: create_key_pair()
+	 * 	Creates a new 2048 bit RSA key pair and returns a unique ID that can be used to reference this key pair when launching new instances. For more information, see <run_instances()>.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	key_name - _string_ (Required) A unique name for the key pair.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-CreateKeyPair.html
+	 * 	Related - <delete_key_pair()>, <describe_key_pairs()>
+	 */
+	public function create_key_pair($key_name, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['KeyName'] = $key_name;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('CreateKeyPair', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: delete_key_pair()
+	 * 	Deletes a keypair.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	key_name - _string_ (Required) Unique name for this key.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DeleteKeyPair.html
+	 * 	Related - <create_key_pair()>, <describe_key_pairs()>
+	 */
+	public function delete_key_pair($key_name, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['KeyName'] = $key_name;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DeleteKeyPair', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_key_pairs()
+	 * 	Returns information about key pairs available to you. If you specify key pairs, information about those key pairs is returned. Otherwise, information for all registered key pairs is returned.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	KeyName.n - _string_ (Optional) One or more keypair IDs to describe.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeKeyPairs.html
+	 * 	Related - <create_key_pair()>, <delete_key_pair()>
+	 */
+	public function describe_key_pairs($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeKeyPairs', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// SECURITY GROUPS
+
+	/**
+	 * Method: authorize_security_group_ingress()
+	 * 	Adds permissions to a security group.
+	 *
+	 * 	Permissions are specified in terms of the IP protocol (TCP, UDP or ICMP), the source of the request (by IP range or an Amazon EC2 user-group pair), source and destination port ranges (for TCP and UDP), and ICMP codes and types (for ICMP). When authorizing ICMP, -1 may be used as a wildcard in the type and code fields.
+	 *
+	 * 	Permission changes are propagated to instances within the security group being modified as quickly as possible. However, a small delay is likely, depending on the number of instances that are members of the indicated group.
+	 *
+	 * 	When authorizing a user/group pair permission, group_name, SourceSecurityGroupName and SourceSecurityGroupOwnerId must be specified. When authorizing a CIDR IP permission, GroupName, IpProtocol, FromPort, ToPort and CidrIp must be specified. Mixing these two types of parameters is not allowed.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	group_name - _string_ (Required) Name of the security group to modify.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	CidrIp - _string_ (Required when authorizing CIDR IP permission) CIDR IP range to authorize access to when operating on a CIDR IP.
+	 * 	FromPort - _integer_ (Required when authorizing CIDR IP permission) Bottom of port range to authorize access to when operating on a CIDR IP. This contains the ICMP type if ICMP is being authorized.
+	 * 	ToPort - _integer_ (Required when authorizing CIDR IP permission) Top of port range to authorize access to when operating on a CIDR IP. This contains the ICMP code if ICMP is being authorized.
+	 * 	IpProtocol - _string_ (Required when authorizing CIDR IP permission) IP protocol to authorize access to when operating on a CIDR IP. Valid values are 'tcp', 'udp' and 'icmp'.
+	 * 	SourceSecurityGroupName - _string_ (Required when authorizing user/group pair permission) Name of security group to authorize access to when operating on a user/group pair.
+	 * 	SourceSecurityGroupOwnerId - _string_ (Required when authorizing user/group pair permission) Owner of security group to authorize access to when operating on a user/group pair.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-AuthorizeSecurityGroupIngress.html
+	 * 	Related - <revoke_security_group_ingress()>, <create_security_group()>, <delete_security_group()>, <describe_security_groups()>
+	 */
+	public function authorize_security_group_ingress($group_name, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		$opt['GroupName'] = $group_name;
+
+		return $this->authenticate('AuthorizeSecurityGroupIngress', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: create_security_group()
+	 * 	Every instance is launched in a security group. If none is specified as part of the launch request then instances are launched in the default security group. Instances within the same security group have unrestricted network access to one another. Instances will reject network access attempts from other instances in a different security group. As the owner of instances you may grant or revoke specific permissions using the <authorize_security_group_ingress()> and <revoke_security_group_ingress()> operations.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	group_name - _string_ (Required) Name for the new security group.
+	 * 	group_description - _string_ (Required) Description of the new security group.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-CreateSecurityGroup.html
+	 * 	Related - <authorize_security_group_ingress()>, <revoke_security_group_ingress()>, <delete_security_group()>, <describe_security_groups()>
+	 */
+	public function create_security_group($group_name, $group_description, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['GroupName'] = $group_name;
+		$opt['GroupDescription'] = $group_description;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('CreateSecurityGroup', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: delete_security_group()
+	 * 	Deletes a security group.
+	 *
+	 * 	If you attempt to delete a security group that contains instances, a fault is returned. If you attempt to delete a security group that is referenced by another security group, a fault is returned. For example, if security group B has a rule that allows access from security group A, security group A cannot be deleted until the allow rule is removed.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	group_name - _string_ (Required) Name for the security group.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DeleteSecurityGroup.html
+	 * 	Related - <authorize_security_group_ingress()>, <revoke_security_group_ingress()>, <create_security_group()>, <describe_security_groups()>
+	 */
+	public function delete_security_group($group_name, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['GroupName'] = $group_name;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('DeleteSecurityGroup', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_security_groups()
+	 * 	Returns information about security groups owned by the user making the request. An optional list of security group names may be provided to request information for those security groups only. If no security group names are provided, information of all security groups will be returned. If a group is specified that does not exist a fault is returned.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	GroupName.n - _string_ (Optional) List of security groups to describe.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeSecurityGroups.html
+	 * 	Related - <authorize_security_group_ingress()>, <revoke_security_group_ingress()>, <create_security_group()>, <delete_security_group()>
+	 */
+	public function describe_security_groups($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeSecurityGroups', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: revoke_security_group_ingress()
+	 * 	Revokes existing permissions that were previously granted to a security group. The permissions to revoke must be specified using the same values originally used to grant the permission.
+	 *
+	 * 	Permissions are specified in terms of the IP protocol (TCP, UDP or ICMP), the source of the request (by IP range or an Amazon EC2 user-group pair), source and destination port ranges (for TCP and UDP), and ICMP codes and types (for ICMP). When authorizing ICMP, -1 may be used as a wildcard in the type and code fields.
+	 *
+	 * 	Permission changes are propagated to instances within the security group being modified as quickly as possible. However, a small delay is likely, depending on the number of instances that are members of the indicated group.
+	 *
+	 * 	When revoking a user/group pair permission, group_name, SourceSecurityGroupName and SourceSecurityGroupOwnerId must be specified. When authorizing a CIDR IP permission, GroupName, IpProtocol, FromPort, ToPort and CidrIp must be specified. Mixing these two types of parameters is not allowed.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	group_name - _string_ (Required) Name of the security group to modify.
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	CidrIp - _string_ (Required when revoking CIDR IP permission) CIDR IP range to authorize access to when operating on a CIDR IP.
+	 * 	FromPort - _integer_ (Required when revoking CIDR IP permission) Bottom of port range to authorize access to when operating on a CIDR IP. This contains the ICMP type if ICMP is being authorized.
+	 * 	ToPort - _integer_ (Required when revoking CIDR IP permission) Top of port range to authorize access to when operating on a CIDR IP. This contains the ICMP code if ICMP is being authorized.
+	 * 	IpProtocol - _string_ (Required when revoking CIDR IP permission) IP protocol to authorize access to when operating on a CIDR IP. Valid values are 'tcp', 'udp' and 'icmp'.
+	 * 	SourceSecurityGroupName - _string_ (Required when revoking user/group pair permission) Name of security group to authorize access to when operating on a user/group pair.
+	 * 	SourceSecurityGroupOwnerId - _string_ (Required when revoking user/group pair permission) Owner of security group to authorize access to when operating on a user/group pair.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-RevokeSecurityGroupIngress.html
+	 * 	Related - <authorize_security_group_ingress()>, <create_security_group()>, <delete_security_group()>, <describe_security_groups()>
+	 */
+	public function revoke_security_group_ingress($group_name, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		$opt['GroupName'] = $group_name;
+
+		return $this->authenticate('RevokeSecurityGroupIngress', $opt, $this->hostname);
+	}
+
+
+	/*%******************************************************************************************%*/
+	// BUNDLE WINDOWS AMIS
+
+	/**
+	 * Method: bundle_instance()
+	 * 	Bundles an Amazon EC2 instance running Windows. For more information, see Bundling an AMI in Windows. This operation is for Windows instances only.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	instanceId - _string_ (Required) The ID of the instance to bundle.
+	 * 	opt - _array_ (Required) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	Bucket - _string_ (Required) The bucket in which to store the AMI.
+	 * 	Prefix - _string_ (Required) The prefix to append to the AMI.
+	 * 	UploadPolicy - _array_ (Optional) The upload policy gives Amazon EC2 limited permission to upload items into your Amazon S3 bucket. See example for documentation. If an Upload Policy is not provided, this method will generate one from the provided information setting ONLY the required values, and will set an expiration of 12 hours.
+	 * 	AWSAccessKeyId - _string_ (Optional) The Access Key ID of the owner of the Amazon S3 bucket. Defaults to the AWS Key used to authenticate the request.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-BundleInstance.html
+	 * 	Upload Policy - http://docs.amazonwebservices.com/AmazonS3/latest/HTTPPOSTExamples.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/bundle_windows.phps
+	 * 	Related - <bundle_instance()>, <cancel_bundle_task()>, <describe_bundle_tasks()>
+	 */
+	public function bundle_instance($instance_id, $opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		// Instance ID
+		$opt['instanceId'] = $instance_id;
+
+		// Storage.S3.Bucket
+		if (isset($opt['Bucket']))
 		{
-			$cache_uuid = $method . '-' . $_this->key . '-' . sha1($method . serialize($params));
+			$opt['Storage.S3.Bucket'] = $opt['Bucket'];
+			unset($opt['Bucket']);
+		}
+
+		// Storage.S3.Prefix
+		if (isset($opt['Prefix']))
+		{
+			$opt['Storage.S3.Prefix'] = $opt['Prefix'];
+			unset($opt['Prefix']);
+		}
+
+		// Storage.S3.AWSAccessKeyId
+		if (isset($opt['AWSAccessKeyId']))
+		{
+			$opt['Storage.S3.AWSAccessKeyId'] = $opt['AWSAccessKeyId'];
+			unset($opt['AWSAccessKeyId']);
 		}
 		else
 		{
-			$cache_uuid = $method . '-' . 'nokey' . '-' . sha1($method . serialize($params));
+			$opt['Storage.S3.AWSAccessKeyId'] = $this->key;
 		}
 
-		$cache = new $CacheMethod($cache_uuid, $location, 0);
+		// Storage.S3.UploadPolicy
+		if (isset($opt['UploadPolicy']))
+		{
+			$opt['Storage.S3.UploadPolicy'] = base64_encode($this->util->json_encode($opt['UploadPolicy']));
+			unset($opt['UploadPolicy']);
+		}
+		else
+		{
+			$opt['Storage.S3.UploadPolicy'] = base64_encode($this->util->json_encode(array(
+				'expiration' => gmdate(DATE_FORMAT_ISO8601, strtotime('+12 hours')),
+				'conditions' => array(
+					array('bucket' => $opt['Storage.S3.Bucket']),
+					array('acl' => 'ec2-bundle-read')
+				)
+			)));
+		}
 
-		// Try and delete, returns true if cached object exists and is successfully deleted, otherwise false
-		return $cache->delete();
+		// Storage.S3.UploadPolicySignature
+		$opt['Storage.S3.UploadPolicySignature'] = $this->util->hex_to_base64(hash_hmac('sha1', base64_encode($opt['Storage.S3.UploadPolicy']), $this->secret_key));
+
+		return $this->authenticate('BundleInstance', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: cancel_bundle_task()
+	 * 	Cancels an Amazon EC2 bundling operation. For more information on bundling instances, see Bundling an AMI in Windows. This operation is for Windows instances only.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	bundle_id - _string_ (Required) The ID of the bundle task to cancel.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-CancelBundleTask.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/bundle_windows.phps
+	 * 	Related - <bundle_instance()>, <cancel_bundle_task()>, <describe_bundle_tasks()>
+	 */
+	public function cancel_bundle_task($bundle_id, $returnCurlHandle = null)
+	{
+		$opt = array();
+		$opt['bundleId'] = $bundle_id;
+		$opt['returnCurlHandle'] = $returnCurlHandle;
+
+		return $this->authenticate('CancelBundleTask', $opt, $this->hostname);
+	}
+
+	/**
+	 * Method: describe_bundle_tasks()
+	 * 	Describes current bundling tasks. For more information on bundling instances, see Bundling an AMI in Windows. This operation is for Windows instances only.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	opt - _array_ (Optional) Associative array of parameters which can have the following keys:
+	 *
+	 * Keys for the $opt parameter:
+	 * 	bundleId - _string_ (Optional) The ID of the bundle task to describe. If no ID is specified, all bundle tasks are described.
+	 * 	returnCurlHandle - _boolean_ (Optional) A private toggle that will return the CURL handle for the request rather than actually completing the request. This is useful for MultiCURL requests.
+	 *
+	 * Returns:
+	 * 	<ResponseCore> object
+ 	 *
+	 * See Also:
+	 * 	AWS Method - http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/ApiReference-Query-DescribeBundleTasks.html
+	 * 	Example Usage - http://getcloudfusion.com/docs/examples/ec2/bundle_windows.phps
+	 * 	Related - <bundle_instance()>, <cancel_bundle_task()>, <describe_bundle_tasks()>
+	 */
+	public function describe_bundle_tasks($opt = null)
+	{
+		if (!$opt) $opt = array();
+
+		return $this->authenticate('DescribeBundleTasks', $opt, $this->hostname);
 	}
 }
-
-// Register the autoloader.
-spl_autoload_register(array('CloudFusion', 'autoloader'));

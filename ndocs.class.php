@@ -25,7 +25,7 @@ class NDocs
 	/**
 	 *
 	 */
-	const VERSION = '1.0';
+	const VERSION = '1.0b1';
 
 	/**
 	 * Get Comment Sections

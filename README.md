@@ -11,7 +11,7 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 ### Goals
 
 * This is intended to be a low-level, parser-only engine.
-* It will produce an XML (and maybe JSON) representation of the code comments.
+* It will produce an XML and JSON representation of the code comments.
 	* This will allow others to take the XML and generate their own documentation templates.
 	* Should run from the command-line and write an XML/JSON file to disk.
 * Support grabbing the actual source code for the methods/properties.

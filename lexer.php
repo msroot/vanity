@@ -114,7 +114,7 @@ class Lexer
 {
 	public static function parse_class($class_name, $pwd, $dir_output)
 	{
-		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns="http://github.com/skyzyx/ndocs"></ndocs>', 'SimpleXMLExtended');
+		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns="http://github.com/skyzyx/ndocs"></ndocs>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
 			// Collect class data
 			$rclass = new ReflectionClass($class_name);
@@ -126,12 +126,14 @@ class Lexer
 
 			// <class />
 			$xclass = $xml->addChild('class');
-			$xclass->addAttribute('name', $rclass->name);
 
 				$rcomment = $rclass->getFileName();
 				$content = file_get_contents($rcomment);
 				$docblocks = NDocs::get_comment_sections($content);
 				$headlines = NDocs::get_headlines($docblocks[0]);
+
+				// <name />
+				$xclass->addChild('name', $rclass->name);
 
 				// <fileData />
 				$xfileData = $xclass->addChild('fileData');
@@ -203,7 +205,9 @@ class Lexer
 				{
 					// <property />
 					$xproperty = $xproperties->addChild('property');
-					$xproperty->addAttribute('name', $rproperty);
+
+						// <name />
+						$xproperty->addChild('name', $rproperty);
 
 						// <defaultValue />
 						if ($rvalue)
@@ -268,7 +272,9 @@ class Lexer
 
 					// <method />
 					$xmethod = $xmethods->addChild('method');
-					$xmethod->addAttribute('name', $rmethod->getName());
+
+						// <name />
+						$xmethod->addChild('name', $rmethod->getName());
 
 						// <inherited />
 						if ($rmethod->class != $rclass->name)
@@ -357,20 +363,34 @@ class Lexer
 						);
 				}
 
-		$output = $xml->asXML();
+		$xml_output = $xml->asXML();
+		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
 
-		$write_path = $pwd . '/' . $dir_output . '/xml';
+		$xml_write_path = $pwd . '/' . $dir_output . '/xml';
+		$json_write_path = $pwd . '/' . $dir_output . '/json';
 
-		if (!is_writable($write_path))
+		if (!is_writable($xml_write_path))
 		{
-			mkdir($write_path, 0777, true);
-			chmod($write_path, 0777);
+			mkdir($xml_write_path, 0777, true);
+			chmod($xml_write_path, 0777);
 		}
 
-		$path = $write_path . '/' . $class_name . '.xml';
-		$success = file_put_contents($path, (string) $output);
+		if (!is_writable($json_write_path))
+		{
+			mkdir($json_write_path, 0777, true);
+			chmod($json_write_path, 0777);
+		}
 
-		if ($success) return $path;
-		return false;
+		$xml_path = $xml_write_path . '/' . $class_name . '.xml';
+		$xml_success = file_put_contents($xml_path, (string) $xml_output);
+
+		$json_path = $json_write_path . '/' . $class_name . '.js';
+		$json_success = file_put_contents($json_path, (string) $json_output);
+
+		if ($xml_success) echo '    Created ' . $xml_path . PHP_EOL;
+		else echo '    Failed to write ' . $xml_path . PHP_EOL;
+
+		if ($json_success) echo '    Created ' . $json_path . PHP_EOL;
+		else echo '    Failed to write ' . $json_path . PHP_EOL;
 	}
 }

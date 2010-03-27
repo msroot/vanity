@@ -101,20 +101,7 @@ else
 echo "RUNNING THE LEXER\n";
 foreach ($parse_me as $class)
 {
-	$success = Lexer::parse_class($class, getcwd(), $output);
-
-	echo '    ';
-
-	if ($success)
-	{
-		echo 'Created ' . $success;
-	}
-	else
-	{
-		echo '#epicfail';
-	}
-
-	echo PHP_EOL;
+	Lexer::parse_class($class, getcwd(), $output);
 }
 echo PHP_EOL;
 

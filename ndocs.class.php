@@ -121,7 +121,7 @@ class NDocs
 		foreach ($contents as $line)
 		{
 			$line = trim(preg_replace('/\s*\*\s*/', '', $line));
-			if ($line !== '')
+			if ($line !== '' && $line !== '/')
 			{
 				$cleaned[] = $line;
 			}

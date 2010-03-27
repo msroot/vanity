@@ -42,12 +42,51 @@ class Util
 
 		return $accesses;
 	}
+
+	public static function tagify($s)
+	{
+		$s = preg_replace("/[^A-Za-z0-9\s]/", '', $s);
+		$s = ucwords($s);
+		$s = str_replace(' ', '', $s);
+		$s[0] = strtolower($s[0]);
+		return $s;
+	}
+
+	public static function htmlize($data, $xml)
+	{
+		if (is_array($data))
+		{
+			foreach ($data as $d)
+			{
+				if (gettype($d) === 'string')
+				{
+					$line = $xml->addChild('line');
+					$line->addCDATA($d);
+				}
+				else
+				{
+					$line = $xml->addChild('entry');
+					foreach ($d as $k => $v)
+					{
+						$xk = $line->addChild($k);
+						Util::htmlize($v, $xk);
+					}
+				}
+			}
+		}
+		elseif (gettype($data) === 'string')
+		{
+			$xml->addCDATA($data);
+		}
+
+		return $xml;
+	}
 }
 
 $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns="http://github.com/skyzyx/ndocs"></ndocs>', 'SimpleXMLExtended');
 
 	// Collect class data
-	$iclass = new AmazonSQSQueue();
+	$iclass = new AmazonSQS();
 	$rclass = new ReflectionClass($iclass);
 	$rclass_properties = $rclass->getDefaultProperties();
 	$rclass_methods = $rclass->getMethods();
@@ -78,9 +117,24 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 				}
 			}
 
-			// <comments />
-			$xcomments = $xinfo->addChild('comments');
-			$xcomments->addCDATA($rclass->getDocComment());
+			$rcomment = $rclass->getDocComment();
+			$headlines = NDocs::get_headlines($rcomment);
+
+			// <docBlock />
+			$xdocBlock = $xinfo->addChild('docBlock');
+
+			foreach ($headlines as $headline)
+			{
+				$cheadline = strtolower($headline);
+
+				$xsection = $xdocBlock->addChild('section');
+				$xsection->addChild('headline', $headline);
+				$xcontents = $xsection->addChild('contents');
+
+				$pheadline = NDocs::parse_headline($headline, $rcomment);
+
+				Util::htmlize($pheadline['content'], $xcontents);
+			}
 
 		// <properties />
 		$xproperties = $xclass->addChild('properties');
@@ -90,9 +144,7 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 		{
 			// <property />
 			$xproperty = $xproperties->addChild('property');
-
-				// <name />
-				$xproperty->addChild('name', $rproperty);
+			$xproperty->addAttribute('name', $rproperty);
 
 				// <defaultValue />
 				if ($rvalue)
@@ -132,14 +184,13 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 				{
 					$xproperty->addChild('documented', 'true');
 
-					$xcomments = $xproperty->addChild('description');
+					$xdescription = $xproperty->addChild('description');
 					$nproperty_docs = NDocs::parse_headline('Property', $rcomment);
-					$nproperty_docs_content = '';
 					foreach ($nproperty_docs['content'] as $content)
 					{
-						$nproperty_docs_content .= '<p>' . $content . '</p>';
+						$xline = $xdescription->addChild('line');
+						$xline->addCDATA($content);
 					}
-					$xcomments->addCDATA($nproperty_docs_content);
 				}
 				else
 				{
@@ -153,88 +204,107 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 
 		foreach ($rclass_methods as $rmethod)
 		{
+			$rcomment = $rmethod->getDocComment();
+			$headlines = NDocs::get_headlines($rcomment);
+
 			// <method />
 			$xmethod = $xmethods->addChild('method');
+			$xmethod->addAttribute('name', $rmethod->getName());
 
-			// <name />
-			$xmethod->addChild('name', $rmethod->getName());
-
-			// <inherited />
-			if ($rmethod->class != $rclass->name)
-			{
-				$xinherited = $xmethod->addChild('inherited');
-				$xinherited->addAttribute('from', $rmethod->class);
-			}
-
-			$rparameters = $rmethod->getParameters();
-
-			// <parameters />
-			if ($rparameters)
-			{
-				$xparameters = $xmethod->addChild('parameters');
-				foreach ($rparameters as $rparameter)
+				// <inherited />
+				if ($rmethod->class != $rclass->name)
 				{
-					// <parameter />
-					$xparameter = $xparameters->addChild('parameter');
-
-						// <name />
-						$xname = $xparameter->addChild('name', $rparameter->getName());
-
-						// <required />
-						$req = $rparameter->isOptional() ? 'false' : 'true';
-						$xname = $xparameter->addChild('required', $req);
-
-						// <defaultValue />
-						if ($rparameter->isDefaultValueAvailable())
-						{
-							$dvalue = $rparameter->getDefaultValue();
-							switch (strtolower(gettype($dvalue)))
-							{
-								case 'boolean':
-									$dvalue = ($dvalue === 1) ? 'true' : 'false';
-									break;
-
-								case 'null':
-									$dvalue = 'null';
-									break;
-							}
-
-							$xdefaultValue = $xparameter->addChild('defaultValue', $dvalue);
-						}
+					$xinherited = $xmethod->addChild('inherited');
+					$xinherited->addAttribute('from', $rmethod->class);
 				}
-			}
 
-			// <documented />
-			// <comment />
-			if ($rcomment = $rmethod->getDocComment())
-			{
-				$xmethod->addChild('documented', 'true');
+				$rparameters = $rmethod->getParameters();
 
-				$xcomment = $xmethod->addChild('comment');
-				$xcomment->addCDATA($rcomment);
-			}
-			else
-			{
-				$xmethod->addChild('documented', 'false');
-			}
+				// <parameters />
+				if ($rparameters)
+				{
+					$xparameters = $xmethod->addChild('parameters');
+					foreach ($rparameters as $rparameter)
+					{
+						// <parameter />
+						$xparameter = $xparameters->addChild('parameter');
+
+							// <name />
+							$xname = $xparameter->addChild('name', $rparameter->getName());
+
+							// <required />
+							$req = $rparameter->isOptional() ? 'false' : 'true';
+							$xname = $xparameter->addChild('required', $req);
+
+							// <defaultValue />
+							if ($rparameter->isDefaultValueAvailable())
+							{
+								$dvalue = $rparameter->getDefaultValue();
+								switch (strtolower(gettype($dvalue)))
+								{
+									case 'boolean':
+										$dvalue = ($dvalue === 1) ? 'true' : 'false';
+										break;
+
+									case 'null':
+										$dvalue = 'null';
+										break;
+								}
+
+								$xdefaultValue = $xparameter->addChild('defaultValue', $dvalue);
+							}
+					}
+				}
+
+				// <access />
+				$xmethod->addChild('access', implode(' ', Util::access($rmethod)));
+
+				// <docBlock />
+				$xdocBlock = $xmethod->addChild('docBlock');
+
+				foreach ($headlines as $headline)
+				{
+					$cheadline = strtolower($headline);
+
+					$xsection = $xdocBlock->addChild('section');
+					$xsection->addChild('headline', $headline);
+					$xcontents = $xsection->addChild('contents');
+
+					$pheadline = NDocs::parse_headline($headline, $rcomment);
+
+					Util::htmlize($pheadline['content'], $xcontents);
+				}
+
+				// <documented />
+				// <comment />
+				if ($rcomment)
+				{
+					$xmethod->addChild('documented', 'true');
+				}
+				else
+				{
+					$xmethod->addChild('documented', 'false');
+				}
 		}
 
 $output = $xml->asXML();
 
-$tidy = tidy_parse_string($output, array(
-	'add-xml-decl' => true,
-	'assume-xml-procins' => true,
-	'char-encoding' => 'UTF-8',
-	'indent' => true,
-	'indent-cdata' => true,
-	'input-encoding' => 'UTF-8',
-	'indent-spaces' => 4,
-	'input-xml' => true,
-	'numeric-entities' => true,
-	'output-encoding' => 'UTF-8',
-	'output-xml' => true,
-	'wrap' => 10000
-), 'UTF8');
+// $tidy = tidy_parse_string($output, array(
+// 	'add-xml-decl' => true,
+// 	'assume-xml-procins' => true,
+// 	'char-encoding' => 'UTF-8',
+// 	'indent' => true,
+// 	'indent-cdata' => true,
+// 	'input-encoding' => 'UTF-8',
+// 	'indent-spaces' => 4,
+// 	'input-xml' => true,
+// 	'numeric-entities' => true,
+// 	'output-encoding' => 'UTF-8',
+// 	'output-xml' => true,
+// 	'wrap' => 10000
+// ), 'UTF8');
+//
+// echo $tidy;
 
-echo $tidy;
-file_put_contents('_output.xml', (string) $tidy);
+echo $output;
+file_put_contents('_output.xml', (string) $output);

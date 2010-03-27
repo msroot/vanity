@@ -4,7 +4,7 @@
  * 	A NaturalDocs comment parser for PHP, without the documentation generator.
  *
  * Version:
- * 	2010.02.18
+ * 	2010.03.27
  *
  * Copyright:
  * 	2010 Ryan Parman
@@ -22,6 +22,11 @@
 
 class NDocs
 {
+	/**
+	 *
+	 */
+	const VERSION = '1.0';
+
 	/**
 	 * Get Comment Sections
 	 * 	Determines which sections of the file are source code comment blocks.

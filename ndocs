@@ -1,3 +1,120 @@
 #!/usr/bin/env php
 <?php
-include 'ndocs.class.php';
+error_reporting(0);
+include 'lexer.php';
+
+/********************************************************/
+
+$process = proc_open($cmd, array(
+	0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
+	1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
+	2 => array("file", "error-output.txt", "a") // stderr is a file to write to
+), $pipes);
+
+if (is_resource($process))
+{
+	fclose($pipes[0]);
+	fclose($pipes[1]);
+	proc_close($process);
+}
+
+/********************************************************/
+
+$help = array(
+	'match:' => '(Required) The file pattern to recursively match (e.g. *.class.php).',
+	'output::' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.'
+);
+
+$options = getopt('', array_keys($help));
+
+if (sizeof($options) === 0)
+{
+	echo PHP_EOL;
+	echo 'NDocs ' . NDocs::VERSION . PHP_EOL;
+	echo "    A documentation generator for PHP5 classes and the NaturalDocs documentation format.\n";
+	echo PHP_EOL;
+
+	ksort($help);
+
+	foreach ($help as $k => $v)
+	{
+		echo '--' . preg_replace('/(:*)/', '', $k) . PHP_EOL;
+		echo '    ' . $v . PHP_EOL;
+	}
+
+	echo "\n\n";
+
+	die();
+}
+// var_dump($options);
+// die();
+
+/********************************************************/
+
+// Get the initial set of defined classes
+$before = get_declared_classes();
+
+if (!isset($options['match'])) die('The --match parameter is required.' . PHP_EOL);
+
+// Glob and load
+$files = Util::rglob($options['match']);
+echo "FILE MATCHES\n";
+foreach ($files as $file)
+{
+	$file = getcwd() . '/' . $file;
+	echo '    ' . $file . PHP_EOL;
+	include_once $file;
+}
+echo PHP_EOL;
+
+// Get the updated list of defined classes
+$after = get_declared_classes();
+
+// These are the new classes that were introduced
+$diff = array_diff($after, $before);
+
+// Do more filtering of the list
+$parse_me = array();
+echo "CLASS MATCHES\n";
+foreach ($diff as $class)
+{
+	// Exclude classes that contain the word "Exception"
+	if (stripos($class, 'Exception') === false)
+	{
+		$parse_me[] = $class;
+		echo '    ' . $class . PHP_EOL;
+	}
+}
+echo PHP_EOL;
+
+/********************************************************/
+
+if (!isset($options['output']) || !$options['output'])
+{
+	$output = 'output';
+}
+else
+{
+	$output = $options['output'];
+}
+
+echo "RUNNING THE LEXER\n";
+foreach ($parse_me as $class)
+{
+	$success = Lexer::parse_class($class, getcwd(), $output);
+
+	echo '    ';
+
+	if ($success)
+	{
+		echo 'Created ' . $success;
+	}
+	else
+	{
+		echo '#epicfail';
+	}
+
+	echo PHP_EOL;
+}
+echo PHP_EOL;
+

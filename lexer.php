@@ -52,6 +52,11 @@ class Util
 		return $s;
 	}
 
+	public static function line_numbers($lnum, $content)
+	{
+		return str_pad($lnum + 1, strlen((string) sizeof($content)), '0', STR_PAD_LEFT);
+	}
+
 	public static function htmlize($data, $xml)
 	{
 		if (is_array($data))
@@ -127,6 +132,10 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 			$temp = explode('cloudfusion/', $rclass->getFileName());
 			$xfile = $xinfo->addChild('file', $temp[1]);
 
+			// Store copies of the files in memory...
+			$documents = array();
+			$documents[$rclass->name] = file($rclass->getFileName());
+
 			if ($rclass->getParentClass())
 			{
 				$xparentClass = $xinfo->addChild('parentClasses');
@@ -136,6 +145,9 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 				{
 					$xparentClass->addChild('class', $class_ref->getParentClass()->name);
 					$class_ref = $class_ref->getParentClass();
+
+					// Add the parent files to memory as well...
+					$documents[$class_ref->name] = file($class_ref->getFileName());
 				}
 			}
 
@@ -298,7 +310,6 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 				}
 
 				// <documented />
-				// <comment />
 				if ($rcomment)
 				{
 					$xmethod->addChild('documented', 'true');
@@ -307,6 +318,18 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 				{
 					$xmethod->addChild('documented', 'false');
 				}
+
+				$xsource = $xmethod->addChild('source');
+				$xsource->addAttribute('start', $rmethod->getStartLine());
+				$xsource->addAttribute('end', $rmethod->getEndLine());
+
+				$xsource->addCDATA(
+					implode('', array_slice(
+						$documents[$rmethod->class],
+						($rmethod->getStartLine() - 1),
+						($rmethod->getEndLine() - $rmethod->getStartLine() + 1)
+					))
+				);
 		}
 
 $output = $xml->asXML();

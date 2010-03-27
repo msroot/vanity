@@ -98,12 +98,34 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 	$xclass = $xml->addChild('class');
 	$xclass->addAttribute('name', $rclass->name);
 
+		$rcomment = $rclass->getFileName();
+		$content = file_get_contents($rcomment);
+		$docblocks = NDocs::get_comment_sections($content);
+		$headlines = NDocs::get_headlines($docblocks[0]);
+
+		// <fileData />
+		$xfileData = $xclass->addChild('fileData');
+
+			// <docBlock />
+			$xdocBlock = $xfileData->addChild('docBlock');
+
+			foreach ($headlines as $headline)
+			{
+				$xsection = $xdocBlock->addChild('section');
+				$xsection->addChild('headline', $headline);
+				$xcontents = $xsection->addChild('contents');
+
+				$pheadline = NDocs::parse_headline($headline, $docblocks[0]);
+
+				Util::htmlize($pheadline['content'], $xcontents);
+			}
+
 		// <summary />
 		$xinfo = $xclass->addChild('summary');
 
 			// <file />
-			$fpieces = explode(DIRECTORY_SEPARATOR, $rclass->getFileName());
-			$xfile = $xinfo->addChild('file', array_pop($fpieces));
+			$temp = explode('cloudfusion/', $rclass->getFileName());
+			$xfile = $xinfo->addChild('file', $temp[1]);
 
 			if ($rclass->getParentClass())
 			{
@@ -288,23 +310,6 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns
 		}
 
 $output = $xml->asXML();
-
-// $tidy = tidy_parse_string($output, array(
-// 	'add-xml-decl' => true,
-// 	'assume-xml-procins' => true,
-// 	'char-encoding' => 'UTF-8',
-// 	'indent' => true,
-// 	'indent-cdata' => true,
-// 	'input-encoding' => 'UTF-8',
-// 	'indent-spaces' => 4,
-// 	'input-xml' => true,
-// 	'numeric-entities' => true,
-// 	'output-encoding' => 'UTF-8',
-// 	'output-xml' => true,
-// 	'wrap' => 10000
-// ), 'UTF8');
-//
-// echo $tidy;
 
 echo $output;
 file_put_contents('_output.xml', (string) $output);

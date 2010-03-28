@@ -17,8 +17,8 @@ class Generator
 	{
 		if (!is_writable(dirname($fname)))
 		{
-			mkdir(dirname($fname), 0777, true);
-			chmod(dirname($fname), 0777);
+			@mkdir(dirname($fname), 0777, true);
+			@chmod(dirname($fname), 0777);
 		}
 
 		$contents = ob_get_contents();

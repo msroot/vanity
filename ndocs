@@ -3,8 +3,9 @@
 
 error_reporting(0);
 
-include 'lexer.php';
-include 'generator.php';
+include_once 'helpers/lexer.class.php';
+include_once 'helpers/generator.class.php';
+
 
 /********************************************************/
 
@@ -113,6 +114,17 @@ foreach ($parse_me as $class)
 {
 	$tmpl = new Template($class, $output, $template);
 	echo '    ' . $tmpl->write_to . PHP_EOL;
+}
+echo PHP_EOL;
+
+/********************************************************/
+
+echo "COPYING STATIC FILES TO OUTPUT DIRECTORY\n";
+foreach (CopyFiles::get_files() as $file)
+{
+	$cmd = 'cp -Rf ' . realpath($template) . DIRECTORY_SEPARATOR . $file . ' ' . realpath($output) . DIRECTORY_SEPARATOR . 'generated' . DIRECTORY_SEPARATOR;
+	echo '    ' . $cmd . PHP_EOL;
+	shell_exec($cmd);
 }
 echo PHP_EOL;
 

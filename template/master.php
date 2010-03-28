@@ -1,4 +1,19 @@
 <?php
+class CopyFiles
+{
+	public static function get_files()
+	{
+		// Define which files to copy to the generated doc directory.
+		return array(
+			'index.html',
+			'images',
+			'panel',
+			'scripts',
+			'styles',
+		);
+	}
+}
+
 class Template extends Generator
 {
 	public $xml;

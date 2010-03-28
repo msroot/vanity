@@ -24,6 +24,14 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 
 * Will not support parsing languages other than PHP. This is simply because NDocs uses reflection rather than language definitions.
 
+## Requirements
+
+* PHP 5.3.0
+* Enabled PHP short tags.
+* Command-line access
+* `shell_exec()`, `mkdir()`, and `chmod()`.
+* Mac OS X or *nix systems, because I'm currently using forward slashes for paths.
+
 ## Documentation and usage
 
 You can poke around the code if you like, but I've not written anything up yet. It's still pretty quick-and-dirty.

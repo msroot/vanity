@@ -6,26 +6,25 @@
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 		<title><?= $template['title'] ?></title>
 
-		<style type="text/css" media="screen">
-		body {
-			font-family: "Helvetica Neue", Helvetica, "Lucida Grande", Tahoma, sans-serif;
-		}
-		</style>
+		<link rel="stylesheet" href="../../styles/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="../../styles/main.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	    <script src="../../script/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../../script/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../../script/main.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	<body class="<?= $template['doctype'] ?>">
 
-		<div id="header">
+		<div class="banner">
+			<span class="type">Class</span>
 		    <h1><?= $template['title'] ?></h1>
 			<p><?= (string) $this->xml->class->fileData->docBlock->section->contents->line ?></p>
-			<p><?= (string) $this->xml->class->summary->docBlock->section->contents->line ?></p>
-			<p>Last updated: <?= date('j M Y, g:ia T', filemtime(__FILE__)) ?></p>
 		</div>
 
-		<?= $this->yield ?>
-
-		<div id="footer">
-			<p>This is my footer.</p>
+		<div id="bodyContent">
+			<div id="content">
+				<?= $this->yield ?>
+				<p>Last updated: <?= date('j M Y, g:ia T', filemtime(__FILE__)) ?></p>
+			</div>
 		</div>
-
 	</body>
 </html>

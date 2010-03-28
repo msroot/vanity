@@ -93,4 +93,29 @@ class Util
 
 		return $files;
 	}
+
+	public static function group_by_letter($obj, $property)
+	{
+		$arr = array();
+
+		foreach ($obj as $o)
+		{
+			$letter = strtolower((string) $o->$property);
+			$letter = $letter[0];
+
+			if (!preg_match('/[a-z]/i', $letter))
+			{
+				$letter = '#';
+			}
+
+			if (!is_array($arr[$letter]))
+			{
+				$arr[$letter] = array();
+			}
+
+			$arr[$letter][] = (string) $o->$property;
+		}
+
+		return $arr;
+	}
 }

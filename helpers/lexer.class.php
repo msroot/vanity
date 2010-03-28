@@ -3,7 +3,7 @@ header('HTTP/1.1 200 OK');
 header('Content-type: text/xml; charset=utf-8');
 
 include_once 'ndocs.class.php';
-include_once '_utilities.php';
+include_once 'utilities.class.php';
 
 class SimpleXMLExtended extends SimpleXMLElement
 {

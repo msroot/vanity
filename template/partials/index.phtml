@@ -1,20 +1,39 @@
-<table cellspacing="0" cellpadding="0" border="0">
-	<tbody>
-		<tr valign="top">
-		    <td class="methods">
+<div class="description">
+	<p><?= (string) $this->xml->class->summary->docBlock->section->contents->line ?></p>
+
+	<div class="sectiontitle">Methods</div>
+	<dl class="methods">
+		<?php
+		$method_list = Util::group_by_letter($this->xml->class->methods->method, 'name');
+		?>
+
+		<? foreach ($method_list as $letter => $methods): ?>
+			<dt><?= strtoupper($letter) ?></dt>
+			<dd>
 				<ul>
-				<? foreach ($this->xml->class->methods->method as $method): ?>
-					<li><?= (string) $method->name ?></li>
-				<? endforeach; ?>
+					<? foreach ($methods as $method): ?>
+						<li><a href="<?= $method ?>.html"><?= $method; ?></a></li>
+					<? endforeach; ?>
 				</ul>
-		    </td>
-		    <td class="properties">
+			</dd>
+		<? endforeach; ?>
+	</dl>
+
+	<div class="sectiontitle">Properties</div>
+	<dl class="methods properties">
+		<?php
+		$property_list = Util::group_by_letter($this->xml->class->properties->property, 'name');
+		?>
+
+		<? foreach ($property_list as $letter => $properties): ?>
+			<dt><?= strtoupper($letter) ?></dt>
+			<dd>
 				<ul>
-				<? foreach ($this->xml->class->properties->property as $property): ?>
-					<li><?= (string) $property->name ?></li>
-				<? endforeach; ?>
+					<? foreach ($properties as $property): ?>
+						<li><a href="properties.html#<?= $property ?>"><?= $property; ?></a></li>
+					<? endforeach; ?>
 				</ul>
-		    </td>
-		</tr>
-	</tbody>
-</table>
+			</dd>
+		<? endforeach; ?>
+	</dl>
+</div>

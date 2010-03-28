@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title><?= $template['title'] ?></title>
+
+		<style type="text/css" media="screen">
+		body {
+			font-family: "Helvetica Neue", Helvetica, "Lucida Grande", Tahoma, sans-serif;
+		}
+		</style>
+	</head>
+	<body class="<?= $template['doctype'] ?>">
+
+		<div id="header">
+		    <h1><?= $template['title'] ?></h1>
+			<p><?= (string) $this->xml->class->fileData->docBlock->section->contents->line ?></p>
+			<p><?= (string) $this->xml->class->summary->docBlock->section->contents->line ?></p>
+			<p>Last updated: <?= date('j M Y, g:ia T', filemtime(__FILE__)) ?></p>
+		</div>
+
+		<?= $this->yield ?>
+
+		<div id="footer">
+			<p>This is my footer.</p>
+		</div>
+
+	</body>
+</html>

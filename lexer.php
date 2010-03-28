@@ -2,7 +2,8 @@
 header('HTTP/1.1 200 OK');
 header('Content-type: text/xml; charset=utf-8');
 
-include 'ndocs.class.php';
+include_once 'ndocs.class.php';
+include_once '_utilities.php';
 
 class SimpleXMLExtended extends SimpleXMLElement
 {
@@ -14,105 +15,9 @@ class SimpleXMLExtended extends SimpleXMLElement
 	}
 }
 
-class Util
-{
-	public static function access($o)
-	{
-		$accesses = array();
-
-		if (method_exists($o, 'isFinal')) {
-			if ($o->isFinal()) $accesses[] = 'final';
-		}
-		if (method_exists($o, 'isAbstract')) {
-			if ($o->isAbstract()) $accesses[] = 'abstract';
-		}
-		if (method_exists($o, 'isPrivate')) {
-			if ($o->isPrivate()) $accesses[] = 'private';
-		}
-		if (method_exists($o, 'isProtected')) {
-			if ($o->isProtected()) $accesses[] = 'protected';
-		}
-		if (method_exists($o, 'isPublic')) {
-			if ($o->isPublic()) $accesses[] = 'public';
-		}
-		if (method_exists($o, 'isStatic')) {
-			if ($o->isStatic()) $accesses[] = 'static';
-		}
-
-		return $accesses;
-	}
-
-	public static function tagify($s)
-	{
-		$s = preg_replace("/[^A-Za-z0-9\s]/", '', $s);
-		$s = ucwords($s);
-		$s = str_replace(' ', '', $s);
-		$s[0] = strtolower($s[0]);
-		return $s;
-	}
-
-	public static function line_numbers($lnum, $content)
-	{
-		return str_pad($lnum + 1, strlen((string) sizeof($content)), '0', STR_PAD_LEFT);
-	}
-
-	public static function htmlize($data, $xml)
-	{
-		if (is_array($data))
-		{
-			foreach ($data as $d)
-			{
-				if (gettype($d) === 'string')
-				{
-					$line = $xml->addChild('line');
-					$line->addCDATA($d);
-				}
-				else
-				{
-					$line = $xml->addChild('entry');
-					foreach ($d as $k => $v)
-					{
-						$xk = $line->addChild($k);
-						Util::htmlize($v, $xk);
-					}
-				}
-			}
-		}
-		elseif (gettype($data) === 'string')
-		{
-			$xml->addCDATA($data);
-		}
-
-		return $xml;
-	}
-
-	public static function rglob($pattern, $flags = 0, $path = '')
-	{
-		if (!$path && ($dir = dirname($pattern)) != '.')
-		{
-			if ($dir == '\\' || $dir == '/')
-			{
-				$dir = '';
-			}
-
-			return Util::rglob(basename($pattern), $flags, $dir . '/');
-		}
-
-		$paths = glob($path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
-		$files = glob($path . $pattern, $flags);
-
-		foreach ($paths as $p)
-		{
-			$files = array_merge($files, Util::rglob($pattern, $flags, $p . '/'));
-		}
-
-		return $files;
-	}
-}
-
 class Lexer
 {
-	public static function parse_class($class_name, $pwd, $dir_output)
+	public static function parse_class($class_name, $dir_output)
 	{
 		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns="http://github.com/skyzyx/ndocs"></ndocs>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
@@ -366,8 +271,8 @@ class Lexer
 		$xml_output = $xml->asXML();
 		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
 
-		$xml_write_path = $pwd . '/' . $dir_output . '/xml';
-		$json_write_path = $pwd . '/' . $dir_output . '/json';
+		$xml_write_path = getcwd() . '/' . $dir_output . '/xml';
+		$json_write_path = getcwd() . '/' . $dir_output . '/json';
 
 		if (!is_writable($xml_write_path))
 		{

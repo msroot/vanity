@@ -1,0 +1,20 @@
+<table cellspacing="0" cellpadding="0" border="0">
+	<tbody>
+		<tr valign="top">
+		    <td class="methods">
+				<ul>
+				<? foreach ($this->xml->class->methods->method as $method): ?>
+					<li><?= (string) $method->name ?></li>
+				<? endforeach; ?>
+				</ul>
+		    </td>
+		    <td class="properties">
+				<ul>
+				<? foreach ($this->xml->class->properties->property as $property): ?>
+					<li><?= (string) $property->name ?></li>
+				<? endforeach; ?>
+				</ul>
+		    </td>
+		</tr>
+	</tbody>
+</table>

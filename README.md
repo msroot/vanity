@@ -1,6 +1,10 @@
 # NDocs
 
-NDocs is a very simple, lightweight, non-robust parser for the NaturalDocs source code comment format. It is currently of a beta quality.
+NDocs is a very simple, lightweight, non-robust parser for the [NaturalDocs](http://naturaldocs.org) source code comment format. It is currently of a beta quality.
+
+It also uses [reflection](http://php.net/reflection) to learn about the code and generate more information about the class.
+
+## Why?
 
 Although I believe that NaturalDocs has a superior way of commenting code over JavaDoc-like solutions (PHPDoc, et al), NaturalDocs doesn't treat PHP like a first-class citizen. Along with that, NaturalDocs makes the same mistake that nearly all documentation generators suffer from -- no way to easily write your own HTML output.
 
@@ -10,17 +14,19 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 
 ### Goals
 
-* This is intended to be a low-level, parser-only engine.
-* It will produce an XML and JSON representation of the code comments.
-	* This will allow others to take the XML and generate their own documentation templates.
-	* Should run from the command-line and write an XML/JSON file to disk.
+* Support the NaturalDocs commenting format.
 * Support grabbing the actual source code for the methods/properties.
-* Generate various indexes.
-* Will generate documentation from very simple, easily-modifiable templates.
+* Support all of the fancier features of reflection to allow the code to self-document.
+* It will produce an XML and JSON representation of the code comments and reflection data.
+* Make it easy to write/design your own templates and generate docs with them.
 
 ### Explicit non-goals
 
-* Will not support parsing languages other than PHP.
+* Will not support parsing languages other than PHP. This is simply because NDocs uses reflection rather than language definitions.
+
+## Documentation and usage
+
+You can poke around the code if you like, but I've not written anything up yet. It's still pretty quick-and-dirty.
 
 ## License & Copyright
 

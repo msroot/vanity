@@ -108,7 +108,7 @@ class Util
 				$letter = '#';
 			}
 
-			if (!is_array($arr[$letter]))
+			if (!isset($arr[$letter]))
 			{
 				$arr[$letter] = array();
 			}
@@ -117,5 +117,34 @@ class Util
 		}
 
 		return $arr;
+	}
+
+	public static function process_parameters($obj)
+	{
+		$arr = array();
+
+		foreach ($obj as $o)
+		{
+			$arr[(string) $o->param] = array(
+				'type' => (string) $o->type,
+				'description' => (string) $o->description,
+			);
+		}
+
+		return $arr;
+	}
+
+	public static function clean_source($source)
+	{
+		$source = substr($source, 1);
+		$source = str_replace("\n\t", "\n", $source);
+		$source = str_replace("\t", '    ', $source);
+
+		return $source;
+	}
+
+	public static function entitize($s)
+	{
+		return htmlspecialchars($s, ENT_COMPAT, 'UTF-8');
 	}
 }

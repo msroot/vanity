@@ -18,7 +18,7 @@ a:hover {
 }
 
 p {
-	margin: 0.5em 0;
+	margin: 0.3em 0;
 }
 
 h1 {
@@ -90,14 +90,21 @@ ol li {
 	margin: 0;
 }
 
-.banner h1 .type {
-	font-size: 0.833em;
+.banner h1 .title {
+	font-weight: 500;
+}
+
+.banner .type {
 	display: block;
 }
 
-.banner h1 .type,
-.banner h1 .parent {
+.parent,
+.banner .type {
 	color: #666;
+}
+
+.banner .parent {
+	font-size: 0.8em;
 }
 
 .banner ul {

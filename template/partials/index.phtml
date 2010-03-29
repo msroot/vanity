@@ -1,39 +1,64 @@
 <div class="description">
 	<p><?= (string) $this->xml->class->summary->docBlock->section->contents->line ?></p>
 
-	<div class="sectiontitle">Methods</div>
-	<dl class="methods">
+	<div class="sectiontitle">File Information</div>
+	<ul>
 		<?php
-		$method_list = Util::group_by_letter($this->xml->class->methods->method, 'name');
+		$arr = json_decode(json_encode($this->xml->class->fileData->docBlock));
+		$arr = $arr->section;
+		$arr = array_slice($arr, 1);
 		?>
 
-		<? foreach ($method_list as $letter => $methods): ?>
-			<dt><?= strtoupper($letter) ?></dt>
-			<dd>
-				<ul>
-					<? foreach ($methods as $method): ?>
-						<li><a href="<?= $method ?>.html"><?= $method; ?></a></li>
-					<? endforeach; ?>
-				</ul>
-			</dd>
+		<? foreach ($arr as $a): ?>
+			<? if (isset($a->contents->line)): ?>
+				<li><em><?= $a->headline ?></em> &mdash; <?= Util::entitize($a->contents->line) ?></li>
+			<? elseif (is_array($a->contents->entry)): ?>
+				<? foreach ($a->contents->entry as $entry): ?>
+				<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $entry->description ?>"><?= Util::entitize($entry->param) ?></a></li>
+				<? endforeach; ?>
+			<? else: ?>
+				<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $a->contents->entry->description ?>"><?= Util::entitize($a->contents->entry->param) ?></a></li>
+			<? endif ?>
 		<? endforeach; ?>
-	</dl>
+	</ul>
 
-	<div class="sectiontitle">Properties</div>
-	<dl class="methods properties">
-		<?php
-		$property_list = Util::group_by_letter($this->xml->class->properties->property, 'name');
-		?>
+	<? if (isset($this->xml->class->methods->method)): ?>
+		<div class="sectiontitle">Methods (<?= (string) $this->xml->class->methods->attributes()->count ?>)</div>
+		<dl class="methods">
+			<?php
+			$method_list = Util::group_by_letter($this->xml->class->methods->method, 'name');
+			?>
 
-		<? foreach ($property_list as $letter => $properties): ?>
-			<dt><?= strtoupper($letter) ?></dt>
-			<dd>
-				<ul>
-					<? foreach ($properties as $property): ?>
-						<li><a href="properties.html#<?= $property ?>"><?= $property; ?></a></li>
-					<? endforeach; ?>
-				</ul>
-			</dd>
-		<? endforeach; ?>
-	</dl>
+			<? foreach ($method_list as $letter => $methods): ?>
+				<dt><?= strtoupper($letter) ?></dt>
+				<dd>
+					<ul>
+						<? foreach ($methods as $method): ?>
+							<li><a href="<?= $method ?>.html"><?= $method; ?></a></li>
+						<? endforeach; ?>
+					</ul>
+				</dd>
+			<? endforeach; ?>
+		</dl>
+	<? endif; ?>
+
+	<? if (isset($this->xml->class->properties->property)): ?>
+		<div class="sectiontitle">Properties (<?= (string) $this->xml->class->properties->attributes()->count ?>)</div>
+		<dl class="methods properties">
+			<?php
+			$property_list = Util::group_by_letter($this->xml->class->properties->property, 'name');
+			?>
+
+			<? foreach ($property_list as $letter => $properties): ?>
+				<dt><?= strtoupper($letter) ?></dt>
+				<dd>
+					<ul>
+						<? foreach ($properties as $property): ?>
+							<li><a href="properties.html#<?= $property ?>"><?= $property; ?></a></li>
+						<? endforeach; ?>
+					</ul>
+				</dd>
+			<? endforeach; ?>
+		</dl>
+	<? endif; ?>
 </div>

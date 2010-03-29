@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-error_reporting(0);
+error_reporting(-1);
 
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/generator.class.php';
@@ -98,7 +98,7 @@ echo PHP_EOL;
 /********************************************************/
 
 $output = realpath($output);
-include getcwd() . '/template/master.php';
+include getcwd() . '/template/template_definiton.php';
 
 if (!isset($options['template']) || !$options['template'])
 {
@@ -113,7 +113,11 @@ echo "RUNNING THE GENERATOR\n";
 foreach ($parse_me as $class)
 {
 	$tmpl = new Template($class, $output, $template);
-	echo '    ' . $tmpl->write_to . PHP_EOL;
+
+	foreach ($tmpl->write_to as $w)
+	{
+		echo '    ' . $w . PHP_EOL;
+	}
 }
 echo PHP_EOL;
 

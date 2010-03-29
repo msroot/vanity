@@ -256,10 +256,11 @@ class Lexer
 						}
 
 						$xsource = $xmethod->addChild('source');
-						$xsource->addAttribute('start', $rmethod->getStartLine());
-						$xsource->addAttribute('end', $rmethod->getEndLine());
+						$xsource->addChild('startLine', $rmethod->getStartLine());
+						$xsource->addChild('endLine', $rmethod->getEndLine());
 
-						$xsource->addCDATA(
+						$xcode = $xsource->addChild('code');
+						$xcode->addCDATA(
 							implode('', array_slice(
 								$documents[$rmethod->class],
 								($rmethod->getStartLine() - 1),

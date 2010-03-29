@@ -4,27 +4,40 @@
 <html>
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-		<title><?= $template['title'] ?></title>
+		<title><?= strip_tags($template['title']) ?></title>
 
 		<link rel="stylesheet" href="../../styles/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="../../styles/main.css" type="text/css" media="screen" title="no title" charset="utf-8">
-	    <script src="../../script/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
-	    <script src="../../script/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
-	    <script src="../../script/main.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" href="../../styles/shCore.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="../../styles/shThemeDefault.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+	    <script src="../../scripts/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../../scripts/jquery-effect.js" type="text/javascript" charset="utf-8"></script>
+	    <script src="../../scripts/main.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../scripts/shCore.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../scripts/shBrushPhp.js" type="text/javascript" charset="utf-8"></script>
+
 	</head>
-	<body class="<?= $template['doctype'] ?>">
+	<body class="body_<?= strtolower($template['doctype']) ?>">
 
 		<div class="banner">
-			<span class="type">Class</span>
-		    <h1><?= $template['title'] ?></h1>
-			<p><?= (string) $this->xml->class->fileData->docBlock->section->contents->line ?></p>
+			<span class="type"><?= $template['doctype'] ?></span>
+		    <h1><span class="title"><?= isset($template['header']) ? $template['header'] : $template['title'] ?></span>
+				<? if (isset($this->xml->class->summary->parentClasses->class)): ?>
+					<em class="parent">extends <a href=""><?= (string) $this->xml->class->summary->parentClasses->class ?></a></em>
+				<? endif; ?></h1>
+			<p><?= (string) $this->xml->class->fileData->docBlock->section[0]->contents->line ?></p>
 		</div>
 
 		<div id="bodyContent">
 			<div id="content">
-				<?= $this->yield ?>
-				<p>Last updated: <?= date('j M Y, g:ia T', filemtime(__FILE__)) ?></p>
+				<?= $this->body ?>
 			</div>
 		</div>
+
+		<script type="text/javascript" charset="utf-8">
+		// SyntaxHighlighter.defaults['toolbar'] = false;
+		SyntaxHighlighter.all();
+		</script>
 	</body>
 </html>

@@ -1,0 +1,97 @@
+<div class="method">
+	<?php
+	$param_data = array();
+	foreach ($method->docBlock->section as $section)
+	{
+		if (strtolower((string) $section->headline) === 'parameters')
+		{
+			$param_data = Util::process_parameters($section->contents->entry);
+		}
+	}
+
+	$parameters = array();
+	$inline_params = '';
+
+	if (isset($method->parameters->parameter))
+	{
+		foreach ($method->parameters->parameter as $parameter)
+		{
+			if (isset($parameter->defaultValue))
+			{
+				$parameters[] = array(
+					'$' . (string) $parameter->name,
+					(string) $parameter->defaultValue
+				);
+			}
+			else
+			{
+				$parameters[] = '$' . (string) $parameter->name;
+			}
+		}
+
+		$inline_params = array();
+		foreach ($parameters as $parameter)
+		{
+			if (is_array($parameter))
+			{
+				$inline_params[] = implode(' = ', $parameter);
+			}
+			else
+			{
+				$inline_params[] = $parameter;
+			}
+		}
+		$inline_params = ' ' . implode(', ', $inline_params) . ' ';
+	}
+	?>
+
+	<div class="title">
+		<strong><?= (string) $method->name ?></strong> (<?= $inline_params ?>)
+	</div>
+
+	<div class="description">
+		<? if (isset($method->docBlock->section->contents->line)): ?>
+			<? foreach ($method->docBlock->section->contents->line as $line): ?>
+				<p><?= Util::entitize($line) ?></p>
+			<? endforeach; ?>
+		<? endif; ?>
+
+		<? foreach ($method->docBlock->section as $section): ?>
+			<? if ((string) $section->headline !== 'Method' && (string) $section->headline !== 'Parameters'): ?>
+				<h4><?= (string) $section->headline ?></h4>
+				<? if (isset($section->contents)): ?>
+					<? foreach ($section->contents->line as $line): ?>
+						<p><?= Util::entitize($line) ?></p>
+					<? endforeach; ?>
+				<? endif; ?>
+
+			<? elseif ((string) $section->headline === 'Parameters'): ?>
+				<h4><?= (string) $section->headline ?></h4>
+				<ul>
+				<? foreach ($method->parameters->parameter as $p): ?>
+					<? $name = (string) $p->name ?>
+					<li>
+						<tt>$<?= $name ?></tt> - <u><?= @$param_data[$name]['type'] ?></u> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Util::entitize(@$param_data[$name]['description']) ?>
+					</li>
+				<? endforeach; ?>
+				</ul>
+
+			<? elseif ((string) $section->headline === 'Examples'): ?>
+				<h4><?= (string) $section->headline ?></h4>
+
+			<? endif; ?>
+
+		<? endforeach; ?>
+
+		<h4>Source</h4>
+		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
+		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em></p>
+
+		<script type="text/javascript" charset="utf-8">
+		SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
+		</script>
+		<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
+	</div>
+
+	<!-- <pre><?#= print_r($method, true) ?></pre> -->
+</div>

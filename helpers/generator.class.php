@@ -1,7 +1,7 @@
 <?php
 class Generator
 {
-	public $write_to;
+	public $write_to = array();
 
 	public function __construct($class, $output)
 	{
@@ -27,7 +27,7 @@ class Generator
 		if ($fname)
 		{
 			file_put_contents($fname, $contents);
-			$this->write_to = $fname;
+			$this->write_to[] = $fname;
 		}
 
 		return $contents;

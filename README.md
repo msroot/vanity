@@ -36,7 +36,7 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 
 * Generate the `tree.js` file.
 * Generate the `searchdoc.js` file.
-* Handle crosslinking via the <link> syntax.
+* Handle crosslinking via the &lt;link> syntax.
 * Support constants.
 * Connect a Markdown/Textile parser for content.
 * Connect the individual pages to the framed UI.

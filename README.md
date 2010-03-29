@@ -32,6 +32,17 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 * `shell_exec()`, `mkdir()`, and `chmod()`.
 * Mac OS X or *nix systems, because I'm currently using forward slashes for paths.
 
+## Todo
+
+* Generate the `tree.js` file.
+* Generate the `searchdoc.js` file.
+* Handle crosslinking via the <link> syntax.
+* Support constants.
+* Connect a Markdown/Textile parser for content.
+* Connect the individual pages to the framed UI.
+* Connect Disqus commenting system for web version.
+* Generate a `.tgz` and `.zip` bundle of the docs automatically.
+
 ## Documentation and usage
 
 You can poke around the code if you like, but I've not written anything up yet. It's still pretty quick-and-dirty.

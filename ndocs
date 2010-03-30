@@ -98,7 +98,7 @@ echo PHP_EOL;
 /********************************************************/
 
 $output = realpath($output);
-include getcwd() . '/template/template_definiton.php';
+include getcwd() . '/template/template_definition.php';
 
 if (!isset($options['template']) || !$options['template'])
 {

@@ -60,9 +60,20 @@
 			<? if ((string) $section->headline !== 'Method' && (string) $section->headline !== 'Parameters'): ?>
 				<h4><?= (string) $section->headline ?></h4>
 				<? if (isset($section->contents)): ?>
-					<? foreach ($section->contents->line as $line): ?>
-						<p><?= Util::entitize($line) ?></p>
-					<? endforeach; ?>
+					<? if (isset($section->contents->line)): ?>
+						<? foreach ($section->contents->line as $line): ?>
+							<p><?= Util::entitize($line) ?></p>
+						<? endforeach; ?>
+					<? endif; ?>
+					<? if (isset($section->contents->entry)): ?>
+						<ul>
+						<? foreach ($section->contents->entry as $entry): ?>
+							<li>
+								<tt><?= (string) $entry->param ?></tt> - <?= Util::entitize((string) $entry->description) ?>
+							</li>
+						<? endforeach; ?>
+						</ul>
+					<? endif; ?>
 				<? endif; ?>
 
 			<? elseif ((string) $section->headline === 'Parameters'): ?>
@@ -76,10 +87,12 @@
 				<? endforeach; ?>
 				</ul>
 
-			<? elseif ((string) $section->headline === 'Examples'): ?>
-				<h4><?= (string) $section->headline ?></h4>
+			<?# elseif ((string) $section->headline === 'Examples'): ?>
+				<!-- <h4><?#= (string) $section->headline ?></h4> -->
 
 			<? endif; ?>
+
+			<!-- <pre><?#= print_r($method, true) ?></pre> -->
 
 		<? endforeach; ?>
 

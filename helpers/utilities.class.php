@@ -139,6 +139,7 @@ class Util
 		$source = substr($source, 1);
 		$source = str_replace("\n\t", "\n", $source);
 		$source = str_replace("\t", '    ', $source);
+		$source = Util::entitize($source);
 
 		return $source;
 	}

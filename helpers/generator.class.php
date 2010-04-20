@@ -1,10 +1,14 @@
 <?php
 class Generator
 {
+	public $class;
+	public $output_dir;
 	public $write_to = array();
 
 	public function __construct($class, $output)
 	{
+		$this->class = $class;
+		$this->output_dir = $output;
 		return $this;
 	}
 

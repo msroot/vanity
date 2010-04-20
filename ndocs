@@ -6,8 +6,11 @@ error_reporting(-1);
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/generator.class.php';
 
+$tree = array();
+
 
 /********************************************************/
+// GENERATE HELP
 
 $help = array(
 	'match:' => '(Required) The file pattern to recursively match (e.g. *.class.php).',
@@ -21,7 +24,7 @@ if (sizeof($options) === 0)
 {
 	echo PHP_EOL;
 	echo 'NDocs ' . NDocs::VERSION . PHP_EOL;
-	echo "    A documentation generator for PHP5 classes and the NaturalDocs documentation format.\n";
+	echo "    A documentation generator for PHP5 classes and the NaturalDocs documentation format." . PHP_EOL;
 	echo PHP_EOL;
 
 	ksort($help);
@@ -40,6 +43,7 @@ if (sizeof($options) === 0)
 // die();
 
 /********************************************************/
+// DETERMINE CLASSES TO REFLECT
 
 // Get the initial set of defined classes
 $before = get_declared_classes();
@@ -48,7 +52,7 @@ if (!isset($options['match'])) die('The --match parameter is required.' . PHP_EO
 
 // Glob and load
 $files = Util::rglob($options['match']);
-echo "FILE MATCHES\n";
+echo "FILE MATCHES" . PHP_EOL;
 foreach ($files as $file)
 {
 	$file = getcwd() . '/' . $file;
@@ -65,7 +69,7 @@ $diff = array_diff($after, $before);
 
 // Do more filtering of the list
 $parse_me = array();
-echo "CLASS MATCHES\n";
+echo "CLASS MATCHES" . PHP_EOL;
 foreach ($diff as $class)
 {
 	// Exclude classes that contain the word "Exception"
@@ -75,9 +79,11 @@ foreach ($diff as $class)
 		echo '    ' . $class . PHP_EOL;
 	}
 }
+sort($parse_me);
 echo PHP_EOL;
 
 /********************************************************/
+// RUN THE LEXER
 
 if (!isset($options['output']) || !$options['output'])
 {
@@ -88,7 +94,7 @@ else
 	$output = $options['output'];
 }
 
-echo "RUNNING THE LEXER\n";
+echo "RUNNING THE LEXER" . PHP_EOL;
 foreach ($parse_me as $class)
 {
 	Lexer::parse_class($class, $output);
@@ -96,6 +102,7 @@ foreach ($parse_me as $class)
 echo PHP_EOL;
 
 /********************************************************/
+// READ AND APPLY THE TEMPLATE
 
 $output = realpath($output);
 include getcwd() . '/template/template_definition.php';
@@ -109,10 +116,17 @@ else
 	$template = $options['template'];
 }
 
-echo "RUNNING THE GENERATOR\n";
+echo "GENERATING THE README" . PHP_EOL;
+$tmpl = new Template($class, $output, $template);
+echo $tmpl->readme($parse_me);
+echo PHP_EOL;
+
+echo "RUNNING THE GENERATOR" . PHP_EOL;
 foreach ($parse_me as $class)
 {
 	$tmpl = new Template($class, $output, $template);
+	$tmpl->class_init();
+	$tree[] = $tmpl->build_tree();
 
 	foreach ($tmpl->write_to as $w)
 	{
@@ -122,14 +136,31 @@ foreach ($parse_me as $class)
 echo PHP_EOL;
 
 /********************************************************/
+// COPY BACK
 
-echo "COPYING STATIC FILES TO OUTPUT DIRECTORY\n";
+echo "COPYING STATIC FILES TO OUTPUT DIRECTORY" . PHP_EOL;
 foreach (CopyFiles::get_files() as $file)
 {
-	$cmd = 'cp -Rf ' . realpath($template) . DIRECTORY_SEPARATOR . $file . ' ' . realpath($output) . DIRECTORY_SEPARATOR . 'generated' . DIRECTORY_SEPARATOR;
+	$cmd = 'cp -Rf ' . realpath($template) . DIRECTORY_SEPARATOR . $file . ' ' . realpath($output) . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR;
 	echo '    ' . $cmd . PHP_EOL;
 	shell_exec($cmd);
 }
+echo PHP_EOL;
+
+/********************************************************/
+// COPY PANEL JS FILES
+
+echo "COPYING PANEL SEARCH TREE" . PHP_EOL;
+
+	// Add additional entries.
+	$tree[] = array('README', 'README.html', '', array());
+
+	$generator = new Generator(null, $output);
+	$generator->start();
+	echo 'var tree = ' . json_encode($tree);
+	$generator->end($generator->output_dir . '/html/panel/tree.js');
+
+	echo '    ' . $generator->output_dir . '/html/panel/tree.js' . PHP_EOL;
 echo PHP_EOL;
 
 /********************************************************/

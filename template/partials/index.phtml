@@ -1,5 +1,5 @@
 <div class="description">
-	<p><?= (string) $this->xml->class->summary->docBlock->section->contents->line ?></p>
+	<?= Markdown(Util::linkify_as_markdown((string) $this->xml->class->fileData->docBlock->section->contents)); ?>
 
 	<div class="sectiontitle">File Information</div>
 	<ul>

@@ -1,24 +1,26 @@
 body {
-	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-family: "Helvetica Neue", "Lucida Grande", Verdana, sans-serif;
 	background: #FFF;
 	color: #000;
 	margin: 0px;
-	font-size: 0.82em;
-	line-height: 1.25em;
+	font-size: 13px;
+	line-height: 1.3em;
 }
 
 a {
-	color: #00F;
-	text-decoration: none;
+	color: #326EA1;
+	text-decoration: underline;
+	padding: 0 1px;
 }
 
 a:hover {
-	color: #333;
-	background: #FE8;
+	color: #fff;
+	background-color: #333;
+	text-decoration: none;
 }
 
 p {
-	margin: 0.3em 0;
+	margin: 1em 0;
 }
 
 h1 {
@@ -107,6 +109,10 @@ ol li {
 	font-size: 0.8em;
 }
 
+.banner p {
+	margin: 0.3em 0;
+}
+
 .banner ul {
 	margin-top: 0.3em;
 	margin-bottom: 0;
@@ -117,6 +123,13 @@ ol li {
 	list-style: none;
 	margin-left: 0;
 	margin-bottom: 0;
+}
+
+code, tt {
+	font: 1em/1.3em "Consolas", "Bitstream Vera Sans Mono", Monaco, monospace !important;
+	background-color: #fee;
+	color: #000080;
+	padding: 1px;
 }
 
 pre {
@@ -251,4 +264,21 @@ tt {
 
 .method .source-link {
 	font-size: 0.85em;
+}
+
+.method .source {
+	padding: 0;
+}
+
+.method .parameterValue {
+	color: #666;
+	font-style: italic;
+}
+
+.method ul.parameterList p {
+	display: inline;
+	padding: 0;
+}
+.hide {
+	display: none;
 }

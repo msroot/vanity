@@ -34,7 +34,7 @@
 		{
 			if (is_array($parameter))
 			{
-				$inline_params[] = implode(' = ', $parameter);
+				$inline_params[] = '[ ' . $parameter[0] . '<span class="parameterValue"> = ' . $parameter[1] . '</span>' . ' ]';
 			}
 			else
 			{
@@ -50,26 +50,24 @@
 	</div>
 
 	<div class="description">
-		<? if (isset($method->docBlock->section->contents->line)): ?>
-			<? foreach ($method->docBlock->section->contents->line as $line): ?>
-				<p><?= Util::entitize($line) ?></p>
-			<? endforeach; ?>
+		<? if (isset($method->docBlock->section->contents)): ?>
+			<?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $method->docBlock->section->contents))) ?>
 		<? endif; ?>
 
 		<? foreach ($method->docBlock->section as $section): ?>
-			<? if ((string) $section->headline !== 'Method' && (string) $section->headline !== 'Parameters'): ?>
+			<? if ((string) $section->headline !== 'Method' && (string) $section->headline !== 'Parameters' && (string) $section->headline !== 'See Also'): ?>
 				<h4><?= (string) $section->headline ?></h4>
 				<? if (isset($section->contents)): ?>
 					<? if (isset($section->contents->line)): ?>
 						<? foreach ($section->contents->line as $line): ?>
-							<p><?= Util::entitize($line) ?></p>
+							<?= Markdown(Util::linkify_as_markdown(Util::entitize($line))) ?>
 						<? endforeach; ?>
 					<? endif; ?>
 					<? if (isset($section->contents->entry)): ?>
-						<ul>
+						<ul class="parameterList">
 						<? foreach ($section->contents->entry as $entry): ?>
 							<li>
-								<tt><?= (string) $entry->param ?></tt> - <?= Util::entitize((string) $entry->description) ?>
+								<tt><?= (string) $entry->param ?></tt> - <?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $entry->description))) ?>
 							</li>
 						<? endforeach; ?>
 						</ul>
@@ -78,33 +76,63 @@
 
 			<? elseif ((string) $section->headline === 'Parameters'): ?>
 				<h4><?= (string) $section->headline ?></h4>
-				<ul>
+				<ul class="parameterList">
 				<? foreach ($method->parameters->parameter as $p): ?>
 					<? $name = (string) $p->name ?>
 					<li>
-						<tt>$<?= $name ?></tt> - <u><?= @$param_data[$name]['type'] ?></u> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Util::entitize(@$param_data[$name]['description']) ?>
+						<?php
+						// Handle multiple types
+						$type = '';
+						$name = isset($param_data['$' . $name]) ? '$' . $name : $name;
+						$name = str_replace('$$', '$', $name);
+
+						if (isset($param_data[$name]['type']))
+						{
+							if (is_array($param_data[$name]['type']))
+							{
+								$type = implode('</u> | <u>', $param_data[$name]['type']);
+							}
+							else
+							{
+								$type = $param_data[$name]['type'];
+							}
+						}
+						?>
+						<tt><?= $name ?></tt> - <u><?= $type ?></u> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize(@$param_data[$name]['description']))) ?>
 					</li>
 				<? endforeach; ?>
 				</ul>
 
-			<?# elseif ((string) $section->headline === 'Examples'): ?>
-				<!-- <h4><?#= (string) $section->headline ?></h4> -->
+			<? elseif ((string) $section->headline === 'See Also'): ?>
+				<h4><?= (string) $section->headline ?></h4>
+				<ul>
+				<? foreach ($section->contents->entry as $entry): ?>
+					<li><a href="<?= (string) $entry->description ?>"><?= (string) $entry->param ?></a></li>
+				<? endforeach; ?>
+				</ul>
 
 			<? endif; ?>
-
-			<!-- <pre><?#= print_r($method, true) ?></pre> -->
 
 		<? endforeach; ?>
 
 		<h4>Source</h4>
 		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
-		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em></p>
-
-		<script type="text/javascript" charset="utf-8">
-		SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
-		</script>
-		<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
+		<p><a href="" class="showsource">Toggle source view</a></p>
+		<div class="source hide">
+			<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em></p>
+			<script type="text/javascript" charset="utf-8">
+			SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
+			</script>
+			<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
+		</div>
 	</div>
 
-	<!-- <pre><?#= print_r($method, true) ?></pre> -->
+	<script type="text/javascript" charset="utf-8">
+	$(function() {
+		$('a.showsource').click(function() {
+			$('div.source').toggleClass('hide');
+			return false;
+		});
+	});
+	</script>
 </div>

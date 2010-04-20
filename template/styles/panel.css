@@ -319,6 +319,7 @@
         {
             color: #999;
             font-style: normal;
+			font-size: 0.9em;
         }
 
         .panel .tree ul li.empty

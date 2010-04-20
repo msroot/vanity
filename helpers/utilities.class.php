@@ -125,8 +125,21 @@ class Util
 
 		foreach ($obj as $o)
 		{
+			// Default
+			$type = (string) $o->type;
+
+			// Handle multiple types
+			if (isset($o->type->line))
+			{
+				$type = array();
+				foreach ($o->type->line as $line)
+				{
+					$type[] = (string) $line;
+				}
+			}
+
 			$arr[(string) $o->param] = array(
-				'type' => (string) $o->type,
+				'type' => $type,
 				'description' => (string) $o->description,
 			);
 		}
@@ -147,5 +160,10 @@ class Util
 	public static function entitize($s)
 	{
 		return htmlspecialchars($s, ENT_COMPAT, 'UTF-8');
+	}
+
+	public static function linkify_as_markdown($s)
+	{
+		return preg_replace('@(https?://([-\w\.]+)+(:\d+)?(/([\w/_\.-]*(\?\S+)?)?)?)@', '<$1>', $s);
 	}
 }

@@ -4,7 +4,7 @@
  * 	A NaturalDocs comment parser for PHP, without the documentation generator.
  *
  * Version:
- * 	2010.03.27
+ * 	2010.04.19
  *
  * Copyright:
  * 	2010 Ryan Parman
@@ -25,7 +25,7 @@ class NDocs
 	/**
 	 *
 	 */
-	const VERSION = '1.0b1';
+	const VERSION = '1.0b2';
 
 	/**
 	 * Get Comment Sections
@@ -83,14 +83,25 @@ class NDocs
 	{
 		$data = array();
 		$data['headline'] = $headline;
-		preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)(.*)(\*(.*)\*\n)/simU', $content, $method); // Most of the headers in the comment block
+		$method = array();
+
+		if ($headline === 'Method' || $headline === 'File')
+		{
+			preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)\n(.*)(\t?\s\*\s[^\t])/simU', $content, $method); // Method description
+		}
+		preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)(.*)(\*(.*)\*\n)/simU', $content, $header); // Most of the headers in the comment block
 		preg_match('/' . preg_quote($headline, '/') . ':\n(.*)/sim', $content, $last); // The last header section in the comment block
 		preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)(.*)\n(.*)\n/simU', $content, $const); // Constants and properties
 
 		if (sizeof($method))
 		{
-			$data['after'] = trim($method[2]);
-			$data['content'] = NDocs::parse_content($method[4]);
+			$data['after'] = trim($method[1]);
+			$data['content'] = NDocs::parse_method_content($method[2]);
+		}
+		elseif (sizeof($header))
+		{
+			$data['after'] = trim($header[2]);
+			$data['content'] = NDocs::parse_content($header[4]);
 		}
 		elseif (sizeof($last))
 		{
@@ -133,6 +144,32 @@ class NDocs
 		}
 
 		return NDocs::parse_parameter_list($cleaned);
+	}
+
+	/**
+	 * Parse Method Content
+	 * 	Special parser for just the Method section.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	$content - _string_ (Required) The contents of the comment block.
+	 *
+	 * Returns:
+	 * 	_string_ A cleaned-up block of text, ready for Markdown processing.
+	 */
+	public static function parse_method_content($content)
+	{
+		$cleaned = array();
+		$content = trim(preg_replace('/\s*\*\s*/', "\n", $content));
+		$content = preg_replace('/\n\n/', '```', $content);
+		$content = preg_replace('/\n-/', '```-```', $content);
+		$content = preg_replace('/\n/', ' ', $content);
+		$content = preg_replace('/```-```/', "\n-", $content);
+		$content = preg_replace('/```/', "\n\n", $content);
+
+		return $content;
 	}
 
 	/**

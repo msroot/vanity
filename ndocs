@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-
+$tstart = time();
 error_reporting(-1);
 
 include_once 'helpers/lexer.class.php';
@@ -15,7 +15,8 @@ $tree = array();
 $help = array(
 	'match:' => '(Required) The file pattern to recursively match (e.g. *.class.php).',
 	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
-	'template:' => '(Optional) Edit description.'
+	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
+	'skip-lexer:' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.'
 );
 
 $options = getopt('', array_keys($help));
@@ -94,6 +95,9 @@ else
 	$output = $options['output'];
 }
 
+// Remove the old output directory.
+Util::rdelete($output);
+
 echo "RUNNING THE LEXER" . PHP_EOL;
 foreach ($parse_me as $class)
 {
@@ -165,5 +169,6 @@ echo PHP_EOL;
 
 /********************************************************/
 
-echo 'DONE.' . PHP_EOL;
+$tend = time();
+echo 'DONE. (' . ($tend - $tstart) . ' seconds)' . PHP_EOL;
 echo PHP_EOL;

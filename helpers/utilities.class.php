@@ -94,6 +94,27 @@ class Util
 		return $files;
 	}
 
+	public static function rdelete($dir)
+	{
+		$files = glob($dir . '*', GLOB_MARK);
+		foreach ($files as $file)
+		{
+			if (is_dir($file))
+			{
+				Util::rdelete($file);
+			}
+			else
+			{
+				unlink($file);
+			}
+		}
+
+		if (is_dir($dir))
+		{
+			rmdir($dir);
+		}
+	}
+
 	public static function group_by_letter($obj, $property)
 	{
 		$arr = array();

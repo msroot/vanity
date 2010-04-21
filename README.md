@@ -34,7 +34,6 @@ It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters 
 
 ## Todo
 
-* Generate the `searchdoc.js` file.
 * Handle crosslinking via the &lt;link> syntax.
 * Add support for PHPDoc syntax.
 * Provide a reference to a parent class' file location.

@@ -7,6 +7,11 @@ include_once 'helpers/lexer.class.php';
 include_once 'helpers/generator.class.php';
 
 $tree = array();
+$search_index = new stdClass();
+$search_index->index = new stdClass();
+$search_index->index->searchIndex = array();
+$search_index->index->longSearchIndex = array();
+$search_index->index->info = array();
 
 
 /********************************************************/
@@ -16,7 +21,7 @@ $help = array(
 	'match:' => '(Required) The file pattern to recursively match (e.g. *.class.php).',
 	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
 	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
-	'skip-lexer:' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.'
+	// 'skip-lexer:' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.'
 );
 
 $options = getopt('', array_keys($help));
@@ -131,6 +136,7 @@ foreach ($parse_me as $class)
 	$tmpl = new Template($class, $output, $template);
 	$tmpl->class_init();
 	$tree[] = $tmpl->build_tree();
+	$search_index = $tmpl->build_search_index($search_index);
 
 	foreach ($tmpl->write_to as $w)
 	{
@@ -158,13 +164,29 @@ echo "COPYING PANEL SEARCH TREE" . PHP_EOL;
 
 	// Add additional entries.
 	$tree[] = array('README', 'README.html', '', array());
+	$tree[] = array('LICENSE', 'LICENSE.html', '', array());
 
 	$generator = new Generator(null, $output);
+
+	// tree
 	$generator->start();
 	echo 'var tree = ' . json_encode($tree);
 	$generator->end($generator->output_dir . '/html/panel/tree.js');
 
+	// search_index
+	array_unshift($search_index->index->searchIndex, 'readme');
+	array_unshift($search_index->index->longSearchIndex, '');
+	array_unshift($search_index->index->info, array(
+		'README', '', 'README.html', '', 'SDK Package Information.', 1
+	));
+
+	$generator->start();
+	echo 'var search_data = ' . json_encode($search_index);
+	$generator->end($generator->output_dir . '/html/panel/search_index.js');
+
 	echo '    ' . $generator->output_dir . '/html/panel/tree.js' . PHP_EOL;
+	echo '    ' . $generator->output_dir . '/html/panel/search_index.js' . PHP_EOL;
+
 echo PHP_EOL;
 
 /********************************************************/

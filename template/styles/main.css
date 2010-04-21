@@ -5,6 +5,7 @@ body {
 	margin: 0px;
 	font-size: 13px;
 	line-height: 1.3em;
+	overflow-y: scroll;
 }
 
 a {

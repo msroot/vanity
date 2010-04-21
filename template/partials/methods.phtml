@@ -117,9 +117,9 @@
 
 		<h4>Source</h4>
 		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
-		<p><a href="" class="showsource">Toggle source view</a></p>
+		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
+		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
 		<div class="source hide">
-			<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em></p>
 			<script type="text/javascript" charset="utf-8">
 			SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
 			</script>

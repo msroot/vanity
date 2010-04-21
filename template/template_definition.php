@@ -172,7 +172,7 @@ class Template extends Generator
 
 		$template = array(
 			'doctype' => 'README',
-			'title' => 'PHP SDK Reference',
+			'title' => 'CloudFusion SDK Reference',
 			'classes' => $classes
 		);
 

@@ -1,28 +1,31 @@
-# NDocs
+# Vanity
 
-NDocs is a very simple, lightweight, non-robust parser for the [NaturalDocs](http://naturaldocs.org) source code comment format. It is currently of a beta quality.
+Vanity uses PHP's [Reflection](http://php.net/reflection) API to generate source code reference documentation.
 
-It also uses [reflection](http://php.net/reflection) to learn about the code and generate more information about the class.
+It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http://naturaldocs.org) source code comment format. PHPDoc support is coming soon. It is currently of a beta quality.
 
 ## Why?
 
-Although I believe that NaturalDocs has a superior way of commenting code over JavaDoc-like solutions (PHPDoc, et al), NaturalDocs doesn't treat PHP like a first-class citizen. Along with that, NaturalDocs makes the same mistake that nearly all documentation generators suffer from -- no way to easily write your own HTML output.
-
-It also appears that work on NaturalDocs 2.0 has stalled, so I'm taking matters into my own hands. This is my first attempt at this kind of project, and I'm open to people who'd like to join the fun.
+* The project was started because it appears that work on NaturalDocs 2.0 has stalled, and even then, PHP is not treated as a first-class citizen.
+* I also wanted something that allowed me to write my own HTML templates. None of the current solutions make that easy (e.g. PHPDocumentor, NaturalDocs, Doxygen).
+* I'm inspired by how good the third-party Ruby on Rails and jQuery documentation systems are. I wanted to build something that had my favorite features (e.g. search, browse, keyboard navigation, inline examples, comments).
 
 ## High-level goals
 
 ### Goals
 
-* Support the NaturalDocs commenting format.
-* Support grabbing the actual source code for the methods/properties.
-* Support all of the fancier features of reflection to allow the code to self-document.
-* It will produce an XML and JSON representation of the code comments and reflection data.
-* Make it easy to write/design your own templates and generate docs with them.
+* Support the NaturalDocs commenting format. (Done)
+* Support the PHPDoc commenting format.
+* Support grabbing the actual source code for the methods/properties. (Done)
+* Support all of the fancier features of reflection to allow the code to self-document. (Done)
+* It will produce an XML and JSON representation of the code comments and reflection data. (Done)
+* Make it easy to write/design your own templates and generate docs with them. (Done)
+* Integrate or leverage the best features from <http://railsapi.com>.
 
 ### Explicit non-goals
 
-* Will not support parsing languages other than PHP. This is simply because NDocs uses reflection rather than language definitions.
+* Will not support parsing languages other than PHP. This is simply because Vanity uses reflection rather than language definitions.
+* (That being said, you can generate docs with this tool if you can provide an XML representation of your source code, and write your templates against that XML.)
 
 ## Requirements
 

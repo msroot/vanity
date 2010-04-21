@@ -3,6 +3,7 @@
 $tstart = time();
 error_reporting(-1);
 
+include_once 'helpers/vanity.class.php';
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/generator.class.php';
 
@@ -29,8 +30,8 @@ $options = getopt('', array_keys($help));
 if (sizeof($options) === 0)
 {
 	echo PHP_EOL;
-	echo 'NDocs ' . NDocs::VERSION . PHP_EOL;
-	echo "    A documentation generator for PHP5 classes and the NaturalDocs documentation format." . PHP_EOL;
+	echo 'Vanity ' . Vanity::VERSION . PHP_EOL;
+	echo "    Uses PHP's Reflection API to generate source reference documentation." . PHP_EOL;
 	echo PHP_EOL;
 
 	ksort($help);

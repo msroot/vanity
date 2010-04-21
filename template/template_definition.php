@@ -9,7 +9,7 @@ class CopyFiles
 {
 	/**
 	 * Method: get_files()
-	 * 	Tells NDocs which files/directories to copy directly from the template directory over to the output directory.
+	 * 	Tells Vanity which files/directories to copy directly from the template directory over to the output directory.
 	 *
 	 * Access:
 	 * 	public static

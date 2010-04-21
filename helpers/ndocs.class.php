@@ -23,11 +23,6 @@
 class NDocs
 {
 	/**
-	 *
-	 */
-	const VERSION = '1.0b2';
-
-	/**
 	 * Get Comment Sections
 	 * 	Determines which sections of the file are source code comment blocks.
 	 *

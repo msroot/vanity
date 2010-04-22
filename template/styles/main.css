@@ -11,7 +11,12 @@ body {
 a {
 	color: #326EA1;
 	text-decoration: underline;
-	padding: 0 1px;
+	padding: 1px 2px;
+
+	-webkit-transition: background-color 0.15s;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 }
 
 a:hover {
@@ -131,6 +136,7 @@ code, tt {
 	background-color: #eef;
 	color: #000080;
 	padding: 1px;
+	white-space: nowrap;
 }
 
 pre {

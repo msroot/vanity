@@ -90,7 +90,7 @@
 						{
 							if (is_array($param_data[$name]['type']))
 							{
-								$type = implode('</u> | <u>', $param_data[$name]['type']);
+								$type = implode('</em> | <em>', $param_data[$name]['type']);
 							}
 							else
 							{
@@ -98,7 +98,7 @@
 							}
 						}
 						?>
-						<tt><?= $name ?></tt> - <u><?= $type ?></u> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize(@$param_data[$name]['description']))) ?>
+						<tt><?= $name ?></tt> - <em><?= $type ?></em> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize(@$param_data[$name]['description']))) ?>
 					</li>
 				<? endforeach; ?>
 				</ul>

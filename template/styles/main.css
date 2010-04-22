@@ -135,8 +135,12 @@ code, tt {
 	font: 1em/1.3em "Consolas", "Bitstream Vera Sans Mono", Monaco, monospace !important;
 	background-color: #eef;
 	color: #000080;
-	padding: 1px;
+	padding: 0 2px;
 	white-space: nowrap;
+
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 }
 
 pre {

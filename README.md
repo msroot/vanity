@@ -44,6 +44,8 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * Support class constants.
 * Connect Disqus commenting system for web version.
 * Generate a `.tgz` and `.zip` bundle of the docs automatically.
+* Copy the XML & JSON versions of the docs to a web accessibile location.
+* Pre-select a page based on a query string parameter.
 
 ## Documentation and usage
 

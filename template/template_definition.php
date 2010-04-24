@@ -19,7 +19,6 @@ class CopyFiles
 	{
 		// Define which files to copy to the generated doc directory.
 		return array(
-			'index.html',
 			'images',
 			'panel',
 			'scripts',
@@ -53,11 +52,25 @@ class Template extends Generator
 	public $template_dir;
 
 	/**
+	 * Property: $title
+	 * 	Holds the title that was passed in from the CLI.
+	 */
+	public $title;
+
+	/**
+	 * Property: $readme
+	 * 	Holds the README location that was passed in from the CLI.
+	 */
+	public $readme;
+
+	/**
 	 * Method: __construct
 	 */
-	public function __construct($class, $output_dir, $template_dir)
+	public function __construct($class, $output_dir, $template_dir, $title, $readme = null)
 	{
 		$this->template_dir = $template_dir;
+		$this->title = $title;
+		$this->readme = $readme;
 		$this->file_depth = '../../';
 
 		$this->xml = simplexml_load_file(realpath($output_dir) . '/xml/' . $class . '.xml', "SimpleXMLElement", LIBXML_NOCDATA);
@@ -77,19 +90,19 @@ class Template extends Generator
 
 		$tree_node = array(
 			(string) $this->xml->class->name,
-			'class/' . (string) $this->xml->class->name . '/index.html',
+			'class/' . strtolower((string) $this->xml->class->name) . '/index.html',
 			(isset($this->xml->class->summary->parentClasses->class) ? ' < ' . (string) $this->xml->class->summary->parentClasses->class : ''),
 			array()
 		);
 
-		// $tree_node[3][] = array('Constants', 'class/' . (string) $this->xml->class->name . '/constants.html', '', array());
-		$tree_node[3][] = array('Properties', 'class/' . (string) $this->xml->class->name . '/properties.html', '', array());
+		// $tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->xml->class->name) . '/constants.html', '', array());
+		$tree_node[3][] = array('Properties', 'class/' . strtolower((string) $this->xml->class->name) . '/properties.html', '', array());
 
 		foreach ($this->xml->class->methods->method as $method)
 		{
 			$tree_node[3][] = array(
 				(string) $method->name,
-				'class/' . (string) $this->xml->class->name . '/' . (string) $method->name . '.html',
+				'class/' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name . '.html',
 				(isset($method->inherited) ? ' < ' . (string) $method->inherited->attributes()->from : ''),
 				array()
 			);
@@ -100,25 +113,13 @@ class Template extends Generator
 
 	public function build_search_index($search_index)
 	{
-		/*
-		var search_data = {
-			"index": {
-				"searchIndex": ["authenticate"],
-				"longSearchIndex": [""],
-				"info": [
-					["authenticate()", "CloudFusion", "class\/CloudFusion\/authenticate.html", "", "Default, shared method for authenticating a connection to AWS.", 1]
-				]
-			}
-		}
-		*/
-
 		// Collect class name
 		$search_index->index->searchIndex[] = strtolower((string) $this->xml->class->name);
 		$search_index->index->longSearchIndex[] = '';
 		$search_index->index->info[] = array(
 			(string) $this->xml->class->name, // Class name
 			'',
-			'class/' . (string) $this->xml->class->name . '/index.html', // File location
+			'class/' . strtolower((string) $this->xml->class->name) . '/index.html', // File location
 			'', // After the name
 			(string) $this->xml->class->fileData->docBlock->section->contents, // Description
 			1 // ?
@@ -134,7 +135,7 @@ class Template extends Generator
 			$search_index->index->info[] = array(
 				(string) $property->name, // Property name
 				(string) $this->xml->class->name, // Class name
-				'class/' . (string) $this->xml->class->name . '/properties.html#' . (string) $property->name, // File location
+				'class/' . strtolower((string) $this->xml->class->name) . '/properties.html#' . (string) $property->name, // File location
 				'', // After the name
 				(string) $property->description->line, // Description
 				1 // ?
@@ -149,7 +150,7 @@ class Template extends Generator
 			$search_index->index->info[] = array(
 				(string) $method->name . '()', // Property name
 				(string) $this->xml->class->name, // Class name
-				'class/' . (string) $this->xml->class->name . '/' . (string) $method->name . '.html', // File location
+				'class/' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name . '.html', // File location
 				'', // After the name
 				(string) $method->docBlock->section->contents, // Description
 				1 // ?
@@ -166,6 +167,15 @@ class Template extends Generator
 		$this->methods();
 	}
 
+	public function frame()
+	{
+		$this->start();
+		include $this->template_dir . '/index.phtml';
+		$this->end($this->output_dir . '/html/index.html');
+
+		echo '    ' . $this->output_dir . '/html/index.html' . PHP_EOL;
+	}
+
 	public function readme($classes)
 	{
 		$this->xml = null;
@@ -173,12 +183,19 @@ class Template extends Generator
 
 		$template = array(
 			'doctype' => 'README',
-			'title' => 'CloudFusion SDK Reference',
+			'title' => $this->title,
 			'classes' => $classes
 		);
 
 		$this->start();
-		include $this->template_dir . '/partials/README.phtml';
+		if ($this->readme)
+		{
+			echo '<div class="method readme">' . Markdown(file_get_contents(realpath($this->readme))) . '</div>';
+		}
+		else
+		{
+			include $this->template_dir . '/partials/README.phtml';
+		}
 		$this->body = $this->end();
 
 		$this->start();

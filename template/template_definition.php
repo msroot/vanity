@@ -82,6 +82,9 @@ class Template extends Generator
 			array()
 		);
 
+		// $tree_node[3][] = array('Constants', 'class/' . (string) $this->xml->class->name . '/constants.html', '', array());
+		$tree_node[3][] = array('Properties', 'class/' . (string) $this->xml->class->name . '/properties.html', '', array());
+
 		foreach ($this->xml->class->methods->method as $method)
 		{
 			$tree_node[3][] = array(

@@ -60,7 +60,7 @@
 				<? if (isset($section->contents)): ?>
 					<? if (isset($section->contents->line)): ?>
 						<? foreach ($section->contents->line as $line): ?>
-							<?= Markdown(Util::linkify_as_markdown(Util::entitize($line))) ?>
+							<?= Markdown(Util::linkify_as_markdown(Util::entitize(str_replace('_|_', '_ | _', $line)))) ?>
 						<? endforeach; ?>
 					<? endif; ?>
 					<? if (isset($section->contents->entry)): ?>
@@ -119,10 +119,10 @@
 		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
 		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
+		<script type="text/javascript" charset="utf-8">
+		SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
+		</script>
 		<div class="source hide">
-			<script type="text/javascript" charset="utf-8">
-			SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
-			</script>
 			<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
 		</div>
 	</div>
@@ -130,7 +130,8 @@
 	<script type="text/javascript" charset="utf-8">
 	$(function() {
 		$('a.showsource').click(function() {
-			$('div.source').toggleClass('hide');
+			// $('div.source').toggleClass('hide');
+			$('div.source').slideToggle('fast');
 			return false;
 		});
 	});

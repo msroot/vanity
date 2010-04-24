@@ -47,8 +47,27 @@ if (sizeof($options) === 0)
 
 	die();
 }
-// var_dump($options);
-// die();
+
+echo PHP_EOL;
+
+
+/********************************************************/
+// WORKING DIRECTORIES
+
+echo "WORKING DIRECTORIES" . PHP_EOL;
+
+// Output
+if (!isset($options['output']) || !$options['output']) { $output = './output'; }
+else { $output = $options['output']; }
+echo '    ' . realpath($output) . PHP_EOL;
+
+// Template
+if (!isset($options['template']) || !$options['template']) { $template = dirname(__FILE__) . '/template'; }
+else { $template = $options['template']; }
+echo '    ' . realpath($template) . PHP_EOL;
+
+echo PHP_EOL;
+
 
 /********************************************************/
 // DETERMINE CLASSES TO REFLECT
@@ -90,17 +109,9 @@ foreach ($diff as $class)
 sort($parse_me);
 echo PHP_EOL;
 
+
 /********************************************************/
 // RUN THE LEXER
-
-if (!isset($options['output']) || !$options['output'])
-{
-	$output = './output';
-}
-else
-{
-	$output = $options['output'];
-}
 
 // Remove the old output directory.
 Util::rdelete($output);
@@ -112,18 +123,11 @@ foreach ($parse_me as $class)
 }
 echo PHP_EOL;
 
+
 /********************************************************/
 // READ AND APPLY THE TEMPLATE
 
 $output = realpath($output);
-if (!isset($options['template']) || !$options['template'])
-{
-	$template = './template';
-}
-else
-{
-	$template = $options['template'];
-}
 include $template . DIRECTORY_SEPARATOR . 'template_definition.php';
 
 echo "GENERATING THE README" . PHP_EOL;
@@ -145,6 +149,7 @@ foreach ($parse_me as $class)
 	}
 }
 echo PHP_EOL;
+
 
 /********************************************************/
 // COPY BACK
@@ -169,6 +174,7 @@ shell_exec($cmd);
 
 echo PHP_EOL;
 
+
 /********************************************************/
 // COPY PANEL JS FILES
 
@@ -176,7 +182,7 @@ echo "PANEL SEARCH/TREE" . PHP_EOL;
 
 	// Add additional entries.
 	$tree[] = array('README', 'README.html', '', array());
-	$tree[] = array('LICENSE', 'LICENSE.html', '', array());
+	// $tree[] = array('LICENSE', 'LICENSE.html', '', array());
 
 	$generator = new Generator(null, $output);
 
@@ -200,6 +206,7 @@ echo "PANEL SEARCH/TREE" . PHP_EOL;
 	echo '    ' . $generator->output_dir . '/html/panel/search_index.js' . PHP_EOL;
 
 echo PHP_EOL;
+
 
 /********************************************************/
 

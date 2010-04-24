@@ -1,6 +1,4 @@
 <?php
-include 'helpers/markdown.php';
-
 /**
  * Class: CopyFiles
  * 	Used for handling copy operations.

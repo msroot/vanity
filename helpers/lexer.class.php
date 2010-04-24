@@ -19,7 +19,7 @@ class Lexer
 {
 	public static function parse_class($class_name, $dir_output)
 	{
-		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><ndocs xmlns="http://github.com/skyzyx/ndocs"></ndocs>', 'SimpleXMLExtended', LIBXML_NOCDATA);
+		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://github.com/skyzyx/ndocs"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
 			// Collect class data
 			$rclass = new ReflectionClass($class_name);
@@ -61,7 +61,7 @@ class Lexer
 				$xinfo = $xclass->addChild('summary');
 
 					// <file />
-					$temp = explode('cloudfusion/', $rclass->getFileName());
+					$temp = explode(getcwd() . DIRECTORY_SEPARATOR, $rclass->getFileName());
 					$xfile = $xinfo->addChild('file', $temp[1]);
 
 					// Store copies of the files in memory...
@@ -218,6 +218,10 @@ class Lexer
 
 											case 'null':
 												$dvalue = 'null';
+												break;
+
+											case 'array':
+												$dvalue = 'array( ' . implode(', ', $dvalue) . ' )';
 												break;
 										}
 

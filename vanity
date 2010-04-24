@@ -6,6 +6,7 @@ error_reporting(-1);
 include_once 'helpers/vanity.class.php';
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/generator.class.php';
+include_once 'helpers/markdown.php';
 
 $tree = array();
 $search_index = new stdClass();
@@ -115,8 +116,6 @@ echo PHP_EOL;
 // READ AND APPLY THE TEMPLATE
 
 $output = realpath($output);
-include getcwd() . '/template/template_definition.php';
-
 if (!isset($options['template']) || !$options['template'])
 {
 	$template = './template';
@@ -125,6 +124,7 @@ else
 {
 	$template = $options['template'];
 }
+include $template . DIRECTORY_SEPARATOR . 'template_definition.php';
 
 echo "GENERATING THE README" . PHP_EOL;
 $tmpl = new Template($class, $output, $template);

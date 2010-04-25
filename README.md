@@ -47,6 +47,15 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * Pre-select a page based on a query string parameter.
 * Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
+## On the shoulders of giants...
+
+Vanity wouldn't have been made possible without the following projects:
+
+- [SDoc](http://github.com/voloko/sdoc/) &mdash; The UI template with browse/search support. (MIT-licensed)
+- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
+- [Spyc](http://code.google.com/p/spyc/) &mdash; Pure PHP YAML parser. (MIT-licensed)
+- [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
+
 ## Documentation and usage
 
 You can poke around the code if you like, but I've not written anything up yet. It's still pretty quick-and-dirty.

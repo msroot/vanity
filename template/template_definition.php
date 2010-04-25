@@ -95,7 +95,7 @@ class Template extends Generator
 			array()
 		);
 
-		// $tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->xml->class->name) . '/constants.html', '', array());
+		$tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->xml->class->name) . '/constants.html', '', array());
 		$tree_node[3][] = array('Properties', 'class/' . strtolower((string) $this->xml->class->name) . '/properties.html', '', array());
 
 		foreach ($this->xml->class->methods->method as $method)
@@ -126,6 +126,19 @@ class Template extends Generator
 		);
 
 		// Collect constants
+		foreach ($this->xml->class->constants->constant as $constant)
+		{
+			$search_index->index->searchIndex[] = strtolower((string) $constant->name);
+			$search_index->index->longSearchIndex[] = strtolower((string) $this->xml->class->name);
+			$search_index->index->info[] = array(
+				(string) $constant->name, // Constant name
+				(string) $this->xml->class->name, // Class name
+				'class/' . strtolower((string) $this->xml->class->name) . '/constants.html#' . (string) $constant->name, // File location
+				'', // After the name
+				'', //(string) $property->description->line, // Description
+				1 // ?
+			);
+		}
 
 		// Collect properties
 		foreach ($this->xml->class->properties->property as $property)
@@ -163,6 +176,7 @@ class Template extends Generator
 	public function class_init()
 	{
 		$this->index();
+		$this->constants();
 		$this->properties();
 		$this->methods();
 	}
@@ -219,6 +233,22 @@ class Template extends Generator
 		$this->start();
 		include 'layout.phtml';
 		$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/index.html');
+	}
+
+	public function constants()
+	{
+		$template = array(
+			'doctype' => 'Constants',
+			'title' => (string) $this->xml->class->name
+		);
+
+		$this->start();
+		include $this->template_dir . '/partials/constants.phtml';
+		$this->body = $this->end();
+
+		$this->start();
+		include 'layout.phtml';
+		$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/constants.html');
 	}
 
 	public function properties()

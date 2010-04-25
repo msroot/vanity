@@ -40,7 +40,6 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 ## Todo
 
 * Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
-* Support class constants.
 * Handle crosslinking via the &lt;link> syntax.
 * Add support for PHPDoc syntax.
 * Provide a reference to a parent class' file location.

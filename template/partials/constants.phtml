@@ -1,0 +1,17 @@
+<? if (isset($this->xml->class->constants->constant)): ?>
+	<? foreach ($this->xml->class->constants->constant as $constant): ?>
+	<div class="method">
+		<div class="title" id="<?= $constant->name ?>">
+			<a name="<?= $constant->name ?>" id="<?= $constant->name ?>"></a><strong><?= $constant->name ?></strong>
+		</div>
+
+		<div class="description">
+			<p>Value: <?= $constant->value ?></p>
+		</div>
+	</div>
+	<? endforeach; ?>
+<? else: ?>
+	<div class="method">
+		<p>There are no constants defined in this class.</p>
+	</div>
+<? endif; ?>

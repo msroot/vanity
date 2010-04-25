@@ -19,11 +19,12 @@ class Lexer
 {
 	public static function parse_class($class_name, $dir_output)
 	{
-		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://github.com/skyzyx/ndocs"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
+		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://github.com/skyzyx/vanity"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
 			// Collect class data
 			$rclass = new ReflectionClass($class_name);
 			$rclass_properties = $rclass->getDefaultProperties();
+			$rclass_constants = $rclass->getConstants();
 			$rclass_methods = $rclass->getMethods();
 			$rclass_comments = $rclass->getDocComment();
 			ksort($rclass_properties);
@@ -101,6 +102,22 @@ class Lexer
 
 						Util::htmlize($pheadline['content'], $xcontents);
 					}
+
+				// <constants />
+				$xconstants = $xclass->addChild('constants');
+				$xconstants->addAttribute('count', sizeof($rclass_constants));
+
+				foreach ($rclass_constants as $rconstant => $rvalue)
+				{
+					// <constant />
+					$xconstant = $xconstants->addChild('constant');
+
+						// <name />
+						$xconstant->addChild('name', $rconstant);
+
+						// <value />
+						$xconstant->addChild('value', $rvalue);
+				}
 
 				// <properties />
 				$xproperties = $xclass->addChild('properties');

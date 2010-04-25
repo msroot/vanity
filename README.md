@@ -43,7 +43,6 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * Handle crosslinking via the &lt;link> syntax.
 * Pre-select a page based on a query string parameter.
 * Provide a reference to a parent class' file location.
-* Generate a `.tgz` and `.zip` bundle of the docs automatically.
 * Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 * Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
 

@@ -187,4 +187,58 @@ class Util
 	{
 		return preg_replace('@(https?://([-\w\.]+)+(:\d+)?(/([\w/_\.-]*(\?\S+)?)?)?)@', '<$1>', $s);
 	}
+
+	/**
+	 * Method: size_readable()
+	 * 	Return human readable file sizes. Original function by Aidan Lister <mailto:aidan@php.net>, modified by Ryan Parman.
+	 *
+	 * Access:
+	 * 	public
+	 *
+	 * Parameters:
+	 * 	size - _integer_ (Required) Filesize in bytes.
+	 * 	unit - _string_ (Optional) The maximum unit to use. Defaults to the largest appropriate unit.
+	 * 	retstring - _string_ (Optional) The format for the return string. Defaults to '%01.2f %s'
+	 *
+	 * Returns:
+	 * 	_string_ The human-readable file size.
+	 *
+ 	 * Examples:
+ 	 * 	example::utilities/size_readable.phpt:
+ 	 * 	example::utilities/size_readable2.phpt:
+ 	 * 	example::utilities/size_readable3.phpt:
+ 	 *
+	 * See Also:
+	 * 	Original Function - http://aidanlister.com/repos/v/function.size_readable.php
+	 */
+	public static function size_readable($size, $unit = null, $retstring = null)
+	{
+		// Units
+		$sizes = array('B', 'kB', 'MB', 'GB', 'TB', 'PB');
+		$mod = 1024;
+		$ii = count($sizes) - 1;
+
+		// Max unit
+		$unit = array_search((string) $unit, $sizes);
+		if ($unit === null || $unit === false)
+		{
+			$unit = $ii;
+		}
+
+		// Return string
+		if ($retstring === null)
+		{
+			$retstring = '%01.2f %s';
+		}
+
+		// Loop
+		$i = 0;
+		while ($unit != $i && $size >= 1024 && $i < $ii)
+		{
+			$size /= $mod;
+			$i++;
+		}
+
+		return sprintf($retstring, $size, $sizes[$i]);
+	}
 }

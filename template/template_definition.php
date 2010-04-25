@@ -198,7 +198,8 @@ class Template extends Generator
 		$template = array(
 			'doctype' => 'README',
 			'title' => $this->title,
-			'classes' => $classes
+			'classes' => $classes,
+			'subtext' => 'Download the <a href="latest_docs.tar.gz">offline HTML docs</a>.'
 		);
 
 		$this->start();
@@ -223,7 +224,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Class',
-			'title' => (string) $this->xml->class->name
+			'title' => (string) $this->xml->class->name,
+			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
 		);
 
 		$this->start();
@@ -239,7 +241,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Constants',
-			'title' => (string) $this->xml->class->name
+			'title' => (string) $this->xml->class->name,
+			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
 		);
 
 		$this->start();
@@ -255,7 +258,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Properties',
-			'title' => (string) $this->xml->class->name
+			'title' => (string) $this->xml->class->name,
+			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
 		);
 
 		$this->start();
@@ -274,7 +278,8 @@ class Template extends Generator
 			$template = array(
 				'doctype' => 'Methods',
 				'title' => (string) $this->xml->class->name . '::' . (string) $method->name,
-				'header' => (string) $this->xml->class->name
+				'header' => (string) $this->xml->class->name,
+				'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
 			);
 
 			$this->start();

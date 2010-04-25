@@ -26,8 +26,8 @@
 				<? if (isset($this->xml->class->summary->parentClasses->class)): ?>
 					<em class="parent">extends <a href="../<?= (string) $this->xml->class->summary->parentClasses->class ?>/index.html"><?= (string) $this->xml->class->summary->parentClasses->class ?></a></em>
 				<? endif; ?></h1>
-			<? if (isset($this->xml->class->summary->docBlock->section[0]->contents->line)): ?>
-			<p><?= (string) $this->xml->class->summary->docBlock->section[0]->contents->line ?></p>
+			<? if (isset($template['subtext'])): ?>
+			<p><?= $template['subtext'] ?></p>
 			<? endif; ?>
 		</div>
 

@@ -137,12 +137,8 @@
 		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
 		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
-		<script type="text/javascript" charset="utf-8">
-		SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
-		SyntaxHighlighter.defaults['auto-links'] = false;
-		</script>
 		<div class="source hide">
-			<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
+			<pre class="brush: php; auto-links: false; first-line: <?= (int) $method->source->startLine ?>"><?= Util::clean_source((string) $method->source->code) ?></pre>
 		</div>
 	</div>
 

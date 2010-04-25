@@ -5,8 +5,11 @@ error_reporting(-1);
 
 include_once 'helpers/vanity.class.php';
 include_once 'helpers/lexer.class.php';
+include_once 'helpers/phpt.class.php';
+include_once 'helpers/example.class.php';
 include_once 'helpers/generator.class.php';
 include_once 'helpers/markdown.php';
+include_once 'helpers/spyc.php';
 
 $tree = array();
 $search_index = new stdClass();

@@ -1,6 +1,7 @@
 <?php
 class Generator
 {
+	public $examples;
 	public $class;
 	public $output_dir;
 	public $write_to = array();
@@ -9,6 +10,7 @@ class Generator
 	{
 		$this->class = $class;
 		$this->output_dir = $output;
+		$this->read_examples();
 		return $this;
 	}
 
@@ -35,5 +37,16 @@ class Generator
 		}
 
 		return $contents;
+	}
+
+	public function read_examples()
+	{
+		$this->examples = array();
+		$yaml = getcwd() . DIRECTORY_SEPARATOR . 'examples.yml';
+
+		if (file_exists($yaml))
+		{
+			$this->examples = spyc_load_file($yaml);
+		}
 	}
 }

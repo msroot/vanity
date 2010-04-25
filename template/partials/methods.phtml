@@ -1,5 +1,8 @@
 <div class="method">
 	<?php
+	$class_name = (string) $this->xml->class->name;
+	$method_name = (string) $method->name;
+
 	$param_data = array();
 	foreach ($method->docBlock->section as $section)
 	{
@@ -115,12 +118,28 @@
 
 		<? endforeach; ?>
 
+		<? if (isset($this->examples[$class_name][$method_name]) && $this->examples[$class_name][$method_name]): ?>
+			<h4>Examples</h4>
+			<div class="description">
+				<? foreach ($this->examples[$class_name][$method_name] as $path): ?>
+					<?php
+					$example = new Example($path);
+					$sections = $example->sections();
+					?>
+					<h5 title="<?= $path ?>"><?= $sections['TEST'] ?></h5>
+					<pre class="brush: php; first-line: 1"><?= $example->display($sections['FILE']); ?></pre>
+					<br><pre><?= $example->display($sections['EXPECT']); ?></pre>
+				<? endforeach; ?>
+			</div>
+		<? endif; ?>
+
 		<h4>Source</h4>
 		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
 		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
 		<script type="text/javascript" charset="utf-8">
 		SyntaxHighlighter.defaults['first-line'] = <?= (string) $method->source->startLine ?>;
+		SyntaxHighlighter.defaults['auto-links'] = false;
 		</script>
 		<div class="source hide">
 			<pre class="brush: php"><?= Util::clean_source((string) $method->source->code) ?></pre>
@@ -136,4 +155,20 @@
 		});
 	});
 	</script>
+
+	<!-- Disqus Comments -->
+	<!--
+	<div id="commentWrapper">
+		<br><br>
+		<div class="title">
+			<strong>User contributed notes</strong>
+		</div>
+		<div class="description">
+			<div id="disqus_thread"></div>
+			<script type="text/javascript">var disqus_developer = 1;</script>
+			<script type="text/javascript" src="http://disqus.com/forums/cloudfusion/embed.js"></script>
+			<noscript><a href="http://cloudfusion.disqus.com/?url=ref">View the discussion thread.</a></noscript>
+		</div>
+	</div>
+	-->
 </div>

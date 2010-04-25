@@ -53,8 +53,8 @@ Vanity wouldn't have been made possible without the following projects:
 
 - [SDoc](http://github.com/voloko/sdoc/) &mdash; The UI template with browse/search support. (MIT-licensed)
 - [Spyc](http://code.google.com/p/spyc/) &mdash; Pure PHP YAML parser. (MIT-licensed)
-- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
 - [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
+- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
 - [Syntax Highlighter](http://alexgorbatchev.com/wiki/SyntaxHighlighter) &mdash; Used when displaying source code. (LGPL-licensed)
 
 ## Documentation and usage

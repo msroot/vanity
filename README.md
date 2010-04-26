@@ -39,7 +39,7 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Todo
 
-* Add support for PHPDoc syntax.
+* Add support for [PHPDoc](http://phpdoc.org) syntax.
 * Handle crosslinking via the &lt;link> syntax.
 * Pre-select a page based on a query string parameter.
 * Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.

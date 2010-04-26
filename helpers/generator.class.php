@@ -42,11 +42,28 @@ class Generator
 	public function read_examples()
 	{
 		$this->examples = array();
-		$yaml = getcwd() . DIRECTORY_SEPARATOR . 'examples.yml';
-
-		if (file_exists($yaml))
+		$all_examples = Util::rglob('examples.yml');
+		foreach ($all_examples as $example)
 		{
-			$this->examples = spyc_load_file($yaml);
+			$example = realpath($example);
+			$yaml = spyc_load_file($example);
+			foreach ($yaml as $class => $methods)
+			{
+				if ($methods)
+				{
+					foreach ($methods as $method => $tests)
+					{
+						if ($tests)
+						{
+							foreach ($tests as $index => $test)
+							{
+									$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
+							}
+						}
+					}
+				}
+			}
+			$this->examples = array_merge($this->examples, $yaml);
 		}
 	}
 }

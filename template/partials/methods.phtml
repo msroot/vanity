@@ -1,6 +1,7 @@
 <div class="method">
 	<?php
 	$class_name = (string) $this->xml->class->name;
+	$method_class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : $class_name;
 	$method_name = (string) $method->name;
 
 	$param_data = array();
@@ -46,6 +47,19 @@
 		}
 		$inline_params = ' ' . implode(', ', $inline_params) . ' ';
 	}
+
+	$class_map = array();
+	$class_map[(string) $this->xml->class->name] = (string) $this->xml->class->summary->file;
+	if (isset($this->xml->class->summary->parentClasses->class))
+	{
+		foreach ($this->xml->class->summary->parentClasses->class as $parentClass)
+		{
+			$class_map[(string) $parentClass->name] = (string) $parentClass->file;
+		}
+	}
+
+	$class_file = $class_map[$method_class_name];
+
 	?>
 
 	<div class="title">
@@ -118,10 +132,10 @@
 
 		<? endforeach; ?>
 
-		<? if (isset($this->examples[$class_name][$method_name]) && $this->examples[$class_name][$method_name]): ?>
+		<? if (isset($this->examples[$method_class_name][$method_name]) && $this->examples[$method_class_name][$method_name]): ?>
 			<h4>Examples</h4>
 			<div class="description">
-				<? foreach ($this->examples[$class_name][$method_name] as $path): ?>
+				<? foreach ($this->examples[$method_class_name][$method_name] as $path): ?>
 					<?php
 					$example = new Example($path);
 					$sections = $example->sections();
@@ -134,9 +148,8 @@
 		<? endif; ?>
 
 		<h4>Source</h4>
-		<? $class_name = isset($method->inherited) ? (string) $method->inherited->attributes()->from : (string) $this->xml->class->name ?>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
-		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_name ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
+		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
 		<div class="source hide">
 			<pre class="brush: php; auto-links: false; first-line: <?= (int) $method->source->startLine ?>"><?= Util::clean_source((string) $method->source->code) ?></pre>
 		</div>

@@ -13,7 +13,7 @@ class Example
 
 	public function __construct($path)
 	{
-		$this->output = file_get_contents(getcwd() . DIRECTORY_SEPARATOR . $path);
+		$this->output = file_get_contents($path);
 	}
 
 	public function sections()

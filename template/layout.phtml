@@ -23,8 +23,8 @@
 		<div class="banner">
 			<span class="type"><?= $template['doctype'] ?></span>
 		    <h1><span class="title"><?= isset($template['header']) ? $template['header'] : $template['title'] ?></span>
-				<? if (isset($this->xml->class->summary->parentClasses->class)): ?>
-					<em class="parent">extends <a href="../<?= (string) $this->xml->class->summary->parentClasses->class ?>/index.html"><?= (string) $this->xml->class->summary->parentClasses->class ?></a></em>
+				<? if (isset($this->xml->class->summary->parentClasses->class->name)): ?>
+					<em class="parent">extends <a href="../<?= (string) $this->xml->class->summary->parentClasses->class->name ?>/index.html"><?= (string) $this->xml->class->summary->parentClasses->class->name ?></a></em>
 				<? endif; ?></h1>
 			<? if (isset($template['subtext'])): ?>
 			<p><?= $template['subtext'] ?></p>

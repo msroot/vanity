@@ -21,7 +21,7 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * <del>It will produce an XML and JSON representation of the code comments and reflection data.</del> (Done)
 * <del>Make it easy to write/design your own templates and generate docs with them.</del> (Done)
 * <del>Integrate or leverage the best features from <http://railsapi.com>.</del> (Done)
-* <del>Support pulling in PHPT unit tests as examples using a YAML-based `examples.yml` file.</del> (Done)
+* <del>Support recursively pulling in examples using YAML-based `examples.yml` files.</del> (Done)
 * Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
 
 ### Explicit non-goals
@@ -42,7 +42,6 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * Add support for PHPDoc syntax.
 * Handle crosslinking via the &lt;link> syntax.
 * Pre-select a page based on a query string parameter.
-* Provide a reference to a parent class' file location.
 * Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 * Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
 

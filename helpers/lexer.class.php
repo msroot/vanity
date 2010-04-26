@@ -27,6 +27,7 @@ class Lexer
 			$rclass_constants = $rclass->getConstants();
 			$rclass_methods = $rclass->getMethods();
 			$rclass_comments = $rclass->getDocComment();
+			ksort($rclass_constants);
 			ksort($rclass_properties);
 			sort($rclass_methods);
 
@@ -76,7 +77,12 @@ class Lexer
 
 						while ($class_ref->getParentClass())
 						{
-							$xparentClass->addChild('class', $class_ref->getParentClass()->name);
+							$xpclass = $xparentClass->addChild('class');
+							$xpclass->addChild('name', $class_ref->getParentClass()->name);
+
+							$temp = explode(getcwd() . DIRECTORY_SEPARATOR, $class_ref->getParentClass()->getFileName());
+							$xpclass->addChild('file', $temp[1]);
+
 							$class_ref = $class_ref->getParentClass();
 
 							// Add the parent files to memory as well...

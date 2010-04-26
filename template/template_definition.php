@@ -91,7 +91,7 @@ class Template extends Generator
 		$tree_node = array(
 			(string) $this->xml->class->name,
 			'class/' . strtolower((string) $this->xml->class->name) . '/index.html',
-			(isset($this->xml->class->summary->parentClasses->class) ? ' < ' . (string) $this->xml->class->summary->parentClasses->class : ''),
+			(isset($this->xml->class->summary->parentClasses->class->name) ? ' < ' . (string) $this->xml->class->summary->parentClasses->class->name : ''),
 			array()
 		);
 
@@ -234,7 +234,7 @@ class Template extends Generator
 
 		$this->start();
 		include 'layout.phtml';
-		$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/index.html');
+		$this->end($this->output_dir . 'html/class/' . strtolower($this->class) . '/index.html');
 	}
 
 	public function constants()
@@ -251,7 +251,7 @@ class Template extends Generator
 
 		$this->start();
 		include 'layout.phtml';
-		$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/constants.html');
+		$this->end($this->output_dir . 'html/class/' . strtolower($this->class) . '/constants.html');
 	}
 
 	public function properties()
@@ -268,7 +268,7 @@ class Template extends Generator
 
 		$this->start();
 		include 'layout.phtml';
-		$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/properties.html');
+		$this->end($this->output_dir . 'html/class/' . strtolower($this->class) . '/properties.html');
 	}
 
 	public function methods()
@@ -288,7 +288,7 @@ class Template extends Generator
 
 			$this->start();
 			include 'layout.phtml';
-			$this->end($this->output_dir . '/html/class/' . strtolower($this->class) . '/' . (string) $method->name . '.html');
+			$this->end($this->output_dir . 'html/class/' . strtolower($this->class) . '/' . (string) $method->name . '.html');
 		}
 	}
 }

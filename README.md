@@ -41,7 +41,7 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 * Add support for [PHPDoc](http://phpdoc.org) syntax.
 * Handle crosslinking via the &lt;link> syntax.
-* Pre-select a page based on a query string parameter.
+* Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
 * Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 * Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
 

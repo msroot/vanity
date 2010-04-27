@@ -37,13 +37,14 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * `shell_exec()`, `mkdir()`, and `chmod()`.
 * Mac OS X or *nix systems, because I'm currently using forward slashes for most paths.
 
-## Todo
+## Todo, by priority
 
-* Add support for [PHPDoc](http://phpdoc.org) syntax.
-* Handle crosslinking via the &lt;link> syntax.
-* Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
-* Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
-* Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
+1. Don't explode into a giant ball of flames when Vanity can't find NaturalDocs docblocks.
+2. Handle crosslinking via the &lt;link> syntax.
+3. Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
+4. Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
+5. Add support for [PHPDoc](http://phpdoc.org) syntax.
+6. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## On the shoulders of giants...
 
@@ -55,8 +56,6 @@ Vanity wouldn't have been made possible without the following projects:
 - [jQuery](http://jquery.com) &mdash; A fast and concise JavaScript Library that simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development. (MIT-licensed)
 - [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
 - [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
-
-
 
 ## Documentation and usage
 

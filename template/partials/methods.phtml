@@ -134,14 +134,14 @@
 
 		<? if (isset($this->examples[$method_class_name][$method_name]) && $this->examples[$method_class_name][$method_name]): ?>
 			<h4>Examples</h4>
-			<div class="description">
+			<div class="description highlight">
 				<? foreach ($this->examples[$method_class_name][$method_name] as $path): ?>
 					<?php
 					$example = new Example($path);
 					$sections = $example->sections();
 					?>
-					<h5 title="<?= $path ?>"><?= $sections['TEST'] ?></h5>
-					<pre class="brush: php; first-line: 1"><?= $example->display($sections['FILE']); ?></pre>
+					<h5><?= $sections['TEST'] ?></h5>
+					<pre class="code ln-"><code class="php"><?= $example->display($sections['FILE']); ?></code></pre>
 					<br><pre><?= $example->display($sections['EXPECT']); ?></pre>
 				<? endforeach; ?>
 			</div>
@@ -150,34 +150,26 @@
 		<h4>Source</h4>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
 		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
-		<div class="source hide">
-			<pre class="brush: php; auto-links: false; first-line: <?= (int) $method->source->startLine ?>"><?= Util::clean_source((string) $method->source->code) ?></pre>
+		<div class="source hide highlight">
+			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= Util::clean_source((string) $method->source->code) ?></code></pre>
 		</div>
 	</div>
 
 	<script type="text/javascript" charset="utf-8">
 	$(function() {
+
+		// Syntax highlighting
+		ChiliBook.automatic = false;
+		ChiliBook.lineNumbers = true;
+		$('div.highlight pre').chili();
+		$('div.highlight pre ol li:even').addClass('odd');
+
+		// Toggle source view
 		$('a.showsource').click(function() {
-			// $('div.source').toggleClass('hide');
 			$('div.source').slideToggle('fast');
 			return false;
 		});
 	});
 	</script>
 
-	<!-- Disqus Comments -->
-	<!--
-	<div id="commentWrapper">
-		<br><br>
-		<div class="title">
-			<strong>User contributed notes</strong>
-		</div>
-		<div class="description">
-			<div id="disqus_thread"></div>
-			<script type="text/javascript">var disqus_developer = 1;</script>
-			<script type="text/javascript" src="http://disqus.com/forums/cloudfusion/embed.js"></script>
-			<noscript><a href="http://cloudfusion.disqus.com/?url=ref">View the discussion thread.</a></noscript>
-		</div>
-	</div>
-	-->
 </div>

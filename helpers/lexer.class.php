@@ -122,7 +122,8 @@ class Lexer
 						$xconstant->addChild('name', $rconstant);
 
 						// <value />
-						$xconstant->addChild('value', $rvalue);
+						$xvalue = $xconstant->addChild('value', $rvalue);
+						$xvalue->addAttribute('type', gettype($rvalue));
 				}
 
 				// <properties />

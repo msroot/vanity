@@ -1,12 +1,12 @@
 <? if (isset($this->xml->class->constants->constant)): ?>
 	<? foreach ($this->xml->class->constants->constant as $constant): ?>
 	<div class="method">
-		<div class="title" id="<?= $constant->name ?>">
-			<a name="<?= $constant->name ?>" id="<?= $constant->name ?>"></a><strong><?= $constant->name ?></strong>
+		<div class="title" id="<?= (string) $constant->name ?>">
+			<a name="<?= (string) $constant->name ?>" id="<?= (string) $constant->name ?>"></a><strong><?= (string) $constant->name ?></strong>
 		</div>
 
 		<div class="description">
-			<p>Value: <?= $constant->value ?></p>
+			<p><em><?= (string) $constant->value->attributes()->type ?></em> <code><?= (string) $constant->value ?></code></p>
 		</div>
 	</div>
 	<? endforeach; ?>

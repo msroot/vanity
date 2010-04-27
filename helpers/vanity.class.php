@@ -19,5 +19,5 @@
 
 class Vanity
 {
-	const VERSION = '1.0b2';
+	const VERSION = '1.0b3';
 }

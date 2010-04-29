@@ -185,9 +185,9 @@ class Template extends Generator
 	{
 		$this->start();
 		include $this->template_dir . '/index.phtml';
-		$this->end($this->output_dir . '/html/index.html');
+		$this->end($this->output_dir . 'html/index.html');
 
-		echo '    ' . $this->output_dir . '/html/index.html' . PHP_EOL;
+		echo '    ' . $this->output_dir . 'html/index.html' . PHP_EOL;
 	}
 
 	public function readme($classes)
@@ -215,9 +215,9 @@ class Template extends Generator
 
 		$this->start();
 		include 'layout.phtml';
-		$this->end($this->output_dir . '/html/README.html');
+		$this->end($this->output_dir . 'html/README.html');
 
-		echo '    ' . $this->output_dir . '/html/README.html' . PHP_EOL;
+		echo '    ' . $this->output_dir . 'html/README.html' . PHP_EOL;
 	}
 
 	public function index()

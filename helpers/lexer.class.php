@@ -300,8 +300,8 @@ class Lexer
 		$xml_output = $xml->asXML();
 		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
 
-		$xml_write_path = getcwd() . '/' . $dir_output . '/xml';
-		$json_write_path = getcwd() . '/' . $dir_output . '/json';
+		$xml_write_path = $dir_output . '/xml';
+		$json_write_path = $dir_output . '/json';
 
 		if (!is_writable($xml_write_path))
 		{

@@ -71,7 +71,9 @@ echo "WORKING DIRECTORIES" . PHP_EOL;
 // Output
 if (!isset($options['output']) || !$options['output']) { $output = './output'; }
 else { $output = $options['output']; }
-echo '    Output: ' . realpath($output) . PHP_EOL;
+if (realpath($output) == '') { shell_exec('mkdir -p ' . $output); }
+$output = realpath($output);
+echo '    Output: ' . $output . PHP_EOL;
 
 // Template
 if (!isset($options['template']) || !$options['template']) { $template = dirname(__FILE__) . '/template'; }
@@ -83,7 +85,7 @@ if (!isset($options['readme']) || !$options['readme']) { $readme = realpath($tem
 else { $readme = realpath($options['readme']); }
 echo '    README: ' . $readme . PHP_EOL;
 
-define('OUTPUT_DIR', realpath($output) . DIRECTORY_SEPARATOR);
+define('OUTPUT_DIR', $output . DIRECTORY_SEPARATOR);
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
 
 echo PHP_EOL;

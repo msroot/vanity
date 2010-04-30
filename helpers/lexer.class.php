@@ -119,7 +119,8 @@ class Lexer
 					$xconstant = $xconstants->addChild('constant');
 
 						// <name />
-						$xconstant->addChild('name', $rconstant);
+						$xname = $xconstant->addChild('name');
+						$xname->addCDATA($rconstant);
 
 						// <value />
 						$xvalue = $xconstant->addChild('value', $rvalue);
@@ -157,7 +158,8 @@ class Lexer
 									break;
 							}
 
-							$xvalue = $xproperty->addChild('defaultValue', $adjusted_rvalue);
+							$xvalue = $xproperty->addChild('defaultValue');
+							$xvalue->addCDATA($adjusted_rvalue);
 							$xvalue->addAttribute('type', gettype($rvalue));
 						}
 
@@ -255,7 +257,8 @@ class Lexer
 												break;
 										}
 
-										$xdefaultValue = $xparameter->addChild('defaultValue', $dvalue);
+										$xdefaultValue = $xparameter->addChild('defaultValue');
+										$xdefaultValue->addCDATA($dvalue);
 									}
 							}
 						}

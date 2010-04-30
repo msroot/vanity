@@ -39,13 +39,12 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Todo, by priority
 
-1. Don't explode into a giant ball of flames when Vanity can't find NaturalDocs docblocks.
-2. Handle crosslinking via the &lt;link> syntax.
-3. Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
-4. Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
-5. Add support for [PHPDoc](http://phpdoc.org) syntax.
-6. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-7. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
+1. Handle crosslinking via the &lt;link> syntax.
+2. Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
+3. Update the example code so that it becomes part of the XML/JSON output instead of being post-processed in the template.
+4. Add support for [PHPDoc](http://phpdoc.org) syntax.
+5. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+6. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## On the shoulders of giants...
 

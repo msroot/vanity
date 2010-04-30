@@ -246,28 +246,34 @@ class Util
 	{
 		$out = 'array( ';
 		$collect = array();
-		foreach ($array as $item)
+		foreach ($array as $k => $v)
 		{
-			switch (gettype($item))
+			$key = '';
+			if (!is_int($k))
+			{
+				$key = '"' . $k . '" => ';
+			}
+
+			switch (gettype($v))
 			{
 				case 'integer':
-					$collect[] = $item;
+					$collect[] = $key . $v;
 					break;
 
 				case 'string':
-					$collect[] = '"' . $item . '"';
+					$collect[] = $key . '"' . $v . '"';
 					break;
 
 				case 'array':
-					$collect[] = Util::unwrap_array($item);
+					$collect[] = $key . Util::unwrap_array($v);
 					break;
 
 				case 'object':
-					$collect[] = get_class($item);
+					$collect[] = $key . get_class($v);
 					break;
 
 				default:
-					$collect[] = gettype($item);
+					$collect[] = $key . gettype($v);
 			}
 		}
 		$out .= implode(', ', $collect);

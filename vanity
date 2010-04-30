@@ -126,7 +126,7 @@ foreach ($diff as $class)
 		echo '    ' . $class . PHP_EOL;
 	}
 }
-sort($parse_me);
+natsort($parse_me);
 echo PHP_EOL;
 
 

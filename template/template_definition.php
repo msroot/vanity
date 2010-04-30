@@ -224,8 +224,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Class',
-			'title' => (string) $this->xml->class->name,
-			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
+			'title' => ((string) isset($this->xml->class->name) ? $this->xml->class->name : null),
+			'subtext' => ((string) isset($this->xml->class->summary->docBlock->section[0]->contents->line) ? $this->xml->class->summary->docBlock->section[0]->contents->line : null)
 		);
 
 		$this->start();
@@ -241,8 +241,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Constants',
-			'title' => (string) $this->xml->class->name,
-			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
+			'title' => ((string) isset($this->xml->class->name) ? $this->xml->class->name : null),
+			'subtext' => ((string) isset($this->xml->class->summary->docBlock->section[0]->contents->line) ? $this->xml->class->summary->docBlock->section[0]->contents->line : null)
 		);
 
 		$this->start();
@@ -258,8 +258,8 @@ class Template extends Generator
 	{
 		$template = array(
 			'doctype' => 'Properties',
-			'title' => (string) $this->xml->class->name,
-			'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
+			'title' => ((string) isset($this->xml->class->name) ? $this->xml->class->name : null),
+			'subtext' => ((string) isset($this->xml->class->summary->docBlock->section[0]->contents->line) ? $this->xml->class->summary->docBlock->section[0]->contents->line : null)
 		);
 
 		$this->start();
@@ -277,9 +277,9 @@ class Template extends Generator
 		{
 			$template = array(
 				'doctype' => 'Methods',
-				'title' => (string) $this->xml->class->name . '::' . (string) $method->name,
-				'header' => (string) $this->xml->class->name,
-				'subtext' => (string) $this->xml->class->summary->docBlock->section[0]->contents->line
+				'title' => ((string) isset($this->xml->class->name) ? $this->xml->class->name : null) . '::' . ((string) isset($method->name) ? $method->name : null),
+				'header' => ((string) isset($this->xml->class->name) ? $this->xml->class->name : null),
+				'subtext' => ((string) isset($this->xml->class->summary->docBlock->section[0]->contents->line) ? $this->xml->class->summary->docBlock->section[0]->contents->line : null)
 			);
 
 			$this->start();

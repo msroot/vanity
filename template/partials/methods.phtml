@@ -149,7 +149,7 @@
 
 		<h4>Source</h4>
 		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
-		<p class="parent"><em>Method defined in <a href="../<?= $class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
+		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
 		<div class="source hide highlight">
 			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= Util::clean_source((string) $method->source->code) ?></code></pre>
 		</div>

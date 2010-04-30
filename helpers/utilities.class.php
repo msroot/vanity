@@ -241,4 +241,38 @@ class Util
 
 		return sprintf($retstring, $size, $sizes[$i]);
 	}
+
+	public static function unwrap_array($array)
+	{
+		$out = 'array( ';
+		$collect = array();
+		foreach ($array as $item)
+		{
+			switch (gettype($item))
+			{
+				case 'integer':
+					$collect[] = $item;
+					break;
+
+				case 'string':
+					$collect[] = '"' . $item . '"';
+					break;
+
+				case 'array':
+					$collect[] = Util::unwrap_array($item);
+					break;
+
+				case 'object':
+					$collect[] = get_class($item);
+					break;
+
+				default:
+					$collect[] = gettype($item);
+			}
+		}
+		$out .= implode(', ', $collect);
+		$out .= ' )';
+
+		return $out;
+	}
 }

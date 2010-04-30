@@ -4,22 +4,24 @@
 	<div class="sectiontitle">File Information</div>
 	<ul>
 		<?php
-		$arr = json_decode(json_encode($this->xml->class->fileData->docBlock));
-		$arr = $arr->section;
-		$arr = array_slice($arr, 1);
+		@$arr = json_decode(json_encode($this->xml->class->fileData->docBlock));
+		@$arr = $arr->section;
+		@$arr = array_slice($arr, 1);
 		?>
 
-		<? foreach ($arr as $a): ?>
-			<? if (isset($a->contents->line)): ?>
-				<li><em><?= $a->headline ?></em> &mdash; <?= Util::entitize($a->contents->line) ?></li>
-			<? elseif (is_array($a->contents->entry)): ?>
-				<? foreach ($a->contents->entry as $entry): ?>
-				<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $entry->description ?>"><?= Util::entitize($entry->param) ?></a></li>
-				<? endforeach; ?>
-			<? else: ?>
-				<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $a->contents->entry->description ?>"><?= Util::entitize($a->contents->entry->param) ?></a></li>
-			<? endif ?>
-		<? endforeach; ?>
+		<? if (is_array($arr)): ?>
+			<? foreach ($arr as $a): ?>
+				<? if (isset($a->contents->line)): ?>
+					<li><em><?= $a->headline ?></em> &mdash; <?= Util::entitize($a->contents->line) ?></li>
+				<? elseif (is_array($a->contents->entry)): ?>
+					<? foreach ($a->contents->entry as $entry): ?>
+					<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $entry->description ?>"><?= Util::entitize($entry->param) ?></a></li>
+					<? endforeach; ?>
+				<? else: ?>
+					<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $a->contents->entry->description ?>"><?= Util::entitize($a->contents->entry->param) ?></a></li>
+				<? endif ?>
+			<? endforeach; ?>
+		<? endif ?>
 	</ul>
 
 	<? if (isset($this->xml->class->methods->method)): ?>

@@ -141,16 +141,19 @@ class Lexer
 						// <defaultValue />
 						if ($rvalue)
 						{
+							$adjusted_rvalue = null;
 							switch (strtolower(gettype($rvalue)))
 							{
 								case 'boolean':
 									$adjusted_rvalue = ($rvalue == 1) ? 'true' : 'false';
 									break;
+
 								case 'null':
 									$adjusted_rvalue = 'null';
 									break;
-								default:
-									$adjusted_rvalue = $rvalue;
+
+								case 'array':
+									$adjusted_rvalue = Util::unwrap_array($rvalue);
 									break;
 							}
 
@@ -178,10 +181,13 @@ class Lexer
 
 							$xdescription = $xproperty->addChild('description');
 							$nproperty_docs = NDocs::parse_headline('Property', $rcomment);
-							foreach ($nproperty_docs['content'] as $content)
+							if (isset($nproperty_docs['content']) && is_array($nproperty_docs['content']))
 							{
-								$xline = $xdescription->addChild('line');
-								$xline->addCDATA($content);
+								foreach ($nproperty_docs['content'] as $content)
+								{
+									$xline = $xdescription->addChild('line');
+									$xline->addCDATA($content);
+								}
 							}
 						}
 						else
@@ -245,7 +251,7 @@ class Lexer
 												break;
 
 											case 'array':
-												$dvalue = 'array( ' . implode(', ', $dvalue) . ' )';
+												$dvalue = Util::unwrap_array($dvalue);
 												break;
 										}
 
@@ -270,7 +276,10 @@ class Lexer
 
 							$pheadline = NDocs::parse_headline($headline, $rcomment);
 
-							Util::htmlize($pheadline['content'], $xcontents);
+							if (isset($pheadline['content']))
+							{
+								Util::htmlize($pheadline['content'], $xcontents);
+							}
 						}
 
 						// <documented />

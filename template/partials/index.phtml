@@ -44,6 +44,26 @@
 		</dl>
 	<? endif; ?>
 
+	<? if (isset($this->xml->class->constants->constant)): ?>
+		<div class="sectiontitle">Constants (<?= (string) $this->xml->class->constants->attributes()->count ?>)</div>
+		<dl class="methods constants">
+			<?php
+			$constant_list = Util::group_by_letter($this->xml->class->constants->constant, 'name');
+			?>
+
+			<? foreach ($constant_list as $letter => $constants): ?>
+				<dt><?= strtoupper($letter) ?></dt>
+				<dd>
+					<ul>
+						<? foreach ($constants as $constant): ?>
+							<li><a href="constants.html#<?= $constant ?>"><?= $constant; ?></a></li>
+						<? endforeach; ?>
+					</ul>
+				</dd>
+			<? endforeach; ?>
+		</dl>
+	<? endif; ?>
+
 	<? if (isset($this->xml->class->properties->property)): ?>
 		<div class="sectiontitle">Properties (<?= (string) $this->xml->class->properties->attributes()->count ?>)</div>
 		<dl class="methods properties">

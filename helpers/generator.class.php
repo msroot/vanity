@@ -1,7 +1,6 @@
 <?php
 class Generator
 {
-	public $examples;
 	public $class;
 	public $output_dir;
 	public $write_to = array();
@@ -10,7 +9,6 @@ class Generator
 	{
 		$this->class = $class;
 		$this->output_dir = $output;
-		$this->read_examples();
 		return $this;
 	}
 
@@ -37,33 +35,5 @@ class Generator
 		}
 
 		return $contents;
-	}
-
-	public function read_examples()
-	{
-		$this->examples = array();
-		$all_examples = Util::rglob('examples.yml');
-		foreach ($all_examples as $example)
-		{
-			$example = realpath($example);
-			$yaml = spyc_load_file($example);
-			foreach ($yaml as $class => $methods)
-			{
-				if ($methods)
-				{
-					foreach ($methods as $method => $tests)
-					{
-						if ($tests)
-						{
-							foreach ($tests as $index => $test)
-							{
-									$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
-							}
-						}
-					}
-				}
-			}
-			$this->examples = array_merge($this->examples, $yaml);
-		}
 	}
 }

@@ -168,16 +168,6 @@ class Util
 		return $arr;
 	}
 
-	public static function clean_source($source)
-	{
-		$source = substr($source, 1);
-		$source = str_replace("\n\t", "\n", $source);
-		$source = str_replace("\t", '    ', $source);
-		$source = Util::entitize($source);
-
-		return $source;
-	}
-
 	public static function entitize($s)
 	{
 		return htmlspecialchars($s, ENT_COMPAT, 'UTF-8');
@@ -196,22 +186,17 @@ class Util
 	 * 	public
 	 *
 	 * Parameters:
-	 * 	size - _integer_ (Required) Filesize in bytes.
-	 * 	unit - _string_ (Optional) The maximum unit to use. Defaults to the largest appropriate unit.
-	 * 	retstring - _string_ (Optional) The format for the return string. Defaults to '%01.2f %s'
+	 * 	$size - _integer_ (Required) Filesize in bytes.
+	 * 	$unit - _string_ (Optional) The maximum unit to use. Defaults to the largest appropriate unit.
+	 * 	$default - _string_ (Optional) The format for the return string. Defaults to '%01.2f %s'
 	 *
 	 * Returns:
 	 * 	_string_ The human-readable file size.
 	 *
- 	 * Examples:
- 	 * 	example::utilities/size_readable.phpt:
- 	 * 	example::utilities/size_readable2.phpt:
- 	 * 	example::utilities/size_readable3.phpt:
- 	 *
 	 * See Also:
 	 * 	Original Function - http://aidanlister.com/repos/v/function.size_readable.php
 	 */
-	public static function size_readable($size, $unit = null, $retstring = null)
+	public static function size_readable($size, $unit = null, $default = null)
 	{
 		// Units
 		$sizes = array('B', 'kB', 'MB', 'GB', 'TB', 'PB');
@@ -226,9 +211,9 @@ class Util
 		}
 
 		// Return string
-		if ($retstring === null)
+		if ($default === null)
 		{
-			$retstring = '%01.2f %s';
+			$default = '%01.2f %s';
 		}
 
 		// Loop
@@ -239,7 +224,7 @@ class Util
 			$i++;
 		}
 
-		return sprintf($retstring, $size, $sizes[$i]);
+		return sprintf($default, $size, $sizes[$i]);
 	}
 
 	public static function unwrap_array($array)
@@ -280,5 +265,37 @@ class Util
 		$out .= ' )';
 
 		return $out;
+	}
+
+	public static function read_examples($yml = 'examples.yml')
+	{
+		$examples = array();
+		$all_examples = Util::rglob($yml);
+
+		foreach ($all_examples as $example)
+		{
+			$example = realpath($example);
+			$yaml = spyc_load_file($example);
+
+			foreach ($yaml as $class => $methods)
+			{
+				if ($methods)
+				{
+					foreach ($methods as $method => $tests)
+					{
+						if ($tests)
+						{
+							foreach ($tests as $index => $test)
+							{
+									$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
+							}
+						}
+					}
+				}
+			}
+			$examples = array_merge($examples, $yaml);
+		}
+
+		return $examples;
 	}
 }

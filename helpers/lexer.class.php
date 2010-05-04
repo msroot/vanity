@@ -212,12 +212,15 @@ class Lexer
 
 						// <name />
 						$xmethod->addChild('name', $rmethod->getName());
+						$tmethod_name = $rmethod->getName();
 
 						// <inherited />
+						$tmethod_class_name = $rclass->name; // Current class
 						if ($rmethod->class != $rclass->name)
 						{
 							$xinherited = $xmethod->addChild('inherited');
 							$xinherited->addAttribute('from', $rmethod->class);
+							$tmethod_class_name = $rmethod->class; // Parent class
 						}
 
 						$rparameters = $rmethod->getParameters();
@@ -295,18 +298,49 @@ class Lexer
 							$xmethod->addChild('documented', 'false');
 						}
 
+						// <source />
 						$xsource = $xmethod->addChild('source');
 						$xsource->addChild('startLine', $rmethod->getStartLine());
 						$xsource->addChild('endLine', $rmethod->getEndLine());
+						$xsource->addChild('numberOfLines', ($rmethod->getEndLine() - $rmethod->getStartLine()) + 1);
 
 						$xcode = $xsource->addChild('code');
-						$xcode->addCDATA(
-							implode('', array_slice(
-								$documents[$rmethod->class],
-								($rmethod->getStartLine() - 1),
-								($rmethod->getEndLine() - $rmethod->getStartLine() + 1)
-							))
-						);
+
+						// Grab the source code
+						$tcode = implode('', array_slice(
+							$documents[$rmethod->class],
+							($rmethod->getStartLine() - 1),
+							($rmethod->getEndLine() - $rmethod->getStartLine() + 1)
+						));
+						$tcode = preg_replace("/^\t/", '', $tcode); // Clean initial Tab
+						$tcode = preg_replace("/\n\t/", "\n", $tcode); // Clean off the first tab per line
+						$tcode = str_replace("\t", '    ', $tcode); // Convert all tabs to 4 spaces.
+
+						$xcode->addCDATA(Util::entitize($tcode));
+
+						// <examples />
+						$texamples = Util::read_examples();
+						if (isset($texamples[$tmethod_class_name][$tmethod_name]) && is_array($texamples[$tmethod_class_name][$tmethod_name]))
+						{
+							$xexamples = $xmethod->addChild('examples');
+
+							foreach ($texamples[$tmethod_class_name][$tmethod_name] as $path)
+							{
+								$texample = new Example($path);
+								$tsections = $texample->sections();
+
+								$xexample = $xexamples->addChild('example');
+
+								$xtitle = $xexample->addChild('title');
+								$xtitle->addCDATA($tsections['TEST']);
+
+								$xcode = $xexample->addChild('code');
+								$xcode->addCDATA($texample->display($tsections['FILE']));
+
+								$xresult = $xexample->addChild('result');
+								$xresult->addCDATA($texample->display($tsections['EXPECT']));
+							}
+						}
 				}
 
 		$xml_output = $xml->asXML();

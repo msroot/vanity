@@ -132,26 +132,21 @@
 
 		<? endforeach; ?>
 
-		<? if (isset($this->examples[$method_class_name][$method_name]) && $this->examples[$method_class_name][$method_name]): ?>
+		<? if (isset($method->examples)): ?>
 			<h4>Examples</h4>
 			<div class="description highlight">
-				<? foreach ($this->examples[$method_class_name][$method_name] as $path): ?>
-					<?php
-					$example = new Example($path);
-					$sections = $example->sections();
-					?>
-					<h5><?= $sections['TEST'] ?></h5>
-					<pre class="code ln-"><code class="php"><?= $example->display($sections['FILE']); ?></code></pre>
-					<br><pre><?= $example->display($sections['EXPECT']); ?></pre>
+				<? foreach ($method->examples->example as $example): ?>
+					<h5><?= (string) $example->title ?></h5>
+					<pre class="code ln-"><code class="php"><?= (string) $example->code ?></code></pre>
+					<br><pre><?= (string) $example->result ?></pre>
 				<? endforeach; ?>
 			</div>
 		<? endif; ?>
 
 		<h4>Source</h4>
-		<? $number_of_lines = ((int) $method->source->endLine - (int) $method->source->startLine) + 1; ?>
-		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= $number_of_lines ?> lines)</p>
+		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= (string) $method->source->numberOfLines ?> lines)</p>
 		<div class="source hide highlight">
-			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= Util::clean_source((string) $method->source->code) ?></code></pre>
+			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= (string) $method->source->code ?></code></pre>
 		</div>
 	</div>
 

@@ -6,5 +6,14 @@ window.highlight = function(url) {
 }
 
 $(function() {
+	var rel;
+
+	$('a').live('click', function() {
+		if (rel = $(this).attr('rel')) {
+			top.window.location.href = rel;
+			return false;
+		}
+	});
+
 	highlight('#' + location.hash);
 });

@@ -12,7 +12,7 @@
 		<? endif; ?>
 
 		<? if (isset($property->inherited)): ?>
-			<p class="parent"><em>Inherited from <a href="../<?= $property->inherited->attributes()->from ?>/index.html"><?= $property->inherited->attributes()->from ?></a></em></p>
+			<p class="parent"><em>Inherited from <a href="../<?= $property->inherited->attributes()->from ?>/index.html" rel="../../#i=<?= $property->inherited->attributes()->from ?>"><?= $property->inherited->attributes()->from ?></a></em></p>
 		<? endif; ?>
 
 	</div>

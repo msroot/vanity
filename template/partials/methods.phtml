@@ -144,7 +144,7 @@
 		<? endif; ?>
 
 		<h4>Source</h4>
-		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= (string) $method->source->numberOfLines ?> lines)</p>
+		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html" rel="../../#i=<?= $method_class_name ?>"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= (string) $method->source->numberOfLines ?> lines)</p>
 		<div class="source hide highlight">
 			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= (string) $method->source->code ?></code></pre>
 		</div>

@@ -3,11 +3,13 @@ class LinkMap
 {
 	private $classes;
 	private $map;
+	private $altmap;
 
 	public function __construct()
 	{
 		$this->classes = array();
 		$this->map = array();
+		$this->altmap = array();
 		return $this;
 	}
 
@@ -19,7 +21,11 @@ class LinkMap
 	public function generate_map()
 	{
 		$this->process();
-		return $this->map;
+
+		return array(
+			'map' => $this->map,
+			'altmap' => $this->altmap
+		);
 	}
 
 	private function process()
@@ -34,12 +40,14 @@ class LinkMap
 				$rclass_methods = $rclass->getMethods();
 
 				$this->map[$class]['index'] = strtolower($class) . '/index.html';
+				$this->altmap[$class]['index'] = '#i=' . strtolower($class);
 
 				if (sizeof($rclass_properties))
 				{
 					foreach ($rclass_properties as $property => $v)
 					{
 						$this->map[$class][$property] = strtolower($class) . '/properties.html#' . $property;
+						$this->altmap[$class][$property] = '#p=' . strtolower($class) . '/' . $property;
 					}
 				}
 
@@ -48,6 +56,7 @@ class LinkMap
 					foreach ($rclass_constants as $constant => $v)
 					{
 						$this->map[$class][$constant] = strtolower($class) . '/constants.html#' . $constant;
+						$this->altmap[$class][$constant] = '#c=' . strtolower($class) . '/' . $constant;
 					}
 				}
 
@@ -56,6 +65,7 @@ class LinkMap
 					foreach ($rclass_methods as $method)
 					{
 						$this->map[$class][(string) $method->getName() . '()'] = strtolower($class) . '/' . (string) $method->getName() . '.html';
+						$this->altmap[$class][(string) $method->getName() . '()'] = '#m=' . strtolower($class) . '/' . (string) $method->getName();
 					}
 				}
 			}

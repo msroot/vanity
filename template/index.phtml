@@ -30,6 +30,9 @@
 				else if (classIndex) {
 					$('#mainContent').attr('src', 'class/' + classIndex.toLowerCase() + '/index.html');
 				}
+				else {
+					$('#mainContent').attr('src', 'README.html');
+				}
 			});
 			$(window).trigger('hashchange');
 		});

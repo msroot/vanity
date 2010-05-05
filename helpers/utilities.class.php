@@ -310,20 +310,20 @@ class Util
 			elseif (strpos($match, '::'))
 			{
 				$pieces = explode('::', $match);
-				if (isset($map[$pieces[0]][$pieces[1]]))
+				if (isset($map['map'][$pieces[0]][$pieces[1]]))
 				{
-					$s = str_replace($m[0][$i], '[' . $pieces[1] . '](../' . $map[$pieces[0]][$pieces[1]] . ')', $s);
+					$s = str_replace($m[0][$i], '[' . $pieces[1] . '](../' . $map['map'][$pieces[0]][$pieces[1]] . ')', $s);
 				}
 			}
 			else
 			{
-				if (isset($map[$current][$match])) // Match same-class items
+				if (isset($map['map'][$current][$match])) // Match same-class items
 				{
-					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map[$current][$match] . ')', $s);
+					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map['map'][$current][$match] . ')', $s);
 				}
-				elseif (isset($map[$match]['index'])) // Match same class index
+				elseif (isset($map['map'][$match]['index'])) // Match same class index
 				{
-					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map[$match]['index'] . ')', $s);
+					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map['map'][$match]['index'] . ')', $s);
 				}
 			}
 

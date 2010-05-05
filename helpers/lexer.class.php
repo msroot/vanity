@@ -17,7 +17,14 @@ class SimpleXMLExtended extends SimpleXMLElement
 
 class Lexer
 {
-	public static function parse_class($class_name, $dir_output)
+	private $linkmap;
+
+	public function __construct($linkmap)
+	{
+		$this->linkmap = $linkmap;
+	}
+
+	public function parse_class($class_name, $dir_output)
 	{
 		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://github.com/skyzyx/vanity"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
@@ -56,7 +63,7 @@ class Lexer
 
 						$pheadline = NDocs::parse_headline($headline, $docblocks[0]);
 
-						Util::htmlize($pheadline['content'], $xcontents);
+						Util::htmlize($pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
 					}
 
 				// <summary />
@@ -106,7 +113,7 @@ class Lexer
 
 						$pheadline = NDocs::parse_headline($headline, $rcomment);
 
-						Util::htmlize($pheadline['content'], $xcontents);
+						Util::htmlize($pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
 					}
 
 				// <constants />
@@ -188,7 +195,7 @@ class Lexer
 								foreach ($nproperty_docs['content'] as $content)
 								{
 									$xline = $xdescription->addChild('line');
-									$xline->addCDATA($content);
+									$xline->addCDATA(Util::apply_linkmap($this->linkmap, (string) $rclass->name, $content));
 								}
 							}
 						}
@@ -261,7 +268,7 @@ class Lexer
 										}
 
 										$xdefaultValue = $xparameter->addChild('defaultValue');
-										$xdefaultValue->addCDATA($dvalue);
+										$xdefaultValue->addCDATA(Util::apply_linkmap($this->linkmap, (string) $rclass->name, $dvalue));
 									}
 							}
 						}
@@ -284,7 +291,7 @@ class Lexer
 
 							if (isset($pheadline['content']))
 							{
-								Util::htmlize($pheadline['content'], $xcontents);
+								Util::htmlize($pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
 							}
 						}
 

@@ -4,6 +4,7 @@ $tstart = time();
 error_reporting(-1);
 
 include_once 'helpers/vanity.class.php';
+include_once 'helpers/linkmap.class.php';
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/phpt.class.php';
 include_once 'helpers/example.class.php';
@@ -141,12 +142,27 @@ echo PHP_EOL;
 
 
 /********************************************************/
+// GENERATING THE LINKMAP
+
+echo "GENERATING THE LINKMAP" . PHP_EOL;
+$lmap = new LinkMap();
+foreach ($parse_me as $class)
+{
+	$lmap->add_class($class);
+}
+$linkmap = $lmap->generate_map();
+echo '    Done.' . PHP_EOL;
+echo PHP_EOL;
+
+
+/********************************************************/
 // RUN THE LEXER
 
 echo "RUNNING THE LEXER" . PHP_EOL;
+$lexer = new Lexer($linkmap);
 foreach ($parse_me as $class)
 {
-	Lexer::parse_class($class, $output);
+	$lexer->parse_class($class, $output);
 }
 echo PHP_EOL;
 

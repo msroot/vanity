@@ -41,7 +41,7 @@ class Util
 		return str_pad($lnum + 1, strlen((string) sizeof($content)), '0', STR_PAD_LEFT);
 	}
 
-	public static function htmlize($data, $xml)
+	public static function htmlize($data, $xml, $map = null, $class = null)
 	{
 		if (is_array($data))
 		{
@@ -50,7 +50,7 @@ class Util
 				if (gettype($d) === 'string')
 				{
 					$line = $xml->addChild('line');
-					$line->addCDATA($d);
+					$line->addCDATA(Util::apply_linkmap($map, $class, $d));
 				}
 				else
 				{
@@ -58,14 +58,14 @@ class Util
 					foreach ($d as $k => $v)
 					{
 						$xk = $line->addChild($k);
-						Util::htmlize($v, $xk);
+						Util::htmlize($v, $xk, $map, $class);
 					}
 				}
 			}
 		}
 		elseif (gettype($data) === 'string')
 		{
-			$xml->addCDATA($data);
+			$xml->addCDATA(Util::apply_linkmap($map, $class, $data));
 		}
 
 		return $xml;
@@ -297,5 +297,39 @@ class Util
 		}
 
 		return $examples;
+	}
+
+	public static function apply_linkmap($map, $current, $s)
+	{
+		$i = 0;
+		preg_match_all('/<([^>]*)>/', $s, $m);
+
+		foreach ($m[1] as $match)
+		{
+			if (preg_match('/(https?|ftp):\/\//', $match)) continue; // Don't match links.
+			elseif (strpos($match, '::'))
+			{
+				$pieces = explode('::', $match);
+				if (isset($map[$pieces[0]][$pieces[1]]))
+				{
+					$s = str_replace($m[0][$i], '[' . $pieces[1] . '](../' . $map[$pieces[0]][$pieces[1]] . ')', $s);
+				}
+			}
+			else
+			{
+				if (isset($map[$current][$match])) // Match same-class items
+				{
+					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map[$current][$match] . ')', $s);
+				}
+				elseif (isset($map[$match]['index'])) // Match same class index
+				{
+					$s = str_replace($m[0][$i], '[' . $match . '](../' . $map[$match]['index'] . ')', $s);
+				}
+			}
+
+			$i++;
+		}
+
+		return $s;
 	}
 }

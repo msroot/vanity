@@ -39,12 +39,11 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Todo, by priority
 
-1. Handle crosslinking via the &lt;link> syntax.
-2. Pre-select a page based on a query string parameter ([jQuery BBQ](http://benalman.com/projects/jquery-bbq-plugin/)).
-3. Enable the ability to custom-block certain keywords in class names.
-4. Add support for [PHPDoc](http://phpdoc.org) syntax.
-5. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-6. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
+1. Ensure that cross-links update the location hash.
+2. Enable the ability to custom-block certain keywords in class names.
+3. Add support for [PHPDoc](http://phpdoc.org) syntax.
+4. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+5. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## On the shoulders of giants...
 

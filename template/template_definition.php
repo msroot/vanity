@@ -91,22 +91,22 @@ class Template extends Generator
 		$tree_node = array(
 			(string) $this->xml->class->name,
 			// 'class/' . strtolower((string) $this->xml->class->name) . '/index.html',
-			'#i=' . strtolower((string) $this->xml->class->name),
+			'#i=' . (string) $this->xml->class->name,
 			(isset($this->xml->class->summary->parentClasses->class->name) ? ' < ' . (string) $this->xml->class->summary->parentClasses->class->name : ''),
 			array()
 		);
 
 		// $tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->xml->class->name) . '/constants.html', '', array());
 		// $tree_node[3][] = array('Properties', 'class/' . strtolower((string) $this->xml->class->name) . '/properties.html', '', array());
-		$tree_node[3][] = array('Constants', '#c=' . strtolower((string) $this->xml->class->name), '', array());
-		$tree_node[3][] = array('Properties', '#p=' . strtolower((string) $this->xml->class->name), '', array());
+		$tree_node[3][] = array('Constants', '#c=' . (string) $this->xml->class->name, '', array());
+		$tree_node[3][] = array('Properties', '#p=' . (string) $this->xml->class->name, '', array());
 
 		foreach ($this->xml->class->methods->method as $method)
 		{
 			$tree_node[3][] = array(
 				(string) $method->name,
 				// 'class/' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name . '.html',
-				'#m=' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name,
+				'#m=' . (string) $this->xml->class->name . '/' . (string) $method->name,
 				(isset($method->inherited) ? ' < ' . (string) $method->inherited->attributes()->from : ''),
 				array()
 			);
@@ -124,7 +124,7 @@ class Template extends Generator
 			(string) $this->xml->class->name, // Class name
 			'',
 			// 'class/' . strtolower((string) $this->xml->class->name) . '/index.html', // File location
-			'#i=' . strtolower((string) $this->xml->class->name), // File location
+			'#i=' . (string) $this->xml->class->name, // File location
 			'', // After the name
 			(string) $this->xml->class->fileData->docBlock->section->contents, // Description
 			1 // ?
@@ -139,7 +139,7 @@ class Template extends Generator
 				(string) $constant->name, // Constant name
 				(string) $this->xml->class->name, // Class name
 				// 'class/' . strtolower((string) $this->xml->class->name) . '/constants.html#' . (string) $constant->name, // File location
-				'#c=' . strtolower((string) $this->xml->class->name) . '/' . (string) $constant->name, // File location
+				'#c=' . (string) $this->xml->class->name . '/' . (string) $constant->name, // File location
 				'', // After the name
 				'', //(string) $property->description->line, // Description
 				1 // ?
@@ -155,7 +155,7 @@ class Template extends Generator
 				(string) $property->name, // Property name
 				(string) $this->xml->class->name, // Class name
 				// 'class/' . strtolower((string) $this->xml->class->name) . '/properties.html#' . (string) $property->name, // File location
-				'#p=' . strtolower((string) $this->xml->class->name) . '/' . (string) $property->name, // File location
+				'#p=' . (string) $this->xml->class->name . '/' . (string) $property->name, // File location
 				'', // After the name
 				(string) $property->description->line, // Description
 				1 // ?
@@ -171,7 +171,7 @@ class Template extends Generator
 				(string) $method->name . '()', // Property name
 				(string) $this->xml->class->name, // Class name
 				// 'class/' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name . '.html', // File location
-				'#m=' . strtolower((string) $this->xml->class->name) . '/' . (string) $method->name, // File location
+				'#m=' . (string) $this->xml->class->name . '/' . (string) $method->name, // File location
 				'', // After the name
 				(string) $method->docBlock->section->contents, // Description
 				1 // ?

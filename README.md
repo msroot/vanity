@@ -14,6 +14,7 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 * Supports the NaturalDocs commenting format. (PHPDoc support is forthcoming.)
 * Leverages PHP's Reflection API, allowing your code to self-document.
+* Properly documents class inheritance (extending and overriding).
 * Makes it easy to write/design your own templates and generate docs with them.
 * Features a search/browse panel for finding whatever you're looking for.
 * Link directly to a specific page in the documentation by copy-pasting directly from the address bar.

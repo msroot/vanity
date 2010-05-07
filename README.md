@@ -10,19 +10,17 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 * I also wanted something that allowed me to write my own HTML templates. None of the current solutions make that easy (e.g. PHPDocumentor, NaturalDocs, Doxygen).
 * I'm inspired by how good the third-party Ruby on Rails and jQuery documentation systems are. I wanted to build something that had my favorite features (e.g. search, browse, keyboard navigation, inline examples, comments).
 
-## High-level goals
+## Features
 
-### Goals
-
-* <del>Support the NaturalDocs commenting format.</del> (Done)
-* Support the PHPDoc commenting format.
-* <del>Support grabbing the actual source code for the methods/properties.</del> (Done)
-* <del>Support all of the fancier features of reflection to allow the code to self-document.</del> (Done)
-* <del>It will produce an XML and JSON representation of the code comments and reflection data.</del> (Done)
-* <del>Make it easy to write/design your own templates and generate docs with them.</del> (Done)
-* <del>Integrate or leverage the best features from <http://railsapi.com>.</del> (Done)
-* <del>Support recursively pulling in examples using YAML-based `examples.yml` files.</del> (Done)
-* Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+* Supports the NaturalDocs commenting format. (PHPDoc support is forthcoming.)
+* Leverages PHP's Reflection API, allowing your code to self-document.
+* Makes it easy to write/design your own templates and generate docs with them.
+* Features a search/browse panel for finding whatever you're looking for.
+* Link directly to a specific page in the documentation by copy-pasting directly from the address bar.
+* Supports the ability to add inline code examples by referencing your PHPT unit tests.
+* Produces XML & JSON representations of the code docblocks and reflection data.
+* Use your Markdown-formatted READMEs from GitHub as the documentation README.
+* Documents object-oriented PHP code (e.g. classes, methods, properties, and class constants).
 
 ### Explicit non-goals
 
@@ -42,8 +40,9 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 1. Ensure that cross-links update the location hash.
 2. Enable the ability to custom-block certain keywords in class names.
 3. Add support for [PHPDoc](http://phpdoc.org) syntax.
-4. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-5. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
+4. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+5. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+6. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## On the shoulders of giants...
 
@@ -59,6 +58,11 @@ Vanity wouldn't have been made possible without the following projects:
 ## Documentation and usage
 
 	git clone git://github.com/skyzyx/vanity.git
+	cd vanity
+
+...or...
+
+	svn co http://svn.github.com/skyzyx/vanity.git vanity
 	cd vanity
 
 It might be helpful to create a symlink of `vanity` to `/usr/local/bin/vanity`.

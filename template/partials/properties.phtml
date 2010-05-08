@@ -7,7 +7,7 @@
 	<div class="description">
 		<? if (isset($property->description)): ?>
 			<? foreach ($property->description->line as $line): ?>
-				<p><?= Markdown(Util::entitize($line)) ?></p>
+				<?= Markdown(Util::entitize($line)) ?>
 			<? endforeach; ?>
 		<? endif; ?>
 

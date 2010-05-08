@@ -12,6 +12,7 @@
 	<script src="tree.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../scripts/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../scripts/jquery.bbq.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../scripts/dombuilder.min.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../scripts/searchdoc.js" type="text/javascript" charset="utf-8"></script>
 
 	<script type="text/javascript" charset="utf-8">
@@ -57,25 +58,35 @@
 
 			if (method) {
 				method = method.split('/');
-				$class = $('div.tree li.level_0 h1:contains(' + method[0] + ')').closest('li.level_0');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === method[0].toLowerCase();
+				}).closest('li.level_0');
 				panel.tree.toggle($class);
-				$item = $class.nextUntil('div.tree li.level_0').filter(':contains(' + method[1] + ')')
+				$item = $class.nextUntil('div.tree li.level_0').find('span').filter(function() {
+					return $(this).text().toLowerCase() === method[1].toLowerCase();
+				}).closest('li');
 				panel.tree.select($item);
 			}
 			else if (property) {
 				property = property.split('/');
-				$class = $('div.tree li.level_0 h1:contains(' + property[0] + ')').closest('li.level_0');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === property[0].toLowerCase();
+				}).closest('li.level_0');
 				panel.tree.toggle($class);
 				panel.tree.select($class.next().next());
 			}
 			else if (constant) {
 				constant = constant.split('/');
-				$class = $('div.tree li.level_0 h1:contains(' + constant[0] + ')').closest('li.level_0');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === constant[0].toLowerCase();
+				}).closest('li.level_0');
 				panel.tree.toggle($class);
 				panel.tree.select($class.next());
 			}
 			else if (classIndex) {
-				$class = $('div.tree li.level_0 h1:contains(' + classIndex + ')').closest('li.level_0');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === classIndex.toLowerCase();
+				}).closest('li.level_0');
 				panel.tree.toggle($class);
 				panel.tree.select($class);
 			}

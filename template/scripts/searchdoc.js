@@ -425,7 +425,7 @@ Searchdoc.Panel.prototype = $.extend({}, Searchdoc.Navigation, new function() {
 	function renderItem(result) {
 		var li = document.createElement('li'),
 			html = '', badge = result.badge;
-		html += '<h1>' + hlt(result.title);
+		html += '<h1><span>' + hlt(result.title) + '</span>';
 		if (result.params) html += '<i>' + result.params + '</i>';
 		html += '</h1>';
 		html += '<p>';
@@ -583,46 +583,50 @@ Searchdoc.Tree.prototype = $.extend({}, Searchdoc.Navigation, new function() {
 	}
 
 	function renderItem(item, level) {
-		var li = document.createElement('li'),
-			cnt = document.createElement('div'),
-			h1 = document.createElement('h1'),
-			p = document.createElement('p'),
-			icon, i;
+		var _ = DOMBuilder;
+		var li = _('li', (function() {
+			attr = {
+				'class': [
+					('level_' + level + ' closed')
+				],
+				'style': [
+					('padding-left:' + getOffset(level)),
+					('display:' + (level == 0 ? '' : 'none'))
+				].join('; ')
+			};
+			if (!item[1]) {
+				attr.class.push('empty');
+			}
+			attr.class.join(' ');
+			return attr;
+		})()).child(
+			_('div', { 'class':'content' }).child(
+				(function() {
+					var arr = [];
+					arr.push(_('h1').child(
+						(function() {
+							var arr = [];
+							arr.push(_('span').html(item[0]));
+							if (item[2]) {
+								arr.push(_('i').html(item[2]));
+							}
+							return arr;
+						})()
+					));
+					if (item[3].length > 0) {
+						arr.push(_('div', { 'class':'icon' }));
+					}
+					return arr;
+				})()
+			)
+		).asDOM();
 
-		li.appendChild(cnt);
-		li.style.paddingLeft = getOffset(level);
-		cnt.className = 'content';
-		if (!item[1]) li.className	= 'empty ';
-		cnt.appendChild(h1);
-		// cnt.appendChild(p);
-		h1.appendChild(document.createTextNode(item[0]));
-		// p.appendChild(document.createTextNode(item[4]));
-		if (item[2]) {
-			i = document.createElement('i');
-			i.appendChild(document.createTextNode(item[2]));
-			h1.appendChild(i);
-		}
-		if (item[3].length > 0) {
-			icon = document.createElement('div');
-			icon.className = 'icon';
-			cnt.appendChild(icon);
-		}
-
-		// user direct assignement instead of $()
-		// it's 8x faster
-		// $(li).data('path', item[1])
-		//	   .data('children', item[3])
-		//	   .data('level', level)
-		//	   .css('display', level == 0 ? '' : 'none')
-		//	   .addClass('level_' + level)
-		//	   .addClass('closed');
 		li.searchdoc_tree_data = {
 			path: item[1],
 			children: item[3],
 			level: level
-		}
-		li.style.display = level == 0 ? '' : 'none';
-		li.className += 'level_' + level + ' closed';
+		};
+
 		return li;
 	}
 

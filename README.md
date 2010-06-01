@@ -1,8 +1,8 @@
 # Vanity
 
-Vanity uses PHP's [Reflection](http://php.net/reflection) API to generate source code reference documentation.
+**Vanity is a tool that generates documentation from PHP source code by using _reflection_.** It is currently of a beta quality.
 
-It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http://naturaldocs.org) source code comment format. PHPDoc support is coming soon. It is currently of a beta quality.
+Vanity was created as a much-improved replacement for [NaturalDocs](http://naturaldocs.org), but now that the code is stabilizing, I'm looking at implementing support for PHPDoc syntax as well. My hope is that it will one day supplant PHPDocumentor to become the de-facto standard for documentation generation in PHP.
 
 ## Why?
 
@@ -12,11 +12,17 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Features
 
-* Supports the NaturalDocs commenting format. (PHPDoc support is forthcoming.)
-* Leverages PHP's Reflection API, allowing your code to self-document.
-* Properly documents class inheritance (extending and overriding).
-* Makes it easy to write/design your own templates and generate docs with them.
-* Features a search/browse panel for finding whatever you're looking for.
+What sets Vanity apart from other documentation generators?
+
+* A default template that doesn't completely suck.
+* The ability to easily design and build your own custom templates.
+* Leverages PHP's [Reflection](http://php.net/reflection) API, allowing your code to self-document.
+* Supplements the Reflection data using information from docblocks. Supports the (superior) [NaturalDocs](http://naturaldocs.org) commenting format. PHPDoc support is forthcoming.
+* Properly documents class inheritance (extending and overriding), which is something that NaturalDocs doesn't support for PHP.
+
+### Other features
+
+* Default template features a search/browse panel for finding whatever you're looking for.
 * Link directly to a specific page in the documentation by copy-pasting directly from the address bar.
 * Supports the ability to add inline code examples by referencing your PHPT unit tests.
 * Produces XML & JSON representations of the code docblocks and reflection data.
@@ -30,7 +36,7 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Requirements
 
-* PHP 5.3.0
+* PHP 5.3.0 (will try to drop this to 5.2.x at some point).
 * PHP short tags enabled.
 * Command-line access
 * `shell_exec()`, `mkdir()`, and `chmod()`.
@@ -38,23 +44,15 @@ It has a very simple, lightweight, non-robust parser for the [NaturalDocs](http:
 
 ## Todo, by priority
 
-1. Ensure that cross-links update the location hash.
-2. Enable the ability to custom-block certain keywords in class names.
-3. Add support for [PHPDoc](http://phpdoc.org) syntax.
-4. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
-5. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-6. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
-
-## On the shoulders of giants...
-
-Vanity wouldn't have been made possible without the following projects:
-
-- [SDoc](http://github.com/voloko/sdoc/) &mdash; The UI template with browse/search support. (MIT-licensed)
-- [Spyc](http://code.google.com/p/spyc/) &mdash; Pure PHP YAML parser. (MIT-licensed)
-- [Chili](http://code.google.com/p/jquery-chili-js/) &mdash; Syntax highlighter for source code. (MIT-licensed)
-- [jQuery](http://jquery.com) &mdash; A fast and concise JavaScript Library that simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development. (MIT-licensed)
-- [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
-- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
+1. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
+2. Enable the ability to ignore classes based on a regex pattern.
+3. Enable the ability to ignore private methods/properties.
+4. Ensure that cross-links update the location hash.
+5. Add support for [PHPDoc](http://phpdoc.org) syntax.
+6. Extensive documentation for using the tool and creating/editing templates.
+7. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+8. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+9. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## Documentation and usage
 
@@ -82,6 +80,15 @@ Move into your PHP project directory (with NaturalDocs-formatted docblocks), and
 	- I prefer the PHPT format because they're easy to read, easy to write, and easy to re-use as examples.
 	- See the [RequestCore](http://github.com/skyzyx/requestcore/blob/master/examples.yml) file or the [CloudFusion](http://github.com/skyzyx/cloudfusion/blob/master/examples.yml) file for an example of the format.
 
-## License & Copyright
+## License, copyright, and standing on the shoulders of giants...
 
-This code is Copyright (c) 2010, Ryan Parman. However, I'm licensing this code for others to use under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+Vanity itself is Copyright (c) 2010, Ryan Parman, and is licensed for use under the [MIT license](http://www.opensource.org/licenses/mit-license.php). That being said, Vanity wouldn't have been made possible without the following projects:
+
+- [SDoc](http://github.com/voloko/sdoc/) &mdash; The UI template with browse/search support. (MIT-licensed)
+- [Spyc](http://code.google.com/p/spyc/) &mdash; Pure PHP YAML parser. (MIT-licensed)
+- [Chili](http://code.google.com/p/jquery-chili-js/) &mdash; Syntax highlighter for source code. (MIT-licensed)
+- [jQuery](http://jquery.com) &mdash; A fast and concise JavaScript Library that simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development. (MIT-licensed)
+- [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
+- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
+
+All code inside Vanity is BSD, MIT, PHP or Apache 2.0 licensed, and I avoid GPL code like the plague. This should make it friendly to those who want to avoid legal issues with using GPL software.

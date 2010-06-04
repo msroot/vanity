@@ -44,15 +44,17 @@ What sets Vanity apart from other documentation generators?
 
 ## Todo, by priority
 
-1. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
-2. Enable the ability to ignore classes based on a regex pattern.
-3. Enable the ability to ignore private methods/properties.
-4. Ensure that cross-links update the location hash.
-5. Add support for [PHPDoc](http://phpdoc.org) syntax.
-6. Extensive documentation for using the tool and creating/editing templates.
-7. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
-8. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-9. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
+1. Fix the CSS styles for README.md files (e.g. h3 styles applied to h2s in READMEs).
+2. Enable pulling in other project files such as `LICENSE`, `AUTHORS`, `CONTRIBUTORS`, and other common files in addition to the README.
+3. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
+4. Enable the ability to ignore classes based on a regex pattern.
+5. Enable the ability to ignore private methods/properties.
+6. Ensure that cross-links update the location hash.
+7. Add support for [PHPDoc](http://phpdoc.org) syntax.
+8. Extensive documentation for using the tool and creating/editing templates.
+9. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+10. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+11. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## Documentation and usage
 

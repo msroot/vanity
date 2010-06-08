@@ -44,17 +44,27 @@ What sets Vanity apart from other documentation generators?
 
 ## Todo, by priority
 
+### High
+
 1. Fix the CSS styles for README.md files (e.g. h3 styles applied to h2s in READMEs).
 2. Enable pulling in other project files such as `LICENSE`, `AUTHORS`, `CONTRIBUTORS`, and other common files in addition to the README.
-3. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
-4. Enable the ability to ignore classes based on a regex pattern.
-5. Enable the ability to ignore private methods/properties.
-6. Ensure that cross-links update the location hash.
-7. Add support for [PHPDoc](http://phpdoc.org) syntax.
-8. Extensive documentation for using the tool and creating/editing templates.
-9. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
-10. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
-11. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
+3. Enable sections in the browse panel to separate files and classes.
+4. Find a spot to put Vanity help & usage information.
+5. Enable the ability to ignore classes based on a regex pattern.
+6. Enable the ability to ignore private methods/properties.
+7. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
+8. Ensure that cross-links update the location hash.
+
+### Medium
+
+1. Add support for [PHPDoc](http://phpdoc.org) syntax.
+2. Extensive documentation for using the tool and creating/editing templates.
+3. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+
+### Low (but still on the list!)
+
+1. Support the ability to skip the lexer and jump right into generating docs from the templates and existing XML documents.
+2. Switch over to using `DIRECTORY_SEPARATOR` instead of forward slashes, to improve Windows support.
 
 ## Documentation and usage
 

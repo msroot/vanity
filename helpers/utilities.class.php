@@ -5,22 +5,28 @@ class Util
 	{
 		$accesses = array();
 
-		if (method_exists($o, 'isFinal')) {
+		if (method_exists($o, 'isFinal'))
+		{
 			if ($o->isFinal()) $accesses[] = 'final';
 		}
-		if (method_exists($o, 'isAbstract')) {
+		if (method_exists($o, 'isAbstract'))
+		{
 			if ($o->isAbstract()) $accesses[] = 'abstract';
 		}
-		if (method_exists($o, 'isPrivate')) {
+		if (method_exists($o, 'isPrivate'))
+		{
 			if ($o->isPrivate()) $accesses[] = 'private';
 		}
-		if (method_exists($o, 'isProtected')) {
+		if (method_exists($o, 'isProtected'))
+		{
 			if ($o->isProtected()) $accesses[] = 'protected';
 		}
-		if (method_exists($o, 'isPublic')) {
+		if (method_exists($o, 'isPublic'))
+		{
 			if ($o->isPublic()) $accesses[] = 'public';
 		}
-		if (method_exists($o, 'isStatic')) {
+		if (method_exists($o, 'isStatic'))
+		{
 			if ($o->isStatic()) $accesses[] = 'static';
 		}
 

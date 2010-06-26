@@ -1,10 +1,10 @@
 <?php
 /**
  * File: Example
- * 	Processes examples.
+ * 	Processes examples for output.
  *
  * Version:
- * 	2010.04.24
+ * 	2010.06.26
  */
 
 class Example
@@ -28,7 +28,6 @@ class Example
 		$code = preg_replace('/&lt;\?(php?)|\?&gt;/', '', $code); // Remove <?php blocks
 		$code = str_replace("\n\t", "\n", $code); // Remove all first tabs.
 		$code = str_replace("\r\n", "\n", $code); // Change all Windows linebreaks to Unix ones.
-		$code = preg_replace('/(require|include)(_once?)([^\n]*)\n/', '', $code); // Remove any require/include lines.
 		$code = trim($code); // Clean extra whitespace.
 
 		return $code;

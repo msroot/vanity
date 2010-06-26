@@ -52,14 +52,16 @@ What sets Vanity apart from other documentation generators?
 4. Find a spot to put Vanity help & usage information.
 5. Enable the ability to ignore classes based on a regex pattern.
 6. Enable the ability to ignore private methods/properties.
-7. Enable the ability to ignore certain lines in example files. (Perhaps with a `/***/` on that line?)
+7. Integrate [Examplify!](http://github.com/skyzyx/examplify).
 8. Ensure that cross-links update the location hash.
 
 ### Medium
 
-1. Add support for [PHPDoc](http://phpdoc.org) syntax.
-2. Extensive documentation for using the tool and creating/editing templates.
-3. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
+1. Make all of the JavaScript pass JSLint
+2. Ensure that all of the JavaScript can be compressed into a single file for performance.
+3. Add support for [PHPDoc](http://phpdoc.org) syntax.
+4. Extensive documentation for using the tool and creating/editing templates.
+5. Add slip-in support for commenting systems like Disqus, Intense Debate, or something custom.
 
 ### Low (but still on the list!)
 

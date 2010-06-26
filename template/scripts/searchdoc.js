@@ -595,9 +595,9 @@ Searchdoc.Tree.prototype = $.extend({}, Searchdoc.Navigation, new function() {
 				].join('; ')
 			};
 			if (!item[1]) {
-				attr.class.push('empty');
+				attr['class'].push('empty');
 			}
-			attr.class.join(' ');
+			attr['class'].join(' ');
 			return attr;
 		})()).child(
 			_('div', { 'class':'content' }).child(

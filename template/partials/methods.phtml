@@ -122,11 +122,9 @@
 
 			<? elseif ((string) $section->headline === 'See Also'): ?>
 				<h4><?= (string) $section->headline ?></h4>
-				<ul>
-				<? foreach ($section->contents->entry as $entry): ?>
-					<li><a href="<?= (string) $entry->description ?>"><?= (string) $entry->param ?></a></li>
+				<? foreach ($section->contents->line as $line): ?>
+					<?= Markdown((string) $line) ?>
 				<? endforeach; ?>
-				</ul>
 
 			<? endif; ?>
 
@@ -136,9 +134,10 @@
 			<h4>Examples</h4>
 			<div class="description highlight">
 				<? foreach ($method->examples->example as $example): ?>
-					<h5><?= (string) $example->title ?></h5>
-					<pre class="code ln-"><code class="php"><?= (string) $example->code ?></code></pre>
-					<br><pre><?= (string) $example->result ?></pre>
+					<? if (isset($example->title)): ?><h5><?= (string) $example->title ?></h5><? endif; ?>
+					<? if (isset($example->description)): ?><?= Markdown((string) $example->description); ?><? endif; ?>
+					<? if (isset($example->code)): ?><pre class="code ln-"><code class="php"><?= (string) $example->code; ?></code></pre><? endif; ?>
+					<? if (isset($example->result)): ?><br><pre><?= (string) $example->result ?></pre><? endif; ?>
 				<? endforeach; ?>
 			</div>
 		<? endif; ?>

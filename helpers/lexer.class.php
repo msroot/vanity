@@ -160,6 +160,10 @@ class Lexer
 									$adjusted_rvalue = 'null';
 									break;
 
+								case 'string':
+									$adjusted_rvalue = '"' . $rvalue . '"';
+									break;
+
 								case 'array':
 									$adjusted_rvalue = Util::unwrap_array($rvalue);
 									break;
@@ -262,6 +266,10 @@ class Lexer
 												$dvalue = 'null';
 												break;
 
+											case 'string':
+												$adjusted_rvalue = '"' . $dvalue . '"';
+												break;
+
 											case 'array':
 												$dvalue = Util::unwrap_array($dvalue);
 												break;
@@ -338,14 +346,29 @@ class Lexer
 
 								$xexample = $xexamples->addChild('example');
 
-								$xtitle = $xexample->addChild('title');
-								$xtitle->addCDATA($tsections['TEST']);
+								if (isset($tsections['TEST']))
+								{
+									$xtitle = $xexample->addChild('title');
+									$xtitle->addCDATA($tsections['TEST']);
+								}
 
-								$xcode = $xexample->addChild('code');
-								$xcode->addCDATA($texample->display($tsections['FILE']));
+								if (isset($tsections['DESCRIPTION']))
+								{
+									$xtitle = $xexample->addChild('description');
+									$xtitle->addCDATA($tsections['DESCRIPTION']);
+								}
 
-								$xresult = $xexample->addChild('result');
-								$xresult->addCDATA($texample->display($tsections['EXPECT']));
+								if (isset($tsections['FILE']))
+								{
+									$xcode = $xexample->addChild('code');
+									$xcode->addCDATA($texample->display($tsections['FILE']));
+								}
+
+								if (isset($tsections['EXPECT']))
+								{
+									$xresult = $xexample->addChild('result');
+									$xresult->addCDATA($texample->display($tsections['EXPECT']));
+								}
 							}
 						}
 				}

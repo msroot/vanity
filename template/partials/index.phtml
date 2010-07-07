@@ -2,27 +2,47 @@
 	<?= Markdown(Util::linkify_as_markdown((string) $this->xml->class->fileData->docBlock->section->contents)); ?>
 
 	<div class="sectiontitle">File Information</div>
-	<ul>
-		<?php
-		@$arr = json_decode(json_encode($this->xml->class->fileData->docBlock));
-		@$arr = $arr->section;
-		@$arr = array_slice($arr, 1);
-		?>
+	<?php
+	@$arr = json_decode(json_encode($this->xml->class->fileData->docBlock));
+	@$arr = $arr->section;
+	@$arr = array_slice($arr, 1);
+	?>
 
-		<? if (is_array($arr)): ?>
-			<? foreach ($arr as $a): ?>
-				<? if (isset($a->contents->line)): ?>
-					<li><em><?= $a->headline ?></em> &mdash; <?= Util::entitize($a->contents->line) ?></li>
-				<? elseif (is_array($a->contents->entry)): ?>
-					<? foreach ($a->contents->entry as $entry): ?>
-					<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $entry->description ?>"><?= Util::entitize($entry->param) ?></a></li>
-					<? endforeach; ?>
-				<? else: ?>
-					<li><em><?= $a->headline ?></em> &mdash; <a href="<?= $a->contents->entry->description ?>"><?= Util::entitize($a->contents->entry->param) ?></a></li>
-				<? endif ?>
-			<? endforeach; ?>
-		<? endif ?>
-	</ul>
+	<?php
+	// Generate Markdown-friendly syntax, then pass it through.
+	$finfo = '';
+	if (is_array($arr))
+	{
+		foreach ($arr as $a)
+		{
+			if (isset($a->contents->line) && is_array($a->contents->line))
+			{
+				$finfo .= '* _' . $a->headline . '_' . PHP_EOL;
+				foreach ($a->contents->line as $line)
+				{
+					$finfo .= '  * ' . (string) $line . PHP_EOL;
+				}
+			}
+			elseif (isset($a->contents->line))
+			{
+				$finfo .= '* _' . $a->headline . '_ &mdash; ' . (string) $a->contents->line . PHP_EOL;
+			}
+			elseif (is_array($a->contents->entry))
+			{
+				foreach ($a->contents->entry as $entry)
+				{
+					$finfo .= '* _' . (string) $a->headline . '_  &mdash; [' . (string) $entry->param . '](' . (string) $entry->description . ')' . PHP_EOL;
+				}
+			}
+			else
+			{
+				$finfo .= '* _' . (string) $a->headline . '_  &mdash; [' . (string) $a->contents->entry->param . '](' . (string) $a->contents->entry->description . ')' . PHP_EOL;
+			}
+		}
+	}
+
+	echo Markdown($finfo);
+	?>
 
 	<? if (isset($this->xml->class->methods->method)): ?>
 		<div class="sectiontitle">Methods (<?= (string) $this->xml->class->methods->attributes()->count ?>)</div>

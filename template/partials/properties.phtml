@@ -1,20 +1,26 @@
-<? foreach ($this->xml->class->properties->property as $property): ?>
-<div class="method">
-	<div class="title" id="<?= $property->name ?>">
-		<a name="<?= $property->name ?>" id="<?= $property->name ?>"></a><strong><?= $property->name ?></strong>
+<? if (isset($this->xml->class->properties->property)): ?>
+	<? foreach ($this->xml->class->properties->property as $property): ?>
+	<div class="method">
+		<div class="title" id="<?= $property->name ?>">
+			<a name="<?= $property->name ?>" id="<?= $property->name ?>"></a><strong><?= $property->name ?></strong>
+		</div>
+
+		<div class="description">
+			<? if (isset($property->description)): ?>
+				<? foreach ($property->description->line as $line): ?>
+					<?= Markdown(Util::entitize($line)) ?>
+				<? endforeach; ?>
+			<? endif; ?>
+
+			<? if (isset($property->inherited)): ?>
+				<p class="parent"><em>Inherited from <a href="../<?= $property->inherited->attributes()->from ?>/index.html" rel="../../#i=<?= $property->inherited->attributes()->from ?>"><?= $property->inherited->attributes()->from ?></a></em></p>
+			<? endif; ?>
+
+		</div>
 	</div>
-
-	<div class="description">
-		<? if (isset($property->description)): ?>
-			<? foreach ($property->description->line as $line): ?>
-				<?= Markdown(Util::entitize($line)) ?>
-			<? endforeach; ?>
-		<? endif; ?>
-
-		<? if (isset($property->inherited)): ?>
-			<p class="parent"><em>Inherited from <a href="../<?= $property->inherited->attributes()->from ?>/index.html" rel="../../#i=<?= $property->inherited->attributes()->from ?>"><?= $property->inherited->attributes()->from ?></a></em></p>
-		<? endif; ?>
-
+	<? endforeach; ?>
+<? else: ?>
+	<div class="method">
+		<p>There are no properties defined in this class.</p>
 	</div>
-</div>
-<? endforeach; ?>
+<? endif; ?>

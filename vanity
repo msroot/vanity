@@ -8,6 +8,7 @@ include_once 'helpers/linkmap.class.php';
 include_once 'helpers/lexer.class.php';
 include_once 'helpers/phpt.class.php';
 include_once 'helpers/example.class.php';
+include_once 'helpers/examplify.class.php';
 include_once 'helpers/generator.class.php';
 include_once 'helpers/markdown.php';
 include_once 'helpers/spyc.php';
@@ -135,6 +136,7 @@ echo PHP_EOL;
 // REMOVING OLD OUTPUT DIRECTORY
 
 echo "REMOVING OLD OUTPUT DIRECTORY" . PHP_EOL;
+if (OUTPUT_DIR == '/') die('Current working directory doesn\'t exist. Stopping.');
 $cmd = 'rm -Rf ' . OUTPUT_DIR;
 echo '    ' . $cmd . PHP_EOL;
 shell_exec($cmd);

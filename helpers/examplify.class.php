@@ -4,7 +4,7 @@
  * 	Provides a simple, comment-based syntax for editing working code samples for public consumption.
  *
  * Version:
- * 	2010.07.06
+ * 	2010.07.07
  *
  * Copyright:
  * 	2010 Ryan Parman
@@ -170,10 +170,13 @@ class Examplify
 				$line = $matches[1][$i];
 				$swaps = json_decode($matches[2][$i], true);
 
-				foreach ($swaps as $pattern => $replacement)
+				if (count($swaps))
 				{
-					$line = preg_replace('/' . $pattern . '/i', $replacement, $line);
-					$line = rtrim($line);
+					foreach ($swaps as $pattern => $replacement)
+					{
+						$line = str_ireplace($pattern, $replacement, $line);
+						$line = rtrim($line);
+					}
 				}
 
 				$this->content = str_replace($replace, "\n" . $line, $this->content);
@@ -204,7 +207,7 @@ class Examplify
 				$block = preg_replace("/\/\*#swap-end\*\//", '', $block);
 
 				$replace = $matches[0][$i];
-				$swaps = json_decode($matches[2][$i], true);
+				$swaps = json_decode(stripslashes($matches[2][$i]), true);
 
 				foreach ($swaps as $pattern => $replacement)
 				{

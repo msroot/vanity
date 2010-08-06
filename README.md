@@ -4,6 +4,8 @@
 
 Vanity was created as a much-improved replacement for [NaturalDocs](http://naturaldocs.org), but now that the code is stabilizing, I'm looking at implementing support for PHPDoc syntax as well. My hope is that it will one day supplant PHPDocumentor to become the de-facto standard for documentation generation in PHP.
 
+<http://vanitydoc.org> | [@VanityDoc](http://twitter.com/vanitydoc)
+
 ## Why?
 
 * The project was started because it appears that work on NaturalDocs 2.0 has stalled, and even then, PHP is not treated as a first-class citizen.

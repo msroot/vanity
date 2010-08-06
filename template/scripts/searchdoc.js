@@ -606,7 +606,9 @@ Searchdoc.Tree.prototype = $.extend({}, Searchdoc.Navigation, new function() {
 					arr.push(_('h1').child(
 						(function() {
 							var arr = [];
-							arr.push(_('span').html(item[0]));
+							arr.push(_('span').html(function() {
+								return (!item[2] && level != 0) ? ('<b>' + item[0] + '</b>') : item[0];
+							}()));
 							if (item[2]) {
 								arr.push(_('i').html(item[2]));
 							}

@@ -84,7 +84,7 @@
 						<ul class="parameterList">
 						<? foreach ($section->contents->entry as $entry): ?>
 							<li>
-								<tt><?= (string) $entry->param ?></tt> - <?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $entry->description))) ?>
+								<tt><?= (string) $entry->param ?></tt> - <em><?= $entry->type ?></em> (<?= ((string) $entry->required == 'Required') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $entry->description))) ?>
 							</li>
 						<? endforeach; ?>
 						</ul>

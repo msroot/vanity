@@ -88,12 +88,15 @@ class Lexer
 							$xpclass->addChild('name', $class_ref->getParentClass()->name);
 
 							$temp = explode(getcwd() . DIRECTORY_SEPARATOR, $class_ref->getParentClass()->getFileName());
-							$xpclass->addChild('file', $temp[1]);
+							if (is_array($temp) && isset($temp[1]))
+							{
+								$xpclass->addChild('file', $temp[1]);
+							}
 
 							$class_ref = $class_ref->getParentClass();
 
 							// Add the parent files to memory as well...
-							$documents[$class_ref->name] = file($class_ref->getFileName());
+							$documents[$class_ref->name] = @file($class_ref->getFileName());
 						}
 					}
 
@@ -113,7 +116,7 @@ class Lexer
 
 						$pheadline = NDocs::parse_headline($headline, $rcomment);
 
-						Util::htmlize($pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
+						Util::htmlize(@$pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
 					}
 
 				// <constants />
@@ -322,16 +325,20 @@ class Lexer
 						$xcode = $xsource->addChild('code');
 
 						// Grab the source code
-						$tcode = implode('', array_slice(
-							$documents[$rmethod->class],
-							($rmethod->getStartLine() - 1),
-							($rmethod->getEndLine() - $rmethod->getStartLine() + 1)
-						));
-						$tcode = preg_replace("/^\t/", '', $tcode); // Clean initial Tab
-						$tcode = preg_replace("/\n\t/", "\n", $tcode); // Clean off the first tab per line
-						$tcode = str_replace("\t", '    ', $tcode); // Convert all tabs to 4 spaces.
+						if (isset($documents[$rmethod->class]) && is_array($documents[$rmethod->class]))
+						{
+							$tcode = implode('', array_slice(
+								$documents[$rmethod->class],
+								($rmethod->getStartLine() - 1),
+								($rmethod->getEndLine() - $rmethod->getStartLine() + 1)
+							));
 
-						$xcode->addCDATA(Util::entitize($tcode));
+							$tcode = preg_replace("/^\t/", '', $tcode); // Clean initial Tab
+							$tcode = preg_replace("/\n\t/", "\n", $tcode); // Clean off the first tab per line
+							$tcode = str_replace("\t", '    ', $tcode); // Convert all tabs to 4 spaces.
+
+							$xcode->addCDATA(Util::entitize($tcode));
+						}
 
 						// <examples />
 						$texamples = Util::read_examples();

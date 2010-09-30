@@ -1,5 +1,6 @@
 <div class="description">
-	<?= Markdown(Util::linkify_as_markdown((string) $this->xml->class->fileData->docBlock->section->contents)); ?>
+	<?#= Markdown(Util::linkify_as_markdown((string) $this->xml->class->fileData->docBlock->section->contents)); ?>
+	<?= Markdown((string) $this->xml->class->fileData->docBlock->section->contents); ?>
 
 	<div class="sectiontitle">File Information</div>
 	<?php
@@ -56,7 +57,7 @@
 				<dd>
 					<ul>
 						<? foreach ($methods as $method): ?>
-							<li><a href="<?= $method ?>.html" rel="../../#m=<?= (string) $this->xml->class->name ?>/<?= $method ?>"><?= $method; ?></a></li>
+							<li><a href="<?= $method ?>.html" rel="../../index.html#m=<?= (string) $this->xml->class->name ?>/<?= $method ?>"><?= $method; ?></a></li>
 						<? endforeach; ?>
 					</ul>
 				</dd>
@@ -76,7 +77,7 @@
 				<dd>
 					<ul>
 						<? foreach ($constants as $constant): ?>
-							<li><a href="constants.html#<?= $constant ?>" rel="../../#c=<?= (string) $this->xml->class->name ?>/<?= $constant; ?>"><?= $constant; ?></a></li>
+							<li><a href="constants.html#<?= $constant ?>" rel="../../index.html#c=<?= (string) $this->xml->class->name ?>/<?= $constant; ?>"><?= $constant; ?></a></li>
 						<? endforeach; ?>
 					</ul>
 				</dd>
@@ -96,7 +97,7 @@
 				<dd>
 					<ul>
 						<? foreach ($properties as $property): ?>
-							<li><a href="properties.html#<?= $property ?>" rel="../../#p=<?= (string) $this->xml->class->name ?>/<?= $property; ?>"><?= $property; ?></a></li>
+							<li><a href="properties.html#<?= $property ?>" rel="../../index.html#p=<?= (string) $this->xml->class->name ?>/<?= $property; ?>"><?= $property; ?></a></li>
 						<? endforeach; ?>
 					</ul>
 				</dd>

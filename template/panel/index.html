@@ -54,43 +54,150 @@
 				property = $.bbq.getState('p'),
 				constant = $.bbq.getState('c'),
 				classIndex = $.bbq.getState('i'),
-				$class, $item;
+				defaultIndex = $.bbq.getState('d'),
+				$class = [], i = 0,
+				$item, $klass, $parent_element, j;
 
-			if (method) {
-				method = method.split('/');
-				$class = $('div.tree li.level_0 h1 span').filter(function() {
-					return $(this).text().toLowerCase() === method[0].toLowerCase();
+			if (defaultIndex) {
+				$item = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === defaultIndex.toLowerCase();
 				}).closest('li.level_0');
-				panel.tree.toggle($class);
-				$item = $class.nextUntil('div.tree li.level_0').find('span').filter(function() {
+				panel.tree.select($item);
+			}
+			else if (method) {
+				method = method.split('/');
+
+				while ($class.length === 0) {
+					$class = $('div.tree li.level_' + i + ' h1 span').filter(function() {
+						return $(this).text().toLowerCase() === method[0].toLowerCase();
+					}).closest('li.level_' + i);
+
+					if ($class.length === 0) {
+						i++;
+					}
+				}
+
+				panel.tree.toggle($class); // Parent
+				if (i > 0) {
+					for (j = i; j >= 0; j--) {
+						$prev = $class.prevUntil('li.level_' + j);
+
+						if ($prev.length > 1) {
+							if (j === 0) {
+								$parent_element = $prev.prev().first();
+								panel.tree.toggle($parent_element); // Grandparent(s)
+							}
+						}
+						else if ($prev.length === 1) {
+							$parent_element = $prev.first();
+							panel.tree.toggle($parent_element); // Grandparent(s)
+						}
+					}
+				}
+
+				$item = $class.nextUntil('div.tree li.level_' + (i - 1)).find('span').filter(function() {
 					return $(this).text().toLowerCase() === method[1].toLowerCase();
 				}).closest('li');
+
 				panel.tree.select($item);
 			}
 			else if (property) {
 				property = property.split('/');
-				$class = $('div.tree li.level_0 h1 span').filter(function() {
-					return $(this).text().toLowerCase() === property[0].toLowerCase();
-				}).closest('li.level_0');
-				panel.tree.toggle($class);
+
+				while ($class.length === 0) {
+					$class = $('div.tree li.level_' + i + ' h1 span').filter(function() {
+						return $(this).text().toLowerCase() === property[0].toLowerCase();
+					}).closest('li.level_' + i);
+
+					if ($class.length === 0) {
+						i++;
+					}
+				}
+
+				panel.tree.toggle($class); // Parent
+				if (i > 0) {
+					for (j = i; j >= 0; j--) {
+						$prev = $class.prevUntil('li.level_' + j);
+
+						if ($prev.length > 1) {
+							if (j === 0) {
+								$parent_element = $prev.prev().first();
+								panel.tree.toggle($parent_element); // Grandparent(s)
+							}
+						}
+						else if ($prev.length === 1) {
+							$parent_element = $prev.first();
+							panel.tree.toggle($parent_element); // Grandparent(s)
+						}
+					}
+				}
 				panel.tree.select($class.next().next());
 			}
 			else if (constant) {
 				constant = constant.split('/');
-				$class = $('div.tree li.level_0 h1 span').filter(function() {
-					return $(this).text().toLowerCase() === constant[0].toLowerCase();
-				}).closest('li.level_0');
-				panel.tree.toggle($class);
+
+				while ($class.length === 0) {
+					$class = $('div.tree li.level_' + i +' h1 span').filter(function() {
+						return $(this).text().toLowerCase() === constant[0].toLowerCase();
+					}).closest('li.level_' + i);
+
+					if ($class.length === 0) {
+						i++;
+					}
+				}
+
+				panel.tree.toggle($class); // Parent
+				if (i > 0) {
+					for (j = i; j >= 0; j--) {
+						$prev = $class.prevUntil('li.level_' + j);
+
+						if ($prev.length > 1) {
+							if (j === 0) {
+								$parent_element = $prev.prev().first();
+								panel.tree.toggle($parent_element); // Grandparent(s)
+							}
+						}
+						else if ($prev.length === 1) {
+							$parent_element = $prev.first();
+							panel.tree.toggle($parent_element); // Grandparent(s)
+						}
+					}
+				}
 				panel.tree.select($class.next());
 			}
 			else if (classIndex) {
-				$class = $('div.tree li.level_0 h1 span').filter(function() {
-					return $(this).text().toLowerCase() === classIndex.toLowerCase();
-				}).closest('li.level_0');
-				panel.tree.toggle($class);
+
+				while ($class.length === 0) {
+					$class = $('div.tree li.level_' + i + ' h1 span').filter(function() {
+						return $(this).text().toLowerCase() === classIndex.toLowerCase();
+					}).closest('li.level_' + i);
+
+					if ($class.length === 0) {
+						i++;
+					}
+				}
+
+				panel.tree.toggle($class); // Parent
+				if (i > 0) {
+					for (j = i; j >= 0; j--) {
+						$prev = $class.prevUntil('li.level_' + j);
+
+						if ($prev.length > 1) {
+							if (j === 0) {
+								$parent_element = $prev.prev().first();
+								panel.tree.toggle($parent_element); // Grandparent(s)
+							}
+						}
+						else if ($prev.length === 1) {
+							$parent_element = $prev.first();
+							panel.tree.toggle($parent_element); // Grandparent(s)
+						}
+					}
+				}
 				panel.tree.select($class);
 			}
 		});
+
 		$(window).trigger('hashchange');
 	});
 	</script>

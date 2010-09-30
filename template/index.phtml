@@ -13,11 +13,12 @@
 				var method = $.bbq.getState('m'),
 					property = $.bbq.getState('p'),
 					constant = $.bbq.getState('c'),
-					classIndex = $.bbq.getState('i');
+					classIndex = $.bbq.getState('i'),
+					defaultIndex = $.bbq.getState('d');
 
 				if (method) {
 					method = method.split('/');
-					$('#mainContent').attr('src', 'class/' + method[0].toLowerCase() + '/' + method[1].toLowerCase() + '.html');
+					$('#mainContent').attr('src', 'class/' + method[0].toLowerCase() + '/' + method[1] + '.html');
 				}
 				else if (property) {
 					property = property.split('/');
@@ -29,6 +30,9 @@
 				}
 				else if (classIndex) {
 					$('#mainContent').attr('src', 'class/' + classIndex.toLowerCase() + '/index.html');
+				}
+				else if (defaultIndex) {
+					$('#mainContent').attr('src', defaultIndex);
 				}
 				else {
 					$('#mainContent').attr('src', 'README.html');

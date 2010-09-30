@@ -207,7 +207,7 @@ class Template extends Generator
 			'doctype' => 'README',
 			'title' => $this->title,
 			'classes' => $classes,
-			'subtext' => 'Download the <a href="latest_docs.tar.gz">offline HTML docs</a>.'
+			'subtext' => 'Download the <a href="latest_docs.zip">offline HTML docs</a> (<a href="latest_docs.zip">zip</a>, <a href="latest_docs.tar.gz">gz</a>, <a href="latest_docs.tar.bz2">bz2</a>).'
 		);
 
 		$this->start();
@@ -226,6 +226,24 @@ class Template extends Generator
 		$this->end($this->output_dir . 'html/README.html');
 
 		echo '    ' . $this->output_dir . 'html/README.html' . PHP_EOL;
+	}
+
+	public function info_document($title = '', $name = '')
+	{
+		$template = array(
+			'doctype' => $name,
+			'title' => $title,
+		);
+
+		$this->start();
+		include $this->template_dir . '/partials/' . $name . '.phtml';
+		$this->body = $this->end();
+
+		$this->start();
+		include 'layout.phtml';
+		$this->end($this->output_dir . 'html/' . $name . '.html');
+
+		echo '    ' . $this->output_dir . 'html/' . $name . '.html' . PHP_EOL;
 	}
 
 	public function index()

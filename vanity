@@ -178,14 +178,27 @@ echo "GENERATING THE FRAME & README" . PHP_EOL;
 $tmpl = new Template($class, OUTPUT_DIR, $template, $options['title'], (isset($options['readme']) ? $options['readme'] : null));
 echo $tmpl->frame();
 echo $tmpl->readme($parse_me);
+echo $tmpl->info_document('Apache 2.0 License', 'LICENSE');
+echo $tmpl->info_document('Third-Party License and Copyright Notices', 'NOTICE');
 echo PHP_EOL;
 
 echo "RUNNING THE GENERATOR" . PHP_EOL;
+$core_utilities = array('Core Utilities', '#', '', array());
+
 foreach ($parse_me as $class)
 {
 	$tmpl = new Template($class, OUTPUT_DIR, $template, $options['title']);
 	$tmpl->class_init();
-	$tree[] = $tmpl->build_tree();
+
+	if (stripos($class, 'Amazon') === 0)
+	{
+		$tree[] = $tmpl->build_tree();
+	}
+	elseif (stripos($class, 'CF') === 0 || stripos($class, 'Cache') === 0)
+	{
+		$core_utilities[3][] = $tmpl->build_tree();
+	}
+
 	$search_index = $tmpl->build_search_index($search_index);
 
 	foreach ($tmpl->write_to as $w)
@@ -193,6 +206,10 @@ foreach ($parse_me as $class)
 		echo '    ' . $w . PHP_EOL;
 	}
 }
+
+// Append the Core Utilities
+$tree[] = $core_utilities;
+
 echo PHP_EOL;
 
 
@@ -226,8 +243,9 @@ echo PHP_EOL;
 echo "PANEL SEARCH/TREE" . PHP_EOL;
 
 	// Add additional entries.
-	$tree[] = array('README', 'README.html', '', array());
-	// $tree[] = array('LICENSE', 'LICENSE.html', '', array());
+	$tree[] = array('LICENSE', '#d=LICENSE.html', '', array());
+	$tree[] = array('NOTICE', '#d=NOTICE.html', '', array());
+	$tree[] = array('README', '#d=README.html', '', array());
 
 	$generator = new Generator(null, OUTPUT_DIR);
 
@@ -235,13 +253,6 @@ echo "PANEL SEARCH/TREE" . PHP_EOL;
 	$generator->start();
 	echo 'var tree = ' . json_encode($tree);
 	$generator->end($generator->output_dir . '/html/panel/tree.js');
-
-	// search_index
-	array_unshift($search_index->index->searchIndex, 'readme');
-	array_unshift($search_index->index->longSearchIndex, '');
-	array_unshift($search_index->index->info, array(
-		'README', '', 'README.html', '', 'Package Information.', 1
-	));
 
 	$generator->start();
 	echo 'var search_data = ' . json_encode($search_index);
@@ -261,12 +272,32 @@ $clean_title = strtolower(str_replace(array('(',')','|','/','\\'), '', str_repla
 echo "GENERATE OFFLINE DOCS" . PHP_EOL;
 $cmd = 'cd ' . OUTPUT_DIR . ' && ' . PHP_EOL;
 $cmd .= 'cp -Rf ' . HTML_DIR . ' ' . OUTPUT_DIR . $clean_title . DIRECTORY_SEPARATOR . ' && ' . PHP_EOL;
+
+// zip
+$cmd .= 'zip -r latest_docs .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . PHP_EOL;
+$cmd .= 'mv latest_docs.zip ' . HTML_DIR . ' && ' . PHP_EOL;
+
+// gzip
 $cmd .= 'tar -cf latest_docs.tar .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . '* && gzip -9 latest_docs.tar && ' . PHP_EOL;
 $cmd .= 'mv latest_docs.tar.gz ' . HTML_DIR . ' && ' . PHP_EOL;
+
+// bzip2
+$cmd .= 'tar -cf latest_docs.tar .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . '* && bzip2 -9 latest_docs.tar && ' . PHP_EOL;
+$cmd .= 'mv latest_docs.tar.bz2 ' . HTML_DIR . ' && ' . PHP_EOL;
+
 $cmd .= 'rm -Rf ' . OUTPUT_DIR . $clean_title . DIRECTORY_SEPARATOR . PHP_EOL;
 shell_exec($cmd);
 
+// zip
+$doc_path = HTML_DIR . 'latest_docs.zip';
+echo '    ' . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
+
+// gzip
 $doc_path = HTML_DIR . 'latest_docs.tar.gz';
+echo '    ' . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
+
+// bzip2
+$doc_path = HTML_DIR . 'latest_docs.tar.bz2';
 echo '    ' . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
 
 echo PHP_EOL;

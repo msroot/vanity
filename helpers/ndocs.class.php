@@ -4,7 +4,7 @@
  * 	A NaturalDocs comment parser for PHP, without the documentation generator.
  *
  * Version:
- * 	2010.04.19
+ * 	2010.09.20
  *
  * Copyright:
  * 	2010 Ryan Parman
@@ -74,13 +74,17 @@ class NDocs
 	 * Returns:
 	 * 	_array_ An array of (a) the content that comes after the headline's colon (used for Method, Property and Constant), and (b) the content that comes below the headline, before the next headline.
 	 */
-	public static function parse_headline($headline, $content)
+	public static function parse_headline($headline, $content, $next_headline = null)
 	{
 		$data = array();
 		$data['headline'] = $headline;
 		$method = array();
 
-		if ($headline === 'Method' || $headline === 'File')
+		if ($headline === 'File')
+		{
+			preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)\n(.*)(\t?\s\*\s' . preg_quote($next_headline, '/') . ')/simU', $content, $method); // File description
+		}
+		elseif ($headline === 'Method')
 		{
 			preg_match('/' . preg_quote($headline, '/') . ':([^\n]*)\n(.*)(\t?\s\*\s[^\t])/simU', $content, $method); // Method description
 		}

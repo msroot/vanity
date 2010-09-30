@@ -1,7 +1,4 @@
 <?php
-header('HTTP/1.1 200 OK');
-header('Content-type: text/xml; charset=utf-8');
-
 include_once 'ndocs.class.php';
 include_once 'utilities.class.php';
 
@@ -26,7 +23,7 @@ class Lexer
 
 	public function parse_class($class_name, $dir_output)
 	{
-		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://github.com/skyzyx/vanity"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
+		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://vanitydoc.org"></vanity>', 'SimpleXMLExtended', LIBXML_NOCDATA);
 
 			// Collect class data
 			$rclass = new ReflectionClass($class_name);
@@ -61,7 +58,15 @@ class Lexer
 						$xsection->addChild('headline', $headline);
 						$xcontents = $xsection->addChild('contents');
 
-						$pheadline = NDocs::parse_headline($headline, $docblocks[0]);
+						// File: or Method:
+						if ($headline === $headlines[0])
+						{
+							$pheadline = NDocs::parse_headline($headlines[0], $docblocks[0], $headlines[1]);
+						}
+						else
+						{
+							$pheadline = NDocs::parse_headline($headline, $docblocks[0]);
+						}
 
 						Util::htmlize($pheadline['content'], $xcontents, $this->linkmap, (string) $rclass->name);
 					}

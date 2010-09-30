@@ -68,7 +68,7 @@
 
 	<div class="description">
 		<? if (isset($method->docBlock->section->contents)): ?>
-			<?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $method->docBlock->section->contents))) ?>
+			<?= Markdown(Util::entitize((string) $method->docBlock->section->contents)) ?>
 		<? endif; ?>
 
 		<? foreach ($method->docBlock->section as $section): ?>
@@ -77,14 +77,14 @@
 				<? if (isset($section->contents)): ?>
 					<? if (isset($section->contents->line)): ?>
 						<? foreach ($section->contents->line as $line): ?>
-							<?= Markdown(Util::linkify_as_markdown(Util::entitize(str_replace('_|_', '_ | _', $line)))) ?>
+							<?= Markdown(Util::entitize(str_replace('_|_', '_ | _', $line))) ?>
 						<? endforeach; ?>
 					<? endif; ?>
 					<? if (isset($section->contents->entry)): ?>
 						<ul class="parameterList">
 						<? foreach ($section->contents->entry as $entry): ?>
 							<li>
-								<tt><?= (string) $entry->param ?></tt> - <em><?= $entry->type ?></em> (<?= ((string) $entry->required == 'Required') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize((string) $entry->description))) ?>
+								<tt><?= (string) $entry->param ?></tt> - <em><?= $entry->type ?></em> (<?= ((string) $entry->required == 'Required') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::entitize((string) $entry->description)) ?>
 							</li>
 						<? endforeach; ?>
 						</ul>
@@ -115,7 +115,7 @@
 							}
 						}
 						?>
-						<tt><?= $name ?></tt> - <em><?= $type ?></em> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::linkify_as_markdown(Util::entitize(@$param_data[$name]['description']))) ?>
+						<tt><?= $name ?></tt> - <em><?= $type ?></em> (<?= ((string) $p->required == 'true') ? 'Required' : 'Optional' ?>) <?= Markdown(Util::entitize(@$param_data[$name]['description'])) ?>
 					</li>
 				<? endforeach; ?>
 				</ul>
@@ -137,13 +137,13 @@
 					<? if (isset($example->title)): ?><h5><?= (string) $example->title ?></h5><? endif; ?>
 					<? if (isset($example->description)): ?><?= Markdown((string) $example->description); ?><? endif; ?>
 					<? if (isset($example->code)): ?><pre class="code ln-"><code class="php"><?= (string) $example->code; ?></code></pre><? endif; ?>
-					<? if (isset($example->result)): ?><br><pre><?= (string) $example->result ?></pre><? endif; ?>
+					<? if (isset($example->result)): ?><br><strong>Result:</strong><pre><?= (string) $example->result ?></pre><? endif; ?>
 				<? endforeach; ?>
 			</div>
 		<? endif; ?>
 
 		<h4>Source</h4>
-		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html" rel="../../#i=<?= $method_class_name ?>"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= (string) $method->source->numberOfLines ?> lines)</p>
+		<p class="parent"><em>Method defined in <a href="../<?= $method_class_name ?>/index.html" rel="../../index.html#i=<?= $method_class_name ?>"><?= $class_file ?></a></em> | <a href="" class="showsource">Toggle source view</a> (<?= (string) $method->source->numberOfLines ?> lines) | <a href="http://github.com/amazonwebservices/aws-sdk-for-php/blob/master/<?= $class_file ?>#L<?= (int) $method->source->startLine ?>">View on GitHub</a></p>
 		<div class="source hide highlight">
 			<pre class="code ln-<?= (int) $method->source->startLine ?>"><code class="php"><?= (string) $method->source->code ?></code></pre>
 		</div>

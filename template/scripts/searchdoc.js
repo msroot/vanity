@@ -607,7 +607,7 @@ Searchdoc.Tree.prototype = $.extend({}, Searchdoc.Navigation, new function() {
 						(function() {
 							var arr = [];
 							arr.push(_('span').html(function() {
-								return (!item[2] && level != 0) ? ('<b>' + item[0] + '</b>') : item[0];
+								return (!item[2] && level != 0) ? ('' + item[0] + '') : item[0];
 							}()));
 							if (item[2]) {
 								arr.push(_('i').html(item[2]));

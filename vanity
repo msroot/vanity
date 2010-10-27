@@ -3,6 +3,9 @@
 $tstart = time();
 error_reporting(-1);
 
+include_once 'helpers/cachecore/icachecore.interface.php';
+include_once 'helpers/cachecore/cachecore.class.php';
+include_once 'helpers/cachecore/cachefile.class.php';
 include_once 'helpers/vanity.class.php';
 include_once 'helpers/linkmap.class.php';
 include_once 'helpers/lexer.class.php';
@@ -82,6 +85,9 @@ if (!isset($options['template']) || !$options['template']) { $template = dirname
 else { $template = $options['template']; }
 echo '    Template: ' . realpath($template) . PHP_EOL;
 
+// Cache
+$cache_dir = dirname(__FILE__) . '/cache';
+
 // README
 if (!isset($options['readme']) || !$options['readme']) { $readme = realpath($template . '/partials/README.phtml'); }
 else { $readme = realpath($options['readme']); }
@@ -89,6 +95,7 @@ echo '    README: ' . $readme . PHP_EOL;
 
 define('OUTPUT_DIR', $output . DIRECTORY_SEPARATOR);
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
+define('CACHE_DIR', $cache_dir . '/');
 
 echo PHP_EOL;
 

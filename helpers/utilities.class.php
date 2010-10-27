@@ -273,36 +273,40 @@ class Util
 		return $out;
 	}
 
-	public static function read_examples($yml = 'examples.yml')
+	public static function read_examples($yml = 'examples.yml', $class, $method)
 	{
-		$examples = array();
-		$all_examples = Util::rglob($yml);
-
-		foreach ($all_examples as $example)
+		return Vanity_CacheFile::init($class . '_' . $method, CACHE_DIR, 31557600)->response_manager(function($yml)
 		{
-			$example = realpath($example);
-			$yaml = spyc_load_file($example);
+			$examples = array();
+			$all_examples = Util::rglob($yml);
 
-			foreach ($yaml as $class => $methods)
+			foreach ($all_examples as $example)
 			{
-				if ($methods)
+				$example = realpath($example);
+				$yaml = spyc_load_file($example);
+
+				foreach ($yaml as $class => $methods)
 				{
-					foreach ($methods as $method => $tests)
+					if ($methods)
 					{
-						if ($tests)
+						foreach ($methods as $method => $tests)
 						{
-							foreach ($tests as $index => $test)
+							if ($tests)
 							{
+								foreach ($tests as $index => $test)
+								{
 									$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
+								}
 							}
 						}
 					}
 				}
+				$examples = array_merge($examples, $yaml);
 			}
-			$examples = array_merge($examples, $yaml);
-		}
 
-		return $examples;
+			return $examples;
+
+		}, array($yml));
 	}
 
 	public static function apply_linkmap($map, $current, $s)

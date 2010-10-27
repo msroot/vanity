@@ -192,7 +192,7 @@ class NDocs
 			$temp = array();
 			foreach ($content as $line)
 			{
-				preg_match('/(.*) - _(.*)_ \((\w*)\) (.*)/', $line, $param);
+				preg_match('/(.*) - _(.*)_ \(([^\)]*)\)\s?(.*)?/', $line, $param);
 				preg_match('/(.*) - (.*)/', $line, $options);
 
 				if (sizeof($param))

@@ -341,12 +341,13 @@ class Lexer
 							$tcode = preg_replace("/^\t/", '', $tcode); // Clean initial Tab
 							$tcode = preg_replace("/\n\t/", "\n", $tcode); // Clean off the first tab per line
 							$tcode = str_replace("\t", '    ', $tcode); // Convert all tabs to 4 spaces.
+							$tcode = Util::entitize($tcode);
 
-							$xcode->addCDATA(Util::entitize($tcode));
+							$xcode->addCDATA($tcode);
 						}
 
 						// <examples />
-						$texamples = Util::read_examples();
+						$texamples = Util::read_examples('examples.yml', $tmethod_class_name, $tmethod_name);
 						if (isset($texamples[$tmethod_class_name][$tmethod_name]) && is_array($texamples[$tmethod_class_name][$tmethod_name]))
 						{
 							$xexamples = $xmethod->addChild('examples');
@@ -373,13 +374,13 @@ class Lexer
 								if (isset($tsections['FILE']))
 								{
 									$xcode = $xexample->addChild('code');
-									$xcode->addCDATA($texample->display($tsections['FILE']));
+									$xcode->addCDATA($texample->display($tsections['FILE'], 'code'));
 								}
 
 								if (isset($tsections['EXPECT']))
 								{
 									$xresult = $xexample->addChild('result');
-									$xresult->addCDATA($texample->display($tsections['EXPECT']));
+									$xresult->addCDATA($texample->display($tsections['EXPECT'], 'result'));
 								}
 							}
 						}

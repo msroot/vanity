@@ -1,5 +1,81 @@
 #! /usr/bin/env php
 <?php
+/********************************************************/
+// PREPARATION
+
+if (php_sapi_name() != 'cli') {
+	die('Must run from command line');
+}
+
 $start_time = time();
 error_reporting(-1);
 
+ini_set('display_errors', 1);
+ini_set('log_errors', 0);
+ini_set('html_errors', 0);
+
+define('VERSION', '2.0');
+define('TAB', '    ');
+
+
+/********************************************************/
+// GENERATE HELP
+
+$help = array(
+	'match:' => '(Required; Optional if defined in config) The file pattern to recursively match. Defaults to *.php.',
+	'title:' => '(Required; Optional if defined in config) The title to use for the README page.',
+
+	'exclude-access:' => '(Optional) Access types to exclude. Use this option multiple times to set multiple values. (e.g., public, protected, private)',
+	'exclude-classes:' => '(Optional) The classname pattern to exclude. Use this option multiple times to set multiple values.',
+
+	'cache:' => '(Optional) The location to use for cache files. Set to `false` to disable caching.',
+	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
+	'readme:' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
+	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
+
+	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
+);
+
+$options = getopt('', array_keys($help));
+
+if (sizeof($options) === 0)
+{
+	echo PHP_EOL;
+	echo 'Vanity ' . VERSION . PHP_EOL;
+	echo TAB . "API reference generator for PHP." . PHP_EOL;
+	echo PHP_EOL;
+
+	ksort($help);
+
+	foreach ($help as $k => $v)
+	{
+		echo '--' . preg_replace('/(:*)/', '', $k) . PHP_EOL;
+		echo TAB . $v . PHP_EOL;
+	}
+
+	echo PHP_EOL . PHP_EOL;
+
+	die();
+}
+
+echo PHP_EOL;
+
+
+/********************************************************/
+// DEFAULT VALUES
+
+// Defaults
+$default_options = array(
+	'match' => '*.php',
+	'output' => './output',
+	'readme' => 'README.md',
+	'template' => './templates/sdoc',
+	'title' => 'Documentation',
+);
+
+// Config file options
+
+// CLI triggers
+
+$options = array_merge($default_options, $options);
+print_r($options);

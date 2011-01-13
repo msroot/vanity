@@ -1,0 +1,49 @@
+# File pattern to match
+match: "*.php"
+
+# Title to use for the docs
+title: Vanity
+
+# README file to use
+readme: README.md
+
+# Default output directory
+output: ./output
+
+# Default template
+template: ./template/sdoc
+
+# Skip the lexer/tokenizer phase
+skip-lexer: false
+
+# Directory to use for caching
+cache: ./cache
+
+# Offline documentation
+offline:
+  formats:
+    - zip
+    - gz
+    - bz2
+  label: latest_docs
+
+# Classname pattern to exclude from documentation
+exclude-classes:
+  - Exception
+  - RequestCore
+  - ResponseCore
+
+# Access type to exclude from documentation
+exclude-access:
+  - private
+
+# Add groups to the tree with classnames that match the pattern
+add-group:
+  Core Utilities:
+    - CF
+    - Cache
+
+# Add files to the tree that match the filename
+add-files:
+  LICENSE: LICENSE.md
+  NOTICE: NOTICE.md

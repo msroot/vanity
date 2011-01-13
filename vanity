@@ -16,6 +16,27 @@ ini_set('html_errors', 0);
 
 define('VERSION', '2.0');
 define('TAB', '    ');
+define('VANITY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+define('WORKING_DIR', getcwd() . DIRECTORY_SEPARATOR);
+define('PROJECT_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
+
+
+/********************************************************/
+// INCLUDES
+
+include 'lib/cachecore/icachecore.interface.php';
+include 'lib/cachecore/cachecore.class.php';
+include 'lib/cachecore/cachefile.class.php';
+include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
+include 'lib/example.class.php';
+include 'lib/examplify.class.php';
+include 'lib/generator.class.php';
+include 'lib/lexer.class.php';
+include 'lib/linkmap.class.php';
+include 'lib/markdown.php';
+include 'lib/phpt.class.php';
+include 'lib/spyc.php';
+include 'lib/utilities.class.php';
 
 
 /********************************************************/
@@ -34,14 +55,22 @@ $help = array(
 	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
 
 	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
+	'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
+	'help' => 'This help documentation.',
+	'version' => 'The version number.',
 );
 
-$options = getopt('', array_keys($help));
+$console_options = getopt('', array_keys($help));
 
-if (sizeof($options) === 0)
+if (isset($console_options['version']))
+{
+	echo 'Vanity ' . VERSION . PHP_EOL;
+	die();
+}
+elseif (isset($console_options['help']))
 {
 	echo PHP_EOL;
-	echo 'Vanity ' . VERSION . PHP_EOL;
+	echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
 	echo TAB . "API reference generator for PHP." . PHP_EOL;
 	echo PHP_EOL;
 
@@ -50,7 +79,7 @@ if (sizeof($options) === 0)
 	foreach ($help as $k => $v)
 	{
 		echo '--' . preg_replace('/(:*)/', '', $k) . PHP_EOL;
-		echo TAB . $v . PHP_EOL;
+		echo TAB . TAB . $v . PHP_EOL;
 	}
 
 	echo PHP_EOL . PHP_EOL;
@@ -59,14 +88,21 @@ if (sizeof($options) === 0)
 }
 
 echo PHP_EOL;
+echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+echo PHP_EOL;
 
 
 /********************************************************/
 // DEFAULT VALUES
 
 // Defaults
-$default_options = array(
+$options = $default_options = array(
+	'exclude-access' => array('private'),
 	'match' => '*.php',
+	'offline' => array(
+		'formats' => array('bz2', 'gz', 'zip'),
+		'label' => 'latest_docs'
+	),
 	'output' => './output',
 	'readme' => 'README.md',
 	'template' => './templates/sdoc',
@@ -74,8 +110,187 @@ $default_options = array(
 );
 
 // Config file options
+if (file_exists(PROJECT_DIR . 'config.yml'))
+{
+	echo TAB . 'Merged configuration options from ' . PROJECT_DIR . 'config.yml' . PHP_EOL;
+	$config_options = spyc_load_file(PROJECT_DIR . 'config.yml');
+	$options = array_merge($options, $config_options);
+}
 
-// CLI triggers
+// Console triggers
+if (isset($console_options) && count($console_options) > 0)
+{
+	echo TAB . 'Merged configuration options from the console.' . PHP_EOL;
+	$options = array_merge($options, $console_options);
+}
+echo PHP_EOL;
 
-$options = array_merge($default_options, $options);
-print_r($options);
+
+/********************************************************/
+// NORMALIZE PATHS
+
+if (isset($options['cache']))
+{
+	if (strpos($options['cache'], '/') !== 0)
+	{
+		$options['cache'] = Util::normalize_path(PROJECT_DIR . $options['cache']);
+	}
+}
+
+if (isset($options['output']))
+{
+	if (strpos($options['output'], '/') !== 0)
+	{
+		$options['output'] = Util::normalize_path(PROJECT_DIR . $options['output']);
+	}
+}
+
+if (isset($options['template']))
+{
+	if (strpos($options['template'], '/') !== 0)
+	{
+		$options['template'] = Util::normalize_path(VANITY_DIR . $options['template']);
+	}
+}
+
+if (isset($options['fresh']))
+{
+	$options['fresh'] = true;
+}
+
+if (isset($options['skip-lexer']))
+{
+	$options['skip-lexer'] = true;
+}
+
+ksort($options);
+echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
+echo Spyc::YAMLDump($options) . PHP_EOL;
+echo '---' . PHP_EOL;
+
+
+/********************************************************/
+// WORKING DIRECTORIES
+
+echo 'WORKING DIRECTORIES' . PHP_EOL;
+
+// Cache
+if (isset($options['cache']))
+{
+	if (realpath($options['cache']) == '')
+	{
+		shell_exec('mkdir -p ' . $options['cache']);
+	}
+	define('CACHE_DIR', realpath($options['cache']) . DIRECTORY_SEPARATOR);
+	echo TAB . 'Cache: ' . CACHE_DIR . PHP_EOL;
+}
+
+// Output
+if (realpath($options['output']) == '')
+{
+	shell_exec('mkdir -p ' . $options['output']);
+}
+define('OUTPUT_DIR', realpath($options['output']) . DIRECTORY_SEPARATOR);
+define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
+echo TAB . 'Output: ' . OUTPUT_DIR . PHP_EOL;
+
+// Template
+if (realpath($options['template']) == '')
+{
+	// echo PHP_EOL . 'FATAL: The requested template directory does not exist.' . PHP_EOL . PHP_EOL;
+	// die();
+}
+define('TEMPLATE_DIR', $options['template'] . DIRECTORY_SEPARATOR);
+echo TAB . 'Template: ' . TEMPLATE_DIR . PHP_EOL;
+
+// README
+
+echo PHP_EOL;
+
+
+/********************************************************/
+// DETERMINE CLASSES TO REFLECT
+
+// Get the initial set of defined classes
+$before = get_declared_classes();
+
+// Glob and load
+$files = Util::rglob($options['match']);
+echo "FILE MATCHES" . PHP_EOL;
+foreach ($files as $file)
+{
+	$file = getcwd() . '/' . $file;
+	echo TAB . $file . PHP_EOL;
+	include_once $file;
+}
+echo PHP_EOL;
+
+// Get the updated list of defined classes
+$after = get_declared_classes();
+
+// These are the new classes that were introduced
+$diff = array_diff($after, $before);
+
+// Do more filtering of the list
+echo "CLASS MATCHES" . PHP_EOL;
+$parse_me = array();
+foreach ($diff as $class)
+{
+	$add = true;
+
+	if (isset($options['exclude-classes']))
+	{
+		foreach ($options['exclude-classes'] as $exclusion)
+		{
+			if (preg_match('/' . $exclusion . '/', $class))
+			{
+				$add = false;
+			}
+		}
+	}
+
+	if ($add)
+	{
+		$parse_me[] = $class;
+		echo TAB . $class . PHP_EOL;
+	}
+}
+
+echo PHP_EOL;
+
+
+/********************************************************/
+// REMOVING OLD OUTPUT DIRECTORY
+
+echo "REMOVING OLD OUTPUT DIRECTORY" . PHP_EOL;
+if (OUTPUT_DIR == '/') die('Current working directory doesn\'t exist. Stopping.');
+$cmd = 'rm -Rf ' . OUTPUT_DIR;
+echo TAB . $cmd . PHP_EOL;
+shell_exec($cmd);
+echo PHP_EOL;
+
+
+/********************************************************/
+// GENERATING THE LINKMAP
+
+echo "GENERATING THE LINKMAP" . PHP_EOL;
+$lmap = new LinkMap();
+foreach ($parse_me as $class)
+{
+	$lmap->add_class($class);
+}
+$linkmap = $lmap->generate_map();
+echo '    Done.' . PHP_EOL;
+echo PHP_EOL;
+
+
+/********************************************************/
+// RUN THE LEXER
+
+echo "RUNNING THE LEXER" . PHP_EOL;
+$lexer = new Lexer($linkmap);
+foreach ($parse_me as $class)
+{
+	$lexer->parse_class($class, OUTPUT_DIR);
+}
+echo PHP_EOL;

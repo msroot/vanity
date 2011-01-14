@@ -1,6 +1,6 @@
 <?php
 /**
- * DocumentingReflectionMethod Class Definition File
+ * DocblockParser Class Definition File
  *
  * This file contains the definition for the documenting reflection method class
  *
@@ -11,14 +11,14 @@
  */
 
 /**
- * DocumentingReflectionMethod Class
- * 
- * This class extends the ReflectionMethod class and adds the ability 
+ * DocblockParser Class
+ *
+ * This class extends the ReflectionMethod class and adds the ability
  * to parse a class method's doc block comments.
  *
  * @version 1.0
  */
-class DocumentingReflectionMethod extends ReflectionMethod
+class DocblockParser
 {
 	/**
 	 * Newline Token Number
@@ -44,7 +44,7 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	 * @var int
 	 */
 	const T_DOCBLOCK_TAG		= 5;
-	
+
 	/**
 	 * Map of Token Numbers to Token Names
 	 *
@@ -55,7 +55,7 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	 * Array of Newline Characters
 	 *
 	 * These characters count as newlines by themselves when being tokenized.
-	 * 
+	 *
 	 * @var array
 	 */
 	protected static $newLineChars 		= array('/**', '*', '*/');
@@ -69,7 +69,7 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	 * Regex to Match Tags
 	 */
 	protected static $tagRegex			= '/@[a-zA-Z0-9]*\s/';
-	
+
 	/**
 	 * All Parsed Comments
 	 *
@@ -100,7 +100,7 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	 * @var Object
 	 */
 	protected $declaringClass;
-	
+
 	/**
 	 * Class Constructor
 	 *
@@ -109,17 +109,18 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	 *
 	 * @return void
 	 */
-	public function __construct ($object, $method)
+	// public function __construct ($object, $method)
+	public function __construct ($docComment)
 	{
-		parent::__construct($object, $method);
-		
-		$docComment				= $this->getDocComment();
-		$this->declaringClass 	= $object;
-		
+		// parent::__construct($object, $method);
+		//
+		// $docComment				= $this->getDocComment();
+		// $this->declaringClass 	= $object;
+
 		$this->tokenizeDocComment($docComment);
 		$this->parseTokens();
 	}
-	
+
 	/**
 	 * Outputs the Doc Tokens
 	 *
@@ -128,22 +129,22 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	public function printDocTokens ()
 	{
 		$return = '';
-		
+
 		foreach ($this->tokens as $tokens)
 		{
 			foreach ($tokens as $token)
 			{
 				$return .= $token[0] . '=' . self::$tokenNames[$token[0]] . '=' . $token[1] . "<br />";
 			}
-			
+
 			$return .= '<br />';
 		}
-		
+
 		echo $return;
 	}
-	
+
 	/**
-	 * Returns DocumentingReflectionMethod::$tags
+	 * Returns DocblockParser::$tags
 	 *
 	 * @return array
 	 */
@@ -151,20 +152,50 @@ class DocumentingReflectionMethod extends ReflectionMethod
 	{
 		return $this->tags;
 	}
-	
+
 	/**
-	 * Returns DocumentingReflectionMethod::$comments
+	 * Returns DocblockParser::$comments
 	 *
 	 * @return array
 	 */
 	public function getComments ()
 	{
-		return $this->comments;
+		$comments = implode(' ', $this->comments);
+		$comments = preg_replace('/<\/\w>(\s*)<\w>/', '#!~~', $comments);
+		$comments = preg_replace('/<\/?\w>/', '', $comments);
+		$comments = explode('#!~~', $comments);
+
+		return $comments;
 	}
-	
+
+	/**
+	 * Returns a Markdown-friendly block of text.
+	 *
+	 * @return string
+	 */
+	public function makeMarkdownFriendly ($docBlock)
+	{
+		$docBlock = str_replace("\r\n", "\n", $docBlock);
+		$lines = explode("\n", $docBlock);
+		$newLines = array();
+
+		foreach ($lines as $line)
+		{
+			foreach (self::$newLineChars as $token)
+			{
+				$regex = '/^(\s|\t)*' . Util::regex_token($token) . '\s?/';
+				$line = preg_replace($regex, '', $line);
+			}
+
+			$newLines[] = $line;
+		}
+
+		return implode("\n", $newLines);
+	}
+
 	/**
 	 * Parses the Tokens
-	 * 
+	 *
 	 * This function loops over all the token groups and splits the tags and comments
 	 * into the appropriate arrays on this class
 	 *
@@ -175,20 +206,20 @@ class DocumentingReflectionMethod extends ReflectionMethod
 		foreach ($this->tokens as $tokens)
 		{
 			$tagName = null;
-			
+
 			foreach ($tokens as $token)
 			{
-				if ($token[0] == DocumentingReflectionMethod::T_DOCBLOCK_NEWLINE || $token[0] == DocumentingReflectionMethod::T_DOCBLOCK_WHITESPACE)
+				if ($token[0] == DocblockParser::T_DOCBLOCK_NEWLINE || $token[0] == DocblockParser::T_DOCBLOCK_WHITESPACE)
 				{
 					continue;
 				}
-				
-				if ($token[0] == DocumentingReflectionMethod::T_DOCBLOCK_TAG)
+
+				if ($token[0] == DocblockParser::T_DOCBLOCK_TAG)
 				{
 					$tagName = $token[1];
 				}
-				
-				if ($token[0] == DocumentingReflectionMethod::T_DOCBLOCK_TEXT)
+
+				if ($token[0] == DocblockParser::T_DOCBLOCK_TEXT)
 				{
 					if ($tagName !== null)
 					{
@@ -203,58 +234,59 @@ class DocumentingReflectionMethod extends ReflectionMethod
 			}
 		}
 	}
-	
+
 	/**
 	 * Runs the Tokenizing Routine on a Doc Comment
 	 *
 	 * @param string $docComment The method's doc comment
-	 * 
+	 *
 	 * @return void
 	 */
 	protected function tokenizeDocComment ($docComment)
 	{
+		$docComment = str_replace("\r\n", "\n", $docComment);
 		$lines = explode("\n", $docComment);
-		
+
 		foreach ($lines as $line)
 		{
 			$this->tokens[] = $this->tokenizeLine($line);
 		}
 	}
-	
+
 	/**
 	 * Tokenizes a Line in the Doc Comment
 	 *
 	 * @param string $line A doc comment line
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function tokenizeLine ($line)
 	{
 		$lineTokens = array();
 		$line 		= trim($line);
-		
+
 		// check for newline
 		if (in_array($line, self::$newLineChars))
 		{
-			$lineTokens[] = array(DocumentingReflectionMethod::T_DOCBLOCK_NEWLINE, "\n");
+			$lineTokens[] = array(DocblockParser::T_DOCBLOCK_NEWLINE, "\n");
 			return $lineTokens;
 		}
-		
+
 		if (preg_match(self::$whitespaceRegex, $line, $matches))
 		{
-			$lineTokens[] = array(DocumentingReflectionMethod::T_DOCBLOCK_WHITESPACE, $matches[0]);
+			$lineTokens[] = array(DocblockParser::T_DOCBLOCK_WHITESPACE, $matches[0]);
 			$line = str_replace($matches[0], '', $line);
 		}
-		
+
 		if (preg_match(self::$tagRegex, $line, $matches))
 		{
-			$lineTokens[] = array(DocumentingReflectionMethod::T_DOCBLOCK_TAG, trim($matches[0]));
+			$lineTokens[] = array(DocblockParser::T_DOCBLOCK_TAG, trim($matches[0]));
 			$line = str_replace($matches[0], '', $line);
 		}
-		
-		$lineTokens[] = array(DocumentingReflectionMethod::T_DOCBLOCK_TEXT, trim($line));
-		$lineTokens[] = array(DocumentingReflectionMethod::T_DOCBLOCK_NEWLINE, "\n");
-		
+
+		$lineTokens[] = array(DocblockParser::T_DOCBLOCK_TEXT, trim($line));
+		$lineTokens[] = array(DocblockParser::T_DOCBLOCK_NEWLINE, "\n");
+
 		return $lineTokens;
 	}
 }

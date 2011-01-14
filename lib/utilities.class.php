@@ -74,6 +74,35 @@ class Util
 	/**
 	 *
 	 */
+	public static function indent($content)
+	{
+		$contents = explode("\n", $content);
+
+		$contents = array_map(function($line)
+		{
+			if (trim($line) !== '')
+			{
+				return TAB . '| ' . $line;
+			}
+
+		}, $contents);
+
+		return implode("\n", $contents);
+	}
+
+	/**
+	 *
+	 */
+	public static function regex_token($token)
+	{
+		$token = str_replace('/', '\/', $token);
+		$token = quotemeta($token);
+		return str_replace('\\\\', '\\', $token);
+	}
+
+	/**
+	 *
+	 */
 	public static function line_numbers($lnum, $content)
 	{
 		return str_pad($lnum + 1, strlen((string) sizeof($content)), '0', STR_PAD_LEFT);

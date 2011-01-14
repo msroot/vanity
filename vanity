@@ -165,8 +165,7 @@ if (isset($options['skip-lexer']))
 
 ksort($options);
 echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
-echo Spyc::YAMLDump($options) . PHP_EOL;
-echo '---' . PHP_EOL;
+echo Util::indent(Spyc::YAMLDump($options)) . PHP_EOL;
 
 
 /********************************************************/
@@ -280,7 +279,7 @@ foreach ($parse_me as $class)
 	$lmap->add_class($class);
 }
 $linkmap = $lmap->generate_map();
-echo '    Done.' . PHP_EOL;
+echo TAB . 'Done.' . PHP_EOL;
 echo PHP_EOL;
 
 

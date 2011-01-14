@@ -46,232 +46,240 @@ class Lexer
 
 		// <class />
 		$xclass = $xml->addChild('class');
-		$xclass->addCDATA(print_r((string) $rclass, true));
 
-		/*****************************************************************************************/
+		// Remove these
+		$xclasscontent = $xclass->addChild('content');
+		$xclasscontent->addCDATA(print_r((string) $rclass, true));
 
-		// <methods />
-		$xmethods = $xml->addChild('methods');
+			/*****************************************************************************************/
 
-		/*****************************************************************************************/
+			// <methods />
+			$xmethods = $xclass->addChild('methods');
+			$xmethods->addAttribute('count', sizeof($rclass_methods));
 
-		/*
-		<constants count="1">
-			<constant>
-				<name><![CDATA[BUILD]]></name>
-				<value type="string">20101203002835</value>
-			</constant>
-		</constants>
-		*/
+			/*****************************************************************************************/
 
-		// <constants />
-		$xconstants = $xml->addChild('constants');
-		$xconstants->addAttribute('count', sizeof($rclass_constants));
+			/*
+			<constants count="1">
+				<constant>
+					<name><![CDATA[BUILD]]></name>
+					<value type="string">20101203002835</value>
+				</constant>
+			</constants>
+			*/
 
-		foreach ($rclass_constants as $rconstant => $rvalue)
-		{
-			// <constant />
-			$xconstant = $xconstants->addChild('constant');
+			// <constants />
+			$xconstants = $xclass->addChild('constants');
+			$xconstants->addAttribute('count', sizeof($rclass_constants));
 
-				// <name />
-				$xname = $xconstant->addChild('name', $rconstant);
+			foreach ($rclass_constants as $rconstant => $rvalue)
+			{
+				// <constant />
+				$xconstant = $xconstants->addChild('constant');
 
-				// <value />
-				$xvalue = $xconstant->addChild('value', $rvalue);
-				$xvalue->addAttribute('type', gettype($rvalue));
-		}
+					// <name />
+					$xname = $xconstant->addChild('name', $rconstant);
 
-		/*****************************************************************************************/
+					// <value />
+					$xvalue = $xconstant->addChild('value', $rvalue);
+					$xvalue->addAttribute('type', gettype($rvalue));
+			}
 
-		/*
-		<properties count="1">
-			<property>
-				<name>account_id</name>
-				<inherited from="CFRuntime"/>
-				<modifier>public</modifier>
-				<initializer>
-					<type>string</type>
-					<value>mystring</value>
-				</initializer>
-				<description>
-					<para><![CDATA[Description.]]></para>
-				</description>
-			</property>
-		</properties>
-		*/
+			/*****************************************************************************************/
 
-		// <properties>
-		$xproperties = $xml->addChild('properties');
-		$xproperties->addAttribute('count', sizeof($rclass_properties));
+			/*
+			<properties count="1">
+				<property>
+					<name>account_id</name>
+					<inherited from="CFRuntime"/>
+					<modifier>public</modifier>
+					<initializer>
+						<type>string</type>
+						<value>mystring</value>
+					</initializer>
+					<description>
+						<para><![CDATA[Description.]]></para>
+					</description>
+				</property>
+			</properties>
+			*/
 
-		foreach ($rclass_properties as $rproperty => $rvalue)
-		{
-			// <property />
-			$xproperty = $xproperties->addChild('property');
+			// <properties>
+			$xproperties = $xclass->addChild('properties');
+			$xproperties->addAttribute('count', sizeof($rclass_properties));
 
-				// <name />
-				$xproperty->addChild('name', $rproperty);
+			foreach ($rclass_properties as $rproperty => $rvalue)
+			{
+				// <property />
+				$xproperty = $xproperties->addChild('property');
 
-				// <inherited />
-				if (isset($rproperty->class) && isset($rclass->name) && ($rproperty->class != $rclass->name))
-				{
-					$xinherited = $xproperty->addChild('inherited');
-					$xinherited->addAttribute('from', $rproperty->class);
-				}
+					// <name />
+					$xproperty->addChild('name', $rproperty);
 
-				// <modifier />
-				$rproperty = new ReflectionProperty($rclass->name, $rproperty);
-				$xproperty->addChild('modifier', implode(' ', Util::access($rproperty)));
-
-				// <initializer />
-				if ($rvalue)
-				{
-					$adjusted_rvalue = null;
-					switch (strtolower(gettype($rvalue)))
+					// <inherited />
+					if (isset($rproperty->class) && isset($rclass->name) && ($rproperty->class != $rclass->name))
 					{
-						case 'boolean':
-							$adjusted_rvalue = ($rvalue == 1) ? 'true' : 'false';
-							break;
-
-						case 'null':
-							$adjusted_rvalue = 'null';
-							break;
-
-						case 'string':
-							$adjusted_rvalue = $rvalue;
-							break;
-
-						case 'integer':
-							$adjusted_rvalue = (integer) $rvalue;
-							break;
-
-						case 'array':
-							$adjusted_rvalue = Util::unwrap_array($rvalue);
-							break;
+						$xinherited = $xproperty->addChild('inherited');
+						$xinherited->addAttribute('from', $rproperty->class);
 					}
 
-					$xinitializer = $xproperty->addChild('initializer');
-					$xinitializer->addAttribute('type', gettype($rvalue));
-					$xinitializer->addAttribute('value', $adjusted_rvalue);
-				}
+					// <modifier />
+					$rproperty = new ReflectionProperty($rclass->name, $rproperty);
+					$xproperty->addChild('modifier', implode(' ', Util::access($rproperty)));
 
-				// <description />
-				if ($rcomment = $rproperty->getDocComment())
-				{
-					$xdescription = $xproperty->addChild('description');
-					$xdescription->addCDATA(print_r($rproperty->getDocComment(), true));
-				}
-		}
+					// <initializer />
+					if ($rvalue)
+					{
+						$adjusted_rvalue = null;
+						switch (strtolower(gettype($rvalue)))
+						{
+							case 'boolean':
+								$adjusted_rvalue = ($rvalue == 1) ? 'true' : 'false';
+								break;
 
-		/*
-			<class>
-				<name>AmazonS3</name>
-				<version>Fri Dec 03 16:26:16 PST 2010</version>
-				<description>
-					<para>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</para>
-					<para>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</para>
-					<para>Neither the name of the SimplePie Team nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</para>
-				</description>
-			</class>
-			<methods count="50">
-				<method>
-					<name>__construct</name>
-					<modifier>public</modifier>
-					<availability>1.0</availability>
-					<inherited from="CFRuntime"/>
+							case 'null':
+								$adjusted_rvalue = 'null';
+								break;
+
+							case 'string':
+								$adjusted_rvalue = $rvalue;
+								break;
+
+							case 'integer':
+								$adjusted_rvalue = (integer) $rvalue;
+								break;
+
+							case 'array':
+								$adjusted_rvalue = Util::unwrap_array($rvalue);
+								break;
+						}
+
+						$xinitializer = $xproperty->addChild('initializer');
+						$xinitializer->addAttribute('type', gettype($rvalue));
+						$xinitializer->addAttribute('value', $adjusted_rvalue);
+					}
+
+					// <description />
+					if ($rcomment = $rproperty->getDocComment())
+					{
+						$xdescription = $xproperty->addChild('description');
+						$property_docs = new DocblockParser($rproperty->getDocComment());
+						// $xdescription->addCDATA(print_r(array($property_docs->getTags(), $property_docs->getComments()), true));
+						$xdescription->addCDATA(Markdown($property_docs->makeMarkdownFriendly($rproperty->getDocComment())));
+					}
+			}
+
+			/*
+				<class>
+					<name>AmazonS3</name>
+					<version>Fri Dec 03 16:26:16 PST 2010</version>
 					<description>
-						<para>Create an instance of the class with the input data</para>
-						<!-- EMBEDDED CONTENT -->
+						<para>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</para>
+						<para>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</para>
+						<para>Neither the name of the SimplePie Team nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</para>
 					</description>
-					<inheritance>
-						<class>
-							<name>AmazonS3</name>
-							<file>services/s3.class.php</file>
-						</class>
-						<class>
-							<name>CFRuntime</name>
-							<file>sdk.class.php</file>
-						</class>
-					</inheritance>
-					<implements>
-						<interface>
-							<name>ICacheCore</name>
-							<file>cachecore.interface.php</file>
-						</interface>
-					</implements>
-					<parameters>
-						<parameter choice="req">
-							<varname>var1</varname>
-							<type>string</type>
-							<description>
-								<para>Create an instance of the class with the input data</para>
-							</description>
-						</parameter>
-						<parameter choice="opt">
-							<varname>var2</varname>
-							<type>string</type>
-							<initializer>
-								<type>string</type>
-								<value>mystring</value>
-							</initializer>
-							<description>
-								<para>Create an instance of the class with the input data</para>
-							</description>
-						</parameter>
-					</parameters>
-					<returnvalue>
-						<type>CFResponse</type>
+				</class>
+				<methods count="50">
+					<method>
+						<name>__construct</name>
+						<modifier>public</modifier>
+						<availability>1.0</availability>
+						<inherited from="CFRuntime"/>
 						<description>
 							<para>Create an instance of the class with the input data</para>
+							<!-- EMBEDDED CONTENT -->
 						</description>
-					</returnvalue>
-					<source>
-						<code filename="services/s3.class.php" language="php" start="474" end="485" lines="12">
-							<![CDATA[]]>
-						</code>
-					</source>
-					<examples>
-						<example>
-							<title>This is a sample something.</title>
+						<inheritance>
+							<class>
+								<name>AmazonS3</name>
+								<file>services/s3.class.php</file>
+							</class>
+							<class>
+								<name>CFRuntime</name>
+								<file>sdk.class.php</file>
+							</class>
+						</inheritance>
+						<implements>
+							<interface>
+								<name>ICacheCore</name>
+								<file>cachecore.interface.php</file>
+							</interface>
+						</implements>
+						<parameters>
+							<parameter choice="req">
+								<varname>var1</varname>
+								<type>string</type>
+								<description>
+									<para>Create an instance of the class with the input data</para>
+								</description>
+							</parameter>
+							<parameter choice="opt">
+								<varname>var2</varname>
+								<type>string</type>
+								<initializer>
+									<type>string</type>
+									<value>mystring</value>
+								</initializer>
+								<description>
+									<para>Create an instance of the class with the input data</para>
+								</description>
+							</parameter>
+						</parameters>
+						<returnvalue>
+							<type>CFResponse</type>
 							<description>
-								<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
-								<itemizedlist>
-									<listitem>
-										<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
-									</listitem>
-								</itemizedlist>
+								<para>Create an instance of the class with the input data</para>
 							</description>
-							<code language="php">
+						</returnvalue>
+						<source>
+							<code filename="services/s3.class.php" language="php" start="474" end="485" lines="12">
 								<![CDATA[]]>
 							</code>
-						</example>
-						<example>
-							<title>This is a sample something.</title>
-							<description>
-								<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
-								<itemizedlist>
-									<listitem>
-										<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
-									</listitem>
-								</itemizedlist>
-							</description>
-							<code language="php">
-								<![CDATA[]]>
-							</code>
-						</example>
-					</examples>
-					<related>
-						<method></method>
-						<method></method>
-						<method></method>
-					</related>
-					<seealso>
-						<link url=""></link>
-						<link url=""></link>
-					</seealso>
-				</method>
-			</methods>
-		*/
+						</source>
+						<examples>
+							<example>
+								<title>This is a sample something.</title>
+								<description>
+									<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
+									<itemizedlist>
+										<listitem>
+											<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
+										</listitem>
+									</itemizedlist>
+								</description>
+								<code language="php">
+									<![CDATA[]]>
+								</code>
+							</example>
+							<example>
+								<title>This is a sample something.</title>
+								<description>
+									<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
+									<itemizedlist>
+										<listitem>
+											<para>Paragraphs in DocBook may contain almost all inlines and most block elements.</para>
+										</listitem>
+									</itemizedlist>
+								</description>
+								<code language="php">
+									<![CDATA[]]>
+								</code>
+							</example>
+						</examples>
+						<related>
+							<method></method>
+							<method></method>
+							<method></method>
+						</related>
+						<seealso>
+							<link url=""></link>
+							<link url=""></link>
+						</seealso>
+					</method>
+				</methods>
+			*/
+
+		/*****************************************************************************************/
 
 		// Write XML output
 		$xml_output = $xml->asXML();

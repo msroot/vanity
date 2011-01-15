@@ -12,60 +12,32 @@ Vanity was created as a much-improved replacement for [NaturalDocs](http://natur
 * I also wanted something that allowed me to write my own HTML templates. None of the current solutions make that easy (e.g. PHPDocumentor, NaturalDocs, Doxygen).
 * I'm inspired by how good the third-party Ruby on Rails and jQuery documentation systems are. I wanted to build something that had my favorite features (e.g. search, browse, keyboard navigation, inline examples, comments).
 
-## Features
+## Documentation
 
-What sets Vanity apart from other API reference generators?
+A list of to-dos is here: <https://github.com/skyzyx/vanity/issues>
 
-* A default template that doesn't completely suck.
-* The ability to easily design and build your own custom templates.
-* Leverages PHP's [Reflection](http://php.net/reflection) API, allowing your code to self-document.
-* Supplements the Reflection data using information from docblocks. PHPDoc support is forthcoming.
-* Properly documents class inheritance (extending and overriding), which is something that NaturalDocs doesn't support for PHP.
+Documentation is not ready yet, as this branch is in the middle of a complete rewrite. However, here is a list of configuration options:
 
-### Other features
+### Working
 
-* Default template features a search/browse panel for finding whatever you're looking for.
-* Link directly to a specific page in the documentation by copy-pasting directly from the address bar.
-* Supports the ability to add inline code examples by referencing your PHPT unit tests.
-* Produces XML & JSON representations of the code docblocks and reflection data.
-* Use your Markdown-formatted READMEs from GitHub as the documentation README.
-* Documents object-oriented PHP code (e.g. classes, methods, properties, and class constants).
+* help
+* match
+* output
+* version
 
-### Explicit non-goals
+### Not working yet
 
-* Will not support parsing languages other than PHP. This is simply because Vanity uses reflection rather than language definitions.
-
-## Requirements
-
-* PHP 5.3.0 (will try to drop this to 5.2.x at some point).
-* PHP short tags enabled.
-* Command-line access
-* `shell_exec()`, `mkdir()`, and `chmod()`.
-* Mac OS X or *nix systems, because I'm currently using forward slashes for most paths.
-
-## Documentation and usage
-
-	git clone git://github.com/skyzyx/vanity.git
-	cd vanity
-
-...or...
-
-	svn co http://svn.github.com/skyzyx/vanity.git vanity
-	cd vanity
-
-It might be helpful to create a symlink of `vanity` to `/usr/local/bin/vanity`.
-
-Move into your PHP project directory (with NaturalDocs-formatted docblocks), and run `vanity --match="*.php" --title="My Awesome Project"`.
-
-## License, copyright, and standing on the shoulders of giants...
-
-Vanity itself is Copyright (c) 2010, Ryan Parman, and is licensed for use under the [MIT license](http://www.opensource.org/licenses/mit-license.php). That being said, Vanity wouldn't have been made possible without the following projects:
-
-- [SDoc](http://github.com/voloko/sdoc/) &mdash; The UI template with browse/search support. (MIT-licensed)
-- [Spyc](http://code.google.com/p/spyc/) &mdash; Pure PHP YAML parser. (MIT-licensed)
-- [Chili](http://code.google.com/p/jquery-chili-js/) &mdash; Syntax highlighter for source code. (MIT-licensed)
-- [jQuery](http://jquery.com) &mdash; A fast and concise JavaScript Library that simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development. (MIT-licensed)
-- [PHPT Parser](http://github.com/skyzyx/phpt/) &mdash; Parses PHPT unit test files. (MIT-licensed)
-- [PHP Markdown](http://michelf.com/projects/php-markdown/) &mdash; Useful for converting large, free-form blocks of text into HTML. (BSD-licensed)
-
-All code inside Vanity is BSD, MIT, PHP or Apache 2.0 licensed, and I avoid GPL code like the plague. This should make it friendly to those who want to avoid legal issues with using GPL software.
+<table>
+	<tr><td>exclude-access</td><td>Simple, but haven't gotten to it yet.</td></tr>
+	<tr><td>exclude-classes</td><td>Simple, but haven't gotten to it yet.</td></tr>
+	<tr><td>markdown (all)</td><td>Markdown is already in the core. I just need to determine when/where to call it.</td></tr>
+	<tr><td>readme</td><td>This depends on Markdown being hooked up.</td></tr>
+	<tr><td>template</td><td>This depends on the lexer being hooked up.</td></tr>
+	<tr><td>title</td><td>This depends on having one or more templates.</td></tr>
+	<tr><td>add-group</td><td>This depends on having one or more templates.</td></tr>
+	<tr><td>add-files</td><td>This depends on having one or more templates.</td></tr>
+	<tr><td>offline</td><td>This depends on having one or more templates.</td></tr>
+	<tr><td>skip-lexer</td><td>This depends on the lexer being hooked up and a template existing before I can add/test this.</td></tr>
+	<tr><td>cache</td><td>Pretty easy, but will likely be one of the very last things I implement.</td></tr>
+	<tr><td>fresh</td><td>This depends on caching.</td></tr>
+</table>

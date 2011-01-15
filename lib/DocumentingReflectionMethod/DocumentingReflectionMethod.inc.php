@@ -58,7 +58,7 @@ class DocblockParser
 	 *
 	 * @var array
 	 */
-	protected static $newLineChars 		= array('/**', '*', '*/');
+	protected static $newLineChars 		= array('/**', '*/', '*');
 	/**
 	 * Regex to Match Whitespace
 	 *
@@ -160,12 +160,7 @@ class DocblockParser
 	 */
 	public function getComments ()
 	{
-		$comments = implode(' ', $this->comments);
-		$comments = preg_replace('/<\/\w>(\s*)<\w>/', '#!~~', $comments);
-		$comments = preg_replace('/<\/?\w>/', '', $comments);
-		$comments = explode('#!~~', $comments);
-
-		return $comments;
+		return trim(implode("\n", $this->comments));
 	}
 
 	/**
@@ -269,7 +264,13 @@ class DocblockParser
 		if (in_array($line, self::$newLineChars))
 		{
 			$lineTokens[] = array(DocblockParser::T_DOCBLOCK_NEWLINE, "\n");
-			return $lineTokens;
+			// return $lineTokens;
+
+			foreach (self::$newLineChars as $token)
+			{
+				$regex = '/^(\s|\t)*' . Util::regex_token($token) . '\s?/';
+				$line = preg_replace($regex, '', $line);
+			}
 		}
 
 		if (preg_match(self::$whitespaceRegex, $line, $matches))

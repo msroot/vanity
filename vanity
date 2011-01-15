@@ -18,7 +18,7 @@ define('VERSION', '2.0');
 define('TAB', '    ');
 define('VANITY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 define('WORKING_DIR', getcwd() . DIRECTORY_SEPARATOR);
-define('PROJECT_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
+define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
 
 
 /********************************************************/
@@ -53,6 +53,11 @@ $help = array(
 	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
 	'readme:' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
 	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
+
+	'markdown' => '(Optional) Use this option if most of the content is in a Markdown-friendly format. This sets the other Markdown options to `true`.',
+	'markdown-files' => '(Optional) Use this option if the FILE docblocks are in a Markdown-friendly format.',
+	'markdown-methods' => '(Optional) Use this option if the METHOD docblocks are in a Markdown-friendly format.',
+	'markdown-properties' => '(Optional) Use this option if the PROPERTY docblocks are in a Markdown-friendly format.',
 
 	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
 	'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
@@ -110,10 +115,10 @@ $options = $default_options = array(
 );
 
 // Config file options
-if (file_exists(PROJECT_DIR . 'config.yml'))
+if (file_exists(CONFIG_DIR . 'config.yml'))
 {
-	echo TAB . 'Merged configuration options from ' . PROJECT_DIR . 'config.yml' . PHP_EOL;
-	$config_options = spyc_load_file(PROJECT_DIR . 'config.yml');
+	echo TAB . 'Merged configuration options from ' . CONFIG_DIR . 'config.yml' . PHP_EOL;
+	$config_options = spyc_load_file(CONFIG_DIR . 'config.yml');
 	$options = array_merge($options, $config_options);
 }
 
@@ -133,7 +138,7 @@ if (isset($options['cache']))
 {
 	if (strpos($options['cache'], '/') !== 0)
 	{
-		$options['cache'] = Util::normalize_path(PROJECT_DIR . $options['cache']);
+		$options['cache'] = Util::normalize_path(CONFIG_DIR . $options['cache']);
 	}
 }
 
@@ -141,7 +146,7 @@ if (isset($options['output']))
 {
 	if (strpos($options['output'], '/') !== 0)
 	{
-		$options['output'] = Util::normalize_path(PROJECT_DIR . $options['output']);
+		$options['output'] = Util::normalize_path(CONFIG_DIR . $options['output']);
 	}
 }
 
@@ -156,6 +161,29 @@ if (isset($options['template']))
 if (isset($options['fresh']))
 {
 	$options['fresh'] = true;
+}
+
+if (isset($options['markdown-files']))
+{
+	$options['markdown-files'] = true;
+}
+
+if (isset($options['markdown-methods']))
+{
+	$options['markdown-methods'] = true;
+}
+
+if (isset($options['markdown-properties']))
+{
+	$options['markdown-properties'] = true;
+}
+
+if (isset($options['markdown']))
+{
+	$options['markdown'] = true;
+	$options['markdown-files'] = true;
+	$options['markdown-methods'] = true;
+	$options['markdown-properties'] = true;
 }
 
 if (isset($options['skip-lexer']))

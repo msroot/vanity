@@ -198,8 +198,8 @@ class Util
 	 */
 	public static function read_examples($yml = 'examples.yml', $class, $method)
 	{
-		return Vanity_CacheFile::init($class . '_' . $method, CACHE_DIR, 31557600)->response_manager(function($yml)
-		{
+		// return Vanity_CacheFile::init($class . '_' . $method, CACHE_DIR, 31557600)->response_manager(function($yml)
+		// {
 			$examples = array();
 			$all_examples = Util::rglob($yml);
 
@@ -229,6 +229,6 @@ class Util
 
 			return $examples;
 
-		}, array($yml));
+		// }, array($yml));
 	}
 }

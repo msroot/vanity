@@ -4,7 +4,7 @@
  * 	Processes examples for output.
  *
  * Version:
- * 	2010.10.09
+ * 	2011.01.14
  */
 
 class Example
@@ -20,19 +20,20 @@ class Example
 
 	public function sections()
 	{
-		return Vanity_CacheFile::init('sections_' . $this->mod_path, CACHE_DIR, 31557600)->response_manager(function($output)
-		{
-			$cleaned = htmlentities($output, ENT_NOQUOTES, 'UTF-8');
+		// return Vanity_CacheFile::init('sections_' . $this->mod_path, CACHE_DIR, 31557600)->response_manager(function($output)
+		// {
+			// $cleaned = htmlentities($output, ENT_NOQUOTES, 'UTF-8');
+			$cleaned = htmlentities($this->output, ENT_NOQUOTES, 'UTF-8');
 			$phpt = new PHPT_Parser($cleaned);
 			return $phpt->get_section();
 
-		}, array($this->output));
+		// }, array($this->output));
 	}
 
 	public function display($code, $type)
 	{
-		return Vanity_CacheFile::init($type . '_' . $this->mod_path, CACHE_DIR, 31557600)->response_manager(function($code)
-		{
+		// return Vanity_CacheFile::init($type . '_' . $this->mod_path, CACHE_DIR, 31557600)->response_manager(function($code)
+		// {
 			$example = new Examplify($code);
 			$code = $example->output();
 
@@ -43,6 +44,6 @@ class Example
 
 			return $code;
 
-		}, array($code));
+		// }, array($code));
 	}
 }

@@ -48,6 +48,63 @@ class Util
 	/**
 	 *
 	 */
+	public static function get_reference_xml($function)
+	{
+		$function = preg_replace('/::__/', '::', $function);
+		$function = str_replace('::', DIRECTORY_SEPARATOR, $function);
+		$function = str_replace('_', '-', $function);
+
+		$letters = str_split($function);
+		$pattern = array();
+
+		foreach ($letters as $letter)
+		{
+			if (preg_match('/[a-z]/i', $letter))
+			{
+				$pattern[] = '[' . strtolower($letter) . strtoupper($letter) . ']';
+			}
+			else
+			{
+				$pattern[] = $letter;
+			}
+		}
+
+		$pattern = implode('', $pattern);
+
+		$results = self::rglob(PHPREF_DIR . '**' . DIRECTORY_SEPARATOR . $pattern . '.*');
+		$filepath = array_shift($results);
+
+		if ($filepath)
+		{
+			$contents = file_get_contents($filepath);
+			$contents = str_replace('xmlns=', 'ns=', $contents);
+
+			// Handle entities embedded inside entities
+			while (preg_match('/&([^;]*);/i', $contents))
+			{
+				$contents = preg_replace_callback('/&([^;]*);/i', function($matches)
+				{
+					if (strpos($matches[1], '#') === false)
+					{
+						$ENTITY_MAP = $GLOBALS['ENTITY_MAP'];
+						return $ENTITY_MAP[$matches[1]];
+					}
+
+					return $matches[1];
+
+				}, $contents);
+			}
+
+			return simplexml_load_string($contents, 'Vanity_SimpleXMLExtended', LIBXML_NOCDATA & LIBXML_NOBLANKS & LIBXML_NOENT);
+		}
+
+		// Null if we can't find anything (e.g. SimpleXMLElement::__toString()).
+		return null;
+	}
+
+	/**
+	 *
+	 */
 	public static function rglob($pattern, $flags = 0, $path = '')
 	{
 		if (!$path && ($dir = dirname($pattern)) != '.')
@@ -57,7 +114,7 @@ class Util
 				$dir = '';
 			}
 
-			return Util::rglob(basename($pattern), $flags, $dir . '/');
+			return self::rglob(basename($pattern), $flags, $dir . '/');
 		}
 
 		$paths = glob($path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
@@ -65,7 +122,7 @@ class Util
 
 		foreach ($paths as $p)
 		{
-			$files = array_merge($files, Util::rglob($pattern, $flags, $p . '/'));
+			$files = array_merge($files, self::rglob($pattern, $flags, $p . '/'));
 		}
 
 		return $files;
@@ -155,7 +212,7 @@ class Util
 	 */
 	public static function unwrap_array($array)
 	{
-		$out = 'array( ';
+		$out = 'array(';
 		$collect = array();
 		foreach ($array as $k => $v)
 		{
@@ -187,8 +244,13 @@ class Util
 					$collect[] = $key . gettype($v);
 			}
 		}
-		$out .= implode(', ', $collect);
-		$out .= ' )';
+
+		$values = implode(', ', $collect);
+
+		$out .= $values ? ' ' : '';
+		$out .= $values;
+		$out .= $values ? ' ' : '';
+		$out .= ')';
 
 		return $out;
 	}
@@ -196,39 +258,171 @@ class Util
 	/**
 	 *
 	 */
+	public static function time_hms($seconds)
+	{
+		$time = '';
+
+		// First pass
+		$hours = (int) ($seconds / 3600);
+		$seconds = $seconds % 3600;
+		$minutes = (int) ($seconds / 60);
+		$seconds = $seconds % 60;
+
+		// Cleanup
+		$time .= ($hours) ? $hours . ':' : '';
+		$time .= ($minutes < 10 && $hours > 0) ? '0' . $minutes : $minutes;
+		$time .= ':';
+		$time .= ($seconds < 10) ? '0' . $seconds : $seconds;
+
+		return $time;
+	}
+
+	/**
+	 *
+	 */
 	public static function read_examples($yml = 'examples.yml', $class, $method)
 	{
-		// return Vanity_CacheFile::init($class . '_' . $method, CACHE_DIR, 31557600)->response_manager(function($yml)
-		// {
-			$examples = array();
-			$all_examples = Util::rglob($yml);
+		$examples = array();
+		$all_examples = Util::rglob($yml);
 
-			foreach ($all_examples as $example)
+		foreach ($all_examples as $example)
+		{
+			$example = realpath($example);
+			$yaml = spyc_load_file($example);
+
+			foreach ($yaml as $class => $methods)
 			{
-				$example = realpath($example);
-				$yaml = spyc_load_file($example);
-
-				foreach ($yaml as $class => $methods)
+				if ($methods)
 				{
-					if ($methods)
+					foreach ($methods as $method => $tests)
 					{
-						foreach ($methods as $method => $tests)
+						if ($tests)
 						{
-							if ($tests)
+							foreach ($tests as $index => $test)
 							{
-								foreach ($tests as $index => $test)
-								{
-									$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
-								}
+								$yaml[$class][$method][$index] = dirname($example) . DIRECTORY_SEPARATOR . $test;
 							}
 						}
 					}
 				}
-				$examples = array_merge($examples, $yaml);
+			}
+			$examples = array_merge($examples, $yaml);
+		}
+
+		return $examples;
+	}
+
+	/**
+	 *
+	 */
+	public static function get_parent_classes($rclass)
+	{
+		$class_list = array();
+		$rclass = new ReflectionClass($rclass);
+
+		while ($parent_class = $rclass->getParentClass())
+		{
+			$class_list[] = $parent_class->getName();
+			$rclass = $parent_class;
+		}
+
+		return $class_list;
+	}
+
+	/**
+	 *
+	 */
+	public static function htmlify_text($text)
+	{
+		if (strpos(trim($text), '<') !== 0)
+		{
+			return trim(Markdown($text));
+		}
+
+		return trim($text);
+	}
+
+	/**
+	 *
+	 */
+	public static function clean_docbook($content)
+	{
+		$content = preg_replace('/(\s+)/m', ' ', $content);
+		$content = preg_replace('/\s?<(\/?)(para)([^>]*)>\s?/i', '<\\1p\\3>', $content);
+		$content = preg_replace('/<(\/?)(literal)([^>]*)>/i', '<\\1code\\3>', $content);
+		$content = preg_replace('/<(\/?)(orderedlist)([^>]*)>/i', '<\\1ol\\3>', $content);
+		$content = preg_replace('/<(\/?)(itemizedlist)([^>]*)>/i', '<\\1ul\\3>', $content);
+		$content = preg_replace('/<(\/?)(listitem)([^>]*)>/i', '<\\1li\\3>', $content);
+		$content = preg_replace('/<constant([^>]*)>(\w*)<\/constant>/i', '<code>\\2</code>', $content);
+		$content = preg_replace('/<type([^>]*)>(\w*)<\/type>/i', '<a href="http://php.net/\\2"><code>\\2</code></a>', $content);
+		$content = preg_replace('/<classname([^>]*)>(\w*)<\/classname>/i', '<a href="http://php.net/\\2"><code>\\2</code></a>', $content);
+		$content = preg_replace('/<methodname([^>]*)>(\w*)::(\w*)<\/methodname>/i', '<a href="http://php.net/\\2.\\3"><code>\\2::\\3</code></a>', $content);
+		$content = preg_replace('/<link linkend="([^"]*)">([^>]*)<\/link>/i', '<a href="http://php.net/\\1"><code>\\2</code></a>', $content);
+
+		$content = str_replace('<pmeter>', ' <code>', $content);
+		$content = str_replace('</pmeter>', '</code> ', $content);
+		$content = str_replace('<row>', '<tr>', $content);
+		$content = str_replace('</row>', '</tr>', $content);
+		$content = str_replace('<entry>', '<td>', $content);
+		$content = str_replace('</entry>', '</td>', $content);
+
+		return trim($content);
+	}
+
+	/**
+	 *
+	 */
+	public static function elongate_type($type)
+	{
+		$types = array(
+			'int' => 'integer',
+			'bool' => 'boolean',
+		);
+
+		if (isset($types[strtolower($type)]))
+		{
+			return $types[strtolower($type)];
+		}
+
+		return $type;
+	}
+
+	/**
+	 *
+	 */
+	public static function strip_root_element($xml, $element = 'listitem')
+	{
+		$xml = preg_replace('/^<' . $element . '>/i', '', trim($xml));
+		$xml = preg_replace('/<\/' . $element . '>$/i', '', $xml);
+		return trim($xml);
+	}
+
+	/**
+	 *
+	 */
+	public static function generate_entity_map()
+	{
+		$master_map = array();
+		$glob = array_merge(
+			Util::rglob(ENTITY_GLOBAL_DIR . '**.ent'),
+			Util::rglob(ENTITY_LANG_DIR . '**.ent')
+		);
+
+		foreach ($glob as $file)
+		{
+			$entities = file_get_contents($file);
+			preg_match_all('/<!ENTITY\s+([^\s]*)\s+("|\')([^\\2]*)\\2\s*>/Ui', $entities, $m);
+
+			for ($i = 0, $max = count($m[0]); $i < $max; $i++)
+			{
+				$v = str_replace(array("\r\n", "\n"), ' ', $m[3][$i]);
+				$map[$m[1][$i]] = $v;
 			}
 
-			return $examples;
+			$master_map = array_merge($master_map, $map);
+		}
 
-		// }, array($yml));
+		ksort($master_map);
+		return $master_map;
 	}
 }

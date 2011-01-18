@@ -17,6 +17,10 @@ ini_set('html_errors', 0);
 define('VERSION', '2.0');
 define('TAB', '    ');
 define('VANITY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+define('VANITY_CACHE_DIR', VANITY_DIR . 'cache' . DIRECTORY_SEPARATOR);
+define('PHPREF_DIR', VANITY_CACHE_DIR . 'php' . DIRECTORY_SEPARATOR);
+define('ENTITY_GLOBAL_DIR', VANITY_CACHE_DIR . 'entities' . DIRECTORY_SEPARATOR);
+define('ENTITY_LANG_DIR', VANITY_CACHE_DIR . 'language-entities' . DIRECTORY_SEPARATOR);
 define('WORKING_DIR', getcwd() . DIRECTORY_SEPARATOR);
 define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
 
@@ -27,6 +31,7 @@ define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
 include 'lib/cachecore/icachecore.interface.php';
 include 'lib/cachecore/cachecore.class.php';
 include 'lib/cachecore/cachefile.class.php';
+include 'lib/requestcore/requestcore.class.php';
 include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
 include 'lib/example.class.php';
 include 'lib/examplify.class.php';
@@ -54,13 +59,10 @@ $help = array(
 	'readme:' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
 	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
 
-	'markdown' => '(Optional) Use this option if most of the content is in a Markdown-friendly format. This sets the other Markdown options to `true`.',
-	'markdown-files' => '(Optional) Use this option if the FILE docblocks are in a Markdown-friendly format.',
-	'markdown-methods' => '(Optional) Use this option if the METHOD docblocks are in a Markdown-friendly format.',
-	'markdown-properties' => '(Optional) Use this option if the PROPERTY docblocks are in a Markdown-friendly format.',
-
+	'skip-update' => '(Optional) Skips the attempt to update the internal PHP reference from Subversion.',
 	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
 	'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
+
 	'help' => 'This help documentation.',
 	'version' => 'The version number.',
 );
@@ -101,32 +103,35 @@ echo PHP_EOL;
 // DEFAULT VALUES
 
 // Defaults
-$options = $default_options = array(
+$OPTIONS = $default_options = array(
 	'exclude-access' => array('private'),
 	'match' => '*.php',
-	'offline' => array(
-		'formats' => array('bz2', 'gz', 'zip'),
-		'label' => 'latest_docs'
-	),
 	'output' => './output',
 	'readme' => 'README.md',
 	'template' => './templates/sdoc',
 	'title' => 'Documentation',
 );
 
+// Create CONFIG_DIR if it doesn't exist.
+if (realpath(CONFIG_DIR) == '')
+{
+	shell_exec('mkdir -p ' . CONFIG_DIR);
+	file_put_contents(CONFIG_DIR . 'README.txt', 'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.');
+}
+
 // Config file options
 if (file_exists(CONFIG_DIR . 'config.yml'))
 {
 	echo TAB . 'Merged configuration options from ' . CONFIG_DIR . 'config.yml' . PHP_EOL;
 	$config_options = spyc_load_file(CONFIG_DIR . 'config.yml');
-	$options = array_merge($options, $config_options);
+	$OPTIONS = array_merge($OPTIONS, $config_options);
 }
 
 // Console triggers
 if (isset($console_options) && count($console_options) > 0)
 {
 	echo TAB . 'Merged configuration options from the console.' . PHP_EOL;
-	$options = array_merge($options, $console_options);
+	$OPTIONS = array_merge($OPTIONS, $console_options);
 }
 echo PHP_EOL;
 
@@ -134,66 +139,91 @@ echo PHP_EOL;
 /********************************************************/
 // NORMALIZE PATHS
 
-if (isset($options['cache']))
+if (isset($OPTIONS['cache']))
 {
-	if (strpos($options['cache'], '/') !== 0)
+	if (strpos($OPTIONS['cache'], '/') !== 0)
 	{
-		$options['cache'] = Util::normalize_path(CONFIG_DIR . $options['cache']);
+		$OPTIONS['cache'] = Util::normalize_path(CONFIG_DIR . $OPTIONS['cache']);
 	}
 }
 
-if (isset($options['output']))
+if (isset($OPTIONS['output']))
 {
-	if (strpos($options['output'], '/') !== 0)
+	if (strpos($OPTIONS['output'], '/') !== 0)
 	{
-		$options['output'] = Util::normalize_path(CONFIG_DIR . $options['output']);
+		$OPTIONS['output'] = Util::normalize_path(CONFIG_DIR . $OPTIONS['output']);
 	}
 }
 
-if (isset($options['template']))
+if (isset($OPTIONS['template']))
 {
-	if (strpos($options['template'], '/') !== 0)
+	if (strpos($OPTIONS['template'], '/') !== 0)
 	{
-		$options['template'] = Util::normalize_path(VANITY_DIR . $options['template']);
+		$OPTIONS['template'] = Util::normalize_path(VANITY_DIR . $OPTIONS['template']);
 	}
 }
 
-if (isset($options['fresh']))
+if (isset($OPTIONS['fresh']))
 {
-	$options['fresh'] = true;
+	$OPTIONS['fresh'] = true;
 }
 
-if (isset($options['markdown-files']))
+if (isset($OPTIONS['skip-lexer']))
 {
-	$options['markdown-files'] = true;
+	$OPTIONS['skip-lexer'] = true;
 }
 
-if (isset($options['markdown-methods']))
+if (isset($OPTIONS['skip-update']))
 {
-	$options['markdown-methods'] = true;
+	$OPTIONS['skip-update'] = true;
 }
 
-if (isset($options['markdown-properties']))
-{
-	$options['markdown-properties'] = true;
-}
-
-if (isset($options['markdown']))
-{
-	$options['markdown'] = true;
-	$options['markdown-files'] = true;
-	$options['markdown-methods'] = true;
-	$options['markdown-properties'] = true;
-}
-
-if (isset($options['skip-lexer']))
-{
-	$options['skip-lexer'] = true;
-}
-
-ksort($options);
+ksort($OPTIONS);
 echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
-echo Util::indent(Spyc::YAMLDump($options)) . PHP_EOL;
+echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
+
+
+/********************************************************/
+// PULL PHP REFERENCE FROM SUBVERSION
+
+if (isset($OPTIONS['skip-update']) && $OPTIONS['skip-update'] === true)
+{
+	echo 'UPDATING INTERNAL PHP REFERENCE' . PHP_EOL;
+	echo TAB . 'Skipped.' . PHP_EOL;
+	echo PHP_EOL;
+}
+else
+{
+	if (realpath(VANITY_CACHE_DIR) == '')
+	{
+		shell_exec('mkdir -p ' . VANITY_CACHE_DIR);
+	}
+
+	if (realpath(PHPREF_DIR) == '' || realpath(ENTITY_GLOBAL_DIR) == '' || realpath(ENTITY_LANG_DIR) == '')
+	{
+		echo 'DOWNLOADING INTERNAL PHP REFERENCE FOR THE FIRST TIME (THIS MIGHT TAKE A FEW MINUTES)' . PHP_EOL;
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . PHPREF_DIR));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . ENTITY_GLOBAL_DIR));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . ENTITY_LANG_DIR . ' --depth files'));
+	}
+	else
+	{
+		echo 'UPDATING INTERNAL PHP REFERENCE' . PHP_EOL;
+		echo Util::indent(shell_exec('svn up ' . PHPREF_DIR));
+		echo Util::indent(shell_exec('svn up ' . ENTITY_GLOBAL_DIR));
+		echo Util::indent(shell_exec('svn up ' . ENTITY_LANG_DIR));
+	}
+	echo PHP_EOL;
+}
+
+
+/********************************************************/
+// GENERATE ENTITY MAP FOR PHP DOC REPLACEMENTS
+
+echo 'GENERATING ENTITY MAP' . PHP_EOL;
+$ENTITY_MAP = Util::generate_entity_map();
+echo TAB . count($ENTITY_MAP) . ' entities mapped.' . PHP_EOL;
+echo PHP_EOL;
 
 
 /********************************************************/
@@ -202,35 +232,38 @@ echo Util::indent(Spyc::YAMLDump($options)) . PHP_EOL;
 echo 'WORKING DIRECTORIES' . PHP_EOL;
 
 // Cache
-if (isset($options['cache']))
+if (isset($OPTIONS['cache']))
 {
-	if (realpath($options['cache']) == '')
+	if (realpath($OPTIONS['cache']) == '')
 	{
-		shell_exec('mkdir -p ' . $options['cache']);
+		shell_exec('mkdir -p ' . $OPTIONS['cache']);
 	}
-	define('CACHE_DIR', realpath($options['cache']) . DIRECTORY_SEPARATOR);
+	define('CACHE_DIR', realpath($OPTIONS['cache']) . DIRECTORY_SEPARATOR);
 	echo TAB . 'Cache: ' . CACHE_DIR . PHP_EOL;
 }
 
 // Output
-if (realpath($options['output']) == '')
+if (realpath($OPTIONS['output']) == '')
 {
-	shell_exec('mkdir -p ' . $options['output']);
+	shell_exec('mkdir -p ' . $OPTIONS['output']);
 }
-define('OUTPUT_DIR', realpath($options['output']) . DIRECTORY_SEPARATOR);
+define('OUTPUT_DIR', realpath($OPTIONS['output']) . DIRECTORY_SEPARATOR);
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
 echo TAB . 'Output: ' . OUTPUT_DIR . PHP_EOL;
 
 // Template
-if (realpath($options['template']) == '')
+if (realpath($OPTIONS['template']) == '')
 {
 	// echo PHP_EOL . 'FATAL: The requested template directory does not exist.' . PHP_EOL . PHP_EOL;
 	// die();
 }
-define('TEMPLATE_DIR', $options['template'] . DIRECTORY_SEPARATOR);
+define('TEMPLATE_DIR', $OPTIONS['template'] . DIRECTORY_SEPARATOR);
 echo TAB . 'Template: ' . TEMPLATE_DIR . PHP_EOL;
 
 // README
+
+// PHP REFERENCE
+echo TAB . 'PHP Ref: ' . PHPREF_DIR . PHP_EOL;
 
 echo PHP_EOL;
 
@@ -242,7 +275,7 @@ echo PHP_EOL;
 $before = get_declared_classes();
 
 // Glob and load
-$files = Util::rglob($options['match']);
+$files = Util::rglob($OPTIONS['match']);
 echo "FILE MATCHES" . PHP_EOL;
 foreach ($files as $file)
 {
@@ -265,9 +298,9 @@ foreach ($diff as $class)
 {
 	$add = true;
 
-	if (isset($options['exclude-classes']))
+	if (isset($OPTIONS['exclude-classes']))
 	{
-		foreach ($options['exclude-classes'] as $exclusion)
+		foreach ($OPTIONS['exclude-classes'] as $exclusion)
 		{
 			if (preg_match('/' . $exclusion . '/', $class))
 			{
@@ -306,7 +339,7 @@ foreach ($parse_me as $class)
 {
 	$lmap->add_class($class);
 }
-$linkmap = $lmap->generate_map();
+$LINKMAP = $lmap->generate_map();
 echo TAB . 'Done.' . PHP_EOL;
 echo PHP_EOL;
 
@@ -315,9 +348,17 @@ echo PHP_EOL;
 // RUN THE LEXER
 
 echo "RUNNING THE LEXER" . PHP_EOL;
-$lexer = new Lexer($linkmap);
+$lexer = new Lexer($LINKMAP);
 foreach ($parse_me as $class)
 {
 	$lexer->parse_class($class, OUTPUT_DIR);
 }
+echo PHP_EOL;
+
+
+/********************************************************/
+// DONE
+
+$end_time = time();
+echo 'DONE. (' . Util::time_hms($end_time - $start_time) . ')' . PHP_EOL;
 echo PHP_EOL;

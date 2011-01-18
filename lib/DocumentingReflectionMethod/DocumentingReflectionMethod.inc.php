@@ -160,7 +160,7 @@ class DocblockParser
 	 */
 	public function getComments ()
 	{
-		return trim(implode("\n", $this->comments));
+		return implode("\n", $this->comments);
 	}
 
 	/**
@@ -289,5 +289,36 @@ class DocblockParser
 		$lineTokens[] = array(DocblockParser::T_DOCBLOCK_NEWLINE, "\n");
 
 		return $lineTokens;
+	}
+
+	/**
+	 *
+	 */
+	public static function parse_param($param)
+	{
+		$param = explode(' ', $param);
+
+		$type = array_shift($param);
+		$name = str_replace('$', '', array_shift($param));
+		$description = preg_replace('/^\((required|optional)\)\s?/i', '', implode(' ', $param));
+
+		return array(
+			'type' => $type,
+			'name' => $name,
+			'description' => $description,
+		);
+	}
+
+	/**
+	 *
+	 */
+	public static function parse_return($return)
+	{
+		$return = explode(' ', $return);
+
+		return array(
+			'type' => array_shift($return),
+			'description' => implode(' ', $return),
+		);
 	}
 }

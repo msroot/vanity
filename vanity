@@ -23,6 +23,7 @@ define('ENTITY_GLOBAL_DIR', VANITY_CACHE_DIR . 'entities' . DIRECTORY_SEPARATOR)
 define('ENTITY_LANG_DIR', VANITY_CACHE_DIR . 'language-entities' . DIRECTORY_SEPARATOR);
 define('WORKING_DIR', getcwd() . DIRECTORY_SEPARATOR);
 define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
+define('PARTIALS_DIR', WORKING_DIR . 'partials' . DIRECTORY_SEPARATOR);
 
 
 /********************************************************/
@@ -31,7 +32,6 @@ define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
 include 'lib/cachecore/icachecore.interface.php';
 include 'lib/cachecore/cachecore.class.php';
 include 'lib/cachecore/cachefile.class.php';
-include 'lib/requestcore/requestcore.class.php';
 include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
 include 'lib/example.class.php';
 include 'lib/examplify.class.php';
@@ -224,6 +224,18 @@ echo 'GENERATING ENTITY MAP' . PHP_EOL;
 $ENTITY_MAP = Util::generate_entity_map();
 echo TAB . count($ENTITY_MAP) . ' entities mapped.' . PHP_EOL;
 echo PHP_EOL;
+
+
+/********************************************************/
+// INDEXING PARTIALS
+
+if (realpath(PARTIALS_DIR) != '')
+{
+	echo 'INDEXING PARTIALS' . PHP_EOL;
+	$ENTITY_MAP = Util::generate_entity_map();
+	echo TAB . count($ENTITY_MAP) . ' entities mapped.' . PHP_EOL;
+	echo PHP_EOL;
+}
 
 
 /********************************************************/

@@ -299,7 +299,7 @@ class DocblockParser
 		$param = explode(' ', $param);
 
 		$type = array_shift($param);
-		$name = str_replace('$', '', array_shift($param));
+		$name = str_replace(array('$', '&$'), '', array_shift($param));
 		$description = preg_replace('/^\((required|optional)\)\s?/i', '', implode(' ', $param));
 
 		return array(

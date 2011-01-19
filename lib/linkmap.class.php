@@ -1,5 +1,5 @@
 <?php
-class LinkMap
+class Vanity_LinkMap
 {
 	private $classes;
 	private $map;

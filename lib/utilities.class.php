@@ -263,9 +263,9 @@ class Util
 		$time = '';
 
 		// First pass
-		$hours = (int) ($seconds / 3600);
+		$hours = (integer) ($seconds / 3600);
 		$seconds = $seconds % 3600;
-		$minutes = (int) ($seconds / 60);
+		$minutes = (integer) ($seconds / 60);
 		$seconds = $seconds % 60;
 
 		// Cleanup
@@ -280,7 +280,7 @@ class Util
 	/**
 	 *
 	 */
-	public static function read_examples($yml = 'examples.yml', $class, $method)
+	public static function read_examples($yml = 'examples.yml')
 	{
 		$examples = array();
 		$all_examples = Util::rglob($yml);
@@ -424,5 +424,98 @@ class Util
 
 		ksort($master_map);
 		return $master_map;
+	}
+
+	/**
+	 *
+	 */
+	public static function content_partials($paths)
+	{
+		$map = array();
+
+		foreach ($paths as $full_path)
+		{
+			$path = str_replace(PARTIALS_DIR, '', $full_path);
+			$path = explode(DIRECTORY_SEPARATOR, strtolower($path));
+
+			if (!isset($map[$path[0]]))
+			{
+				$map[$path[0]] = array();
+			}
+
+			if (!isset($map[$path[0]][$path[1]]))
+			{
+				$map[$path[0]][$path[1]] = array();
+			}
+
+			$content = explode('.', $path[2]);
+
+			if (!isset($map[$path[0]][$path[1]][$content[0]]))
+			{
+				switch ($content[1])
+				{
+					case 'md':
+					case 'mdown':
+					case 'markdown':
+						$map[$path[0]][$path[1]][$content[0]] = trim(Markdown(file_get_contents($full_path)));
+						break;
+
+					default:
+						$map[$path[0]][$path[1]][$content[0]] = trim(file_get_contents($full_path));
+						break;
+				}
+			}
+
+		}
+
+		return $map;
+	}
+
+	/**
+	 *
+	 */
+	public static function apply_linkmap($current, $s)
+	{
+		$i = 0;
+		$map = $GLOBALS['LINKMAP'];
+		preg_match_all('/<([^>]*)>/', $s, $m);
+
+		foreach ($m[1] as $match)
+		{
+			if (preg_match('/(https?|ftp):\/\//', $match)) continue; // Don't match links.
+			elseif (strpos($match, '::'))
+			{
+				$pieces = explode('::', $match);
+				if (strpos($pieces[0], 'php:') !== false)
+				{
+					$pieces[0] = str_replace('php:', '', $pieces[0]);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($pieces[0]) . '.' . strtolower($pieces[1]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+				}
+				elseif (isset($map['map'][$pieces[0]][$pieces[1]]))
+				{
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$pieces[0]][$pieces[1]]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+				}
+			}
+			else
+			{
+				if (strpos($match, 'php:') !== false)
+				{
+					$match = str_replace('php:', '', $match);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($match) . '"><code>' . $match . '</code></a>', $s);
+				}
+				elseif (isset($map['map'][$current][$match])) // Match same-class methods
+				{
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$current][$match]) . '"><code>' . $match . '</code></a>', $s);
+				}
+				elseif (isset($map['map'][$match]['index'])) // Match same class index
+				{
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$match]['index']) . '"><code>' . $match . '</code></a>', $s);
+				}
+			}
+
+			$i++;
+		}
+
+		return $s;
 	}
 }

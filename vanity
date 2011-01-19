@@ -23,7 +23,7 @@ define('ENTITY_GLOBAL_DIR', VANITY_CACHE_DIR . 'entities' . DIRECTORY_SEPARATOR)
 define('ENTITY_LANG_DIR', VANITY_CACHE_DIR . 'language-entities' . DIRECTORY_SEPARATOR);
 define('WORKING_DIR', getcwd() . DIRECTORY_SEPARATOR);
 define('CONFIG_DIR', WORKING_DIR . '_vanity' . DIRECTORY_SEPARATOR);
-define('PARTIALS_DIR', WORKING_DIR . 'partials' . DIRECTORY_SEPARATOR);
+define('PARTIALS_DIR', CONFIG_DIR . 'partials' . DIRECTORY_SEPARATOR);
 
 
 /********************************************************/
@@ -184,6 +184,14 @@ echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
 
 
 /********************************************************/
+// RETICULATING SPLINES
+
+echo 'RETICULATING SPLINES' . PHP_EOL;
+echo TAB . 'Done.' . PHP_EOL;
+echo PHP_EOL;
+
+
+/********************************************************/
 // PULL PHP REFERENCE FROM SUBVERSION
 
 if (isset($OPTIONS['skip-update']) && $OPTIONS['skip-update'] === true)
@@ -232,8 +240,9 @@ echo PHP_EOL;
 if (realpath(PARTIALS_DIR) != '')
 {
 	echo 'INDEXING PARTIALS' . PHP_EOL;
-	$ENTITY_MAP = Util::generate_entity_map();
-	echo TAB . count($ENTITY_MAP) . ' entities mapped.' . PHP_EOL;
+	$files = Util::rglob(PARTIALS_DIR . '**.*');
+	$PARTIALS = Util::content_partials($files);
+	echo TAB . count($files) . ' partials indexed.' . PHP_EOL;
 	echo PHP_EOL;
 }
 
@@ -312,6 +321,11 @@ foreach ($diff as $class)
 
 	if (isset($OPTIONS['exclude-classes']))
 	{
+		if (is_string($OPTIONS['exclude-classes']))
+		{
+			$OPTIONS['exclude-classes'] = array($OPTIONS['exclude-classes']);
+		}
+
 		foreach ($OPTIONS['exclude-classes'] as $exclusion)
 		{
 			if (preg_match('/' . $exclusion . '/', $class))
@@ -346,7 +360,7 @@ echo PHP_EOL;
 // GENERATING THE LINKMAP
 
 echo "GENERATING THE LINKMAP" . PHP_EOL;
-$lmap = new LinkMap();
+$lmap = new Vanity_LinkMap();
 foreach ($parse_me as $class)
 {
 	$lmap->add_class($class);
@@ -360,7 +374,7 @@ echo PHP_EOL;
 // RUN THE LEXER
 
 echo "RUNNING THE LEXER" . PHP_EOL;
-$lexer = new Lexer($LINKMAP);
+$lexer = new Vanity_Lexer($LINKMAP);
 foreach ($parse_me as $class)
 {
 	$lexer->parse_class($class, OUTPUT_DIR);

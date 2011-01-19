@@ -321,4 +321,23 @@ class DocblockParser
 			'description' => implode(' ', $return),
 		);
 	}
+
+	/**
+	 *
+	 */
+	public static function parse_author($s)
+	{
+		return preg_replace_callback('/([a-z\s]*)<([^>]*)>/i', function($m)
+		{
+			if (preg_match('/^\w[-.\w]*@([-a-z0-9]+\.)+[a-z]{2,4}$/i', $m[2]))
+			{
+				return '<a href="mailto:' . trim($m[2]) . '">' . trim($m[1]) . '</a>';
+			}
+			else
+			{
+				return '<a href="' . trim($m[2]) . '">' . trim($m[1]) . '</a>';
+			}
+
+		}, trim($s));
+	}
 }

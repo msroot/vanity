@@ -9,17 +9,21 @@ class Vanity_SimpleXMLExtended extends SimpleXMLElement
 	}
 }
 
-class Lexer
+class Vanity_Lexer
 {
 	private $linkmap;
 	private $options;
+	private $partials;
 	private $documents;
+	private $examples;
 
 	public function __construct($linkmap)
 	{
 		$this->linkmap = $linkmap;
 		$this->options = $GLOBALS['OPTIONS'];
+		$this->partials = $GLOBALS['PARTIALS'];
 		$this->documents = array();
+		$this->examples = Util::read_examples('examples.yml');
 		$this->collect_file_contents();
 	}
 
@@ -66,9 +70,7 @@ class Lexer
 			<name>AmazonS3</name>
 			<version>Fri Dec 03 16:26:16 PST 2010</version>
 			<description>
-				<para>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</para>
-				<para>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</para>
-				<para>Neither the name of the SimplePie Team nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</para>
+				<![CDATA[]]>
 			</description>
 		</file>
 		*/
@@ -82,6 +84,13 @@ class Lexer
 		<class>
 			<name></name>
 			<file></file>
+			<description>
+				<![CDATA[]]>
+			</description>
+			<metadata>
+				<@tag></@tag>
+				<@tag></@tag>
+			</metadata>
 			<inheritance>
 				<class>
 					<name></name>
@@ -100,10 +109,6 @@ class Lexer
 		// <class />
 		$xclass = $xml->addChild('class');
 
-		// Remove these
-		// $xclasscontent = $xclass->addChild('content');
-		// $xclasscontent->addCDATA(print_r((string) $rclass, true));
-
 			/*****************************************************************************************/
 
 			// <name />
@@ -111,6 +116,34 @@ class Lexer
 
 			// <file />
 			$xclass->addChild('file', $short_filename);
+
+			// <description />
+			$pclassdescription = new DocblockParser($rclass->getDocComment());
+			$xclassdescription = $xclass->addChild('description');
+			$pclasscomments = Util::apply_linkmap($rclass->name, $pclassdescription->getComments());
+			$xclassdescription->addCDATA(Util::htmlify_text($pclasscomments));
+
+			// <metadata />
+			$xtags = $pclassdescription->getTags();
+			if (is_array($xtags))
+			{
+				$xmetadata = $xclass->addChild('metadata');
+				foreach ($xtags as $tag => $value)
+				{
+					if (trim($tag) !== '')
+					{
+						$xtag = $xmetadata->addChild($tag);
+
+						// Handle special cases
+						if ($tag === 'author')
+						{
+							$value = DocblockParser::parse_author($value);
+						}
+
+						$xtag->addCDATA($value);
+					}
+				}
+			}
 
 			// <inheritance>
 			//   <class>
@@ -237,6 +270,20 @@ class Lexer
 
 						$pcomment = implode("\n", $pcomment);
 					}
+
+					// Related methods
+					$related_methods = $method_xml->xpath('descendant-or-self::refsect1[@role="seealso"]//member/function');
+					if ($related_methods && is_array($related_methods))
+					{
+						$ptags['see'] = array_map(function($method, $rclassname)
+						{
+							return Util::apply_linkmap(
+								$rclassname,
+								'php:' . (string) $method
+							);
+
+						}, $related_methods, array($rclass->name));
+					}
 				}
 
 				// Handle hand-written docblocks containing information
@@ -249,6 +296,7 @@ class Lexer
 					{
 						$ptags['return'] = DocblockParser::parse_return($ptags['return']);
 					}
+
 					if (isset($ptags['param']))
 					{
 						if (is_string($ptags['param']))
@@ -264,6 +312,23 @@ class Lexer
 						}
 
 						$ptags['param'] = $tarray;
+						unset($tarray);
+					}
+
+					if (isset($ptags['author']))
+					{
+						if (is_string($ptags['author']))
+						{
+							$ptags['author'] = array($ptags['author']);
+						}
+
+						$tarray = array();
+						foreach ($ptags['author'] as $tparam)
+						{
+							$tarray[] = DocblockParser::parse_author($tparam);
+						}
+
+						$ptags['author'] = $tarray;
 						unset($tarray);
 					}
 
@@ -300,10 +365,29 @@ class Lexer
 						$xinheritanceclass->addChild('name', $rmethod->getDeclaringClass()->getName());
 					}
 
+					$lower_class_name = strtolower($rclass->name);
+					$lower_method_name = strtolower($rmethod->name);
+
 					// <description />
-					if ($pcomment)
+					if ($pcomment ||
+					    isset($this->partials[$lower_class_name][$lower_method_name]['prepend']) ||
+					    isset($this->partials[$lower_class_name][$lower_method_name]['append']))
 					{
 						$xdescription = $xmethod->addChild('description');
+
+						// Add "prepend" partials
+						if (isset($this->partials[$lower_class_name][$lower_method_name]['prepend']))
+						{
+							$pcomment = $this->partials[$lower_class_name][$lower_method_name]['prepend'] . PHP_EOL . $pcomment;
+						}
+
+						// Add "append" partials
+						if (isset($this->partials[$lower_class_name][$lower_method_name]['append']))
+						{
+							$pcomment .= PHP_EOL . $this->partials[$lower_class_name][$lower_method_name]['append'];
+						}
+
+						$pcomment = Util::apply_linkmap($rclass->name, $pcomment);
 						$xdescription->addCDATA($pcomment);
 					}
 
@@ -314,7 +398,7 @@ class Lexer
 
 						foreach ($ptags as $tag => $value)
 						{
-							if (!in_array($tag, array('param', 'return', 'since'), true) && trim($tag) !== '')
+							if (!in_array($tag, array('param', 'return', 'since', 'see'), true) && trim($tag) !== '')
 							{
 								if (!isset($xmetadata))
 								{
@@ -322,7 +406,7 @@ class Lexer
 								}
 
 								$ptag = $xmetadata->addChild($tag);
-								$ptag->addCDATA($value);
+								$ptag->addCDATA(Util::apply_linkmap($rclass->name, $value));
 							}
 						}
 					}
@@ -366,7 +450,9 @@ class Lexer
 								{
 									$xdescription = $xparameter->addChild('description');
 									$xdescription->addCDATA(
-										Util::htmlify_text($ptags['param'][$rparameter->getName()]['description'])
+										Util::htmlify_text(
+											Util::apply_linkmap($rclass->name, $ptags['param'][$rparameter->getName()]['description'])
+										)
 									);
 									unset($xdescription);
 								}
@@ -415,7 +501,11 @@ class Lexer
 					}
 					if (isset($ptags['return']) && isset($ptags['return']['description']))
 					{
-						$xreturnvalue->addCDATA(Util::htmlify_text($ptags['return']['description']));
+						$xreturnvalue->addCDATA(
+							Util::htmlify_text(
+								Util::apply_linkmap($rclass->name, $ptags['return']['description'])
+							)
+						);
 					}
 
 					// <source file="services/s3.class.php" start="474" end="485" lines="12">
@@ -463,12 +553,35 @@ class Lexer
 					//     <![CDATA[]]>
 					//   </result>
 					// </example>
-					$texamples = Util::read_examples('examples.yml', $tmethod_class_name, $tmethod_name);
-					if (isset($texamples[$tmethod_class_name][$tmethod_name]) && is_array($texamples[$tmethod_class_name][$tmethod_name]))
+
+					if ($method_xml)
+					{
+						// Define class entry if it doesn't exist.
+						if (!isset($this->examples[(string) $rmethod->getDeclaringClass()->getName()]))
+						{
+							$this->examples[(string) $rmethod->getDeclaringClass()->getName()] = array();
+						}
+
+						// Define method entry if it doesn't exist.
+						if (!isset($this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()]))
+						{
+							$this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()] = array();
+						}
+
+						if ($tphpexamples = $method_xml->xpath('descendant-or-self::refsect1[@role="examples"]//example'))
+						{
+							$this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()] = $tphpexamples;
+						}
+
+						unset($tphpexamples);
+					}
+
+					if (isset($this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()]) &&
+					    is_array($this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()]))
 					{
 						$xexamples = $xmethod->addChild('examples');
 
-						foreach ($texamples[$tmethod_class_name][$tmethod_name] as $path)
+						foreach ($this->examples[(string) $rmethod->getDeclaringClass()->getName()][(string) $rmethod->getName()] as $path)
 						{
 							$texample = new Example($path);
 							$tsections = $texample->sections();
@@ -478,25 +591,33 @@ class Lexer
 							if (isset($tsections['TEST']))
 							{
 								$xtitle = $xexample->addChild('title');
-								$xtitle->addCDATA(trim($tsections['TEST']));
+								$xtitle->addCDATA(
+									trim(
+										Util::apply_linkmap($rclass->name, $tsections['TEST'])
+									)
+								);
 							}
 
 							if (isset($tsections['DESCRIPTION']))
 							{
 								$xtitle = $xexample->addChild('description');
-								$xtitle->addCDATA(Util::htmlify_text($tsections['DESCRIPTION']));
+								$xtitle->addCDATA(
+									Util::htmlify_text(
+										Util::apply_linkmap($rclass->name, $tsections['DESCRIPTION'])
+									)
+								);
 							}
 
 							if (isset($tsections['FILE']))
 							{
 								$xcode = $xexample->addChild('code');
-								$xcode->addCDATA($texample->display($tsections['FILE'], 'code'));
+								$xcode->addCDATA($tsections['FILE']);
 							}
 
 							if (isset($tsections['EXPECT']))
 							{
 								$xresult = $xexample->addChild('result');
-								$xresult->addCDATA($texample->display($tsections['EXPECT'], 'result'));
+								$xresult->addCDATA($tsections['EXPECT']);
 							}
 						}
 					}
@@ -504,6 +625,22 @@ class Lexer
 					// <related>
 					//   <method></method>
 					// </related>
+					/* @todo: Support groups.yml */
+					if (isset($ptags['see']))
+					{
+						$xmethodrelated = $xmethod->addChild('related');
+
+						if (is_string($ptags['see']))
+						{
+							$ptags['see'] = array($ptags['see']);
+						}
+
+						foreach ($ptags['see'] as $see)
+						{
+							$xmethodrelatedmethod = $xmethodrelated->addChild('method');
+							$xmethodrelatedmethod->addCDATA(Util::apply_linkmap($rclass->name, '<' . $see . '>'));
+						}
+					}
 
 					// <seealso>
 					//   <link url=""></link>
@@ -545,7 +682,12 @@ class Lexer
 			<properties count="1">
 				<property>
 					<name>account_id</name>
-					<inherited from="CFRuntime"/>
+					<inheritance>
+						<class>
+							<name></name>
+							<file></file>
+						</class>
+					</inheritance>
 					<modifier>public</modifier>
 					<initializer>
 						<type>string</type>
@@ -567,21 +709,33 @@ class Lexer
 
 			foreach ($rclass_properties as $rproperty => $rvalue)
 			{
+				$rproperty = new ReflectionProperty($rclass->name, $rproperty);
+
 				// <property />
 				$xproperty = $xproperties->addChild('property');
 
 					// <name />
-					$xproperty->addChild('name', $rproperty);
+					$xproperty->addChild('name', $rproperty->getName());
 
-					// <inherited />
-					if (isset($rproperty->class) && isset($rclass->name) && ($rproperty->class != $rclass->name))
+					// <inheritance>
+					//   <class>
+					//     <name></name>
+					//     <file></file>
+					//   </class>
+					// </inheritance>
+					if ($rproperty->getDeclaringClass()->getName() != $rclass->getName())
 					{
-						$xinherited = $xproperty->addChild('inherited');
-						$xinherited->addAttribute('from', $rproperty->class);
+						$xinheritance = $xproperty->addChild('inheritance');
+						$xinheritanceclass = $xinheritance->addChild('class');
+						$xinheritanceclass->addChild('name', $rproperty->getDeclaringClass()->getName());
+
+						if ($rclass_file = $rproperty->getDeclaringClass()->getFileName())
+						{
+							$xinheritanceclass->addChild('file', str_replace(WORKING_DIR, '', $rclass_file));
+						}
 					}
 
 					// <modifier />
-					$rproperty = new ReflectionProperty($rclass->name, $rproperty);
 					$xproperty->addChild('modifier', implode(' ', Util::access($rproperty)));
 
 					// <initializer />
@@ -630,7 +784,7 @@ class Lexer
 								if (trim($tag) !== '')
 								{
 									$xtag = $xmetadata->addChild($tag);
-									$xtag->addCDATA($value);
+									$xtag->addCDATA(Util::apply_linkmap($rclass->name, $value));
 								}
 							}
 						}
@@ -640,7 +794,11 @@ class Lexer
 						if (trim($tcomments) !== '')
 						{
 							$xdescription = $xproperty->addChild('description');
-							$xdescription->addCDATA(Util::clean_docbook($tcomments));
+							$xdescription->addCDATA(
+								Util::htmlify_text(
+									Util::apply_linkmap($rclass->name, $tcomments)
+								)
+							);
 						}
 					}
 			}

@@ -518,4 +518,87 @@ class Util
 
 		return $s;
 	}
+
+	/**
+	 *
+	 */
+	public static function parse_groups()
+	{
+		if (file_exists(CONFIG_DIR . 'groups.yml'))
+		{
+			$groups = spyc_load_file(CONFIG_DIR . 'groups.yml');
+			$out = array();
+
+			foreach ($groups as $group)
+			{
+				foreach ($group as $k => $v)
+				{
+					if (is_int($k))
+					{
+						$group[$k] = str_replace('.', '::', $v);
+					}
+				}
+
+				foreach ($group as $k => $v)
+				{
+					if (is_int($k))
+					{
+						$t = explode('::', $v);
+						$class = $t[0];
+						$method = $t[1];
+
+						if (!isset($out[$class]))
+						{
+							$out[$class] = array();
+						}
+
+						if (!isset($out[$class][$method]))
+						{
+							$out[$class][$method] = array();
+						}
+
+						$out[$class][$method] = $group;
+						$a = array();
+
+						foreach ($out[$class][$method] as $m)
+						{
+							$a[] = str_replace($class . '::', '', $m) . '()';
+						}
+
+						$out[$class][$method] = $a;
+					}
+					else
+					{
+						$class = $k;
+						$methods = str_replace('()', '', $v);
+
+						foreach ($methods as $method)
+						{
+							if (!isset($out[$class]))
+							{
+								$out[$class] = array();
+							}
+
+							if (!isset($out[$class][$method]))
+							{
+								$out[$class][$method] = array();
+							}
+
+							$out[$class][$method] = $methods;
+
+							$out[$class][$method] = array_map(function($method)
+							{
+								return $method . '()';
+
+							}, $out[$class][$method]);
+						}
+					}
+				}
+			}
+
+			return $out;
+		}
+
+		return array();
+	}
 }

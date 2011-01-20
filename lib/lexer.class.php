@@ -16,14 +16,16 @@ class Vanity_Lexer
 	private $partials;
 	private $documents;
 	private $examples;
+	private $groups;
 
-	public function __construct($linkmap)
+	public function __construct()
 	{
-		$this->linkmap = $linkmap;
+		$this->linkmap = $GLOBALS['LINKMAP'];
 		$this->options = $GLOBALS['OPTIONS'];
 		$this->partials = $GLOBALS['PARTIALS'];
 		$this->documents = array();
 		$this->examples = Util::read_examples('examples.yml');
+		$this->groups = Util::parse_groups();
 		$this->collect_file_contents();
 	}
 
@@ -290,8 +292,37 @@ class Vanity_Lexer
 				elseif ($rcomment = $rmethod->getDocComment())
 				{
 					$pcomment = new DocblockParser($rcomment);
-
 					$ptags = $pcomment->getTags();
+
+					if (isset($ptags['see']))
+					{
+						if (is_string($ptags['see']))
+						{
+							$ptags['see'] = array($ptags['see']);
+						}
+
+						$a = array();
+
+						foreach ($ptags['see'] as $see)
+						{
+							// If this is `Class::method()` syntax pointing to the same class, remove the `Class::`.
+							if (strpos($see, '::') !== false)
+							{
+								$t = explode('::', $see);
+								if (in_array($t[0], Util::get_parent_classes($rclass->name)))
+								{
+									$a[] = $t[1];
+								}
+							}
+							else
+							{
+								$a[] = $see;
+							}
+						}
+
+						$ptags['see'] = $a;
+					}
+
 					if (isset($ptags['return']))
 					{
 						$ptags['return'] = DocblockParser::parse_return($ptags['return']);
@@ -333,6 +364,25 @@ class Vanity_Lexer
 					}
 
 					$pcomment = Util::htmlify_text($pcomment->getComments());
+				}
+
+				// Convert any strings to arrays
+				if (isset($ptags['see']) && is_string($ptags['see']))
+				{
+					$ptags['see'] = array($ptags['see']);
+				}
+
+				// Merge in groups
+				if (isset($this->groups[$rclass->name][$rmethod->name]))
+				{
+					if (isset($ptags['see']))
+					{
+						$ptags['see'] = array_unique(array_merge($ptags['see'], $this->groups[$rclass->name][$rmethod->name]));
+					}
+					else
+					{
+						$ptags['see'] = $this->groups[$rclass->name][$rmethod->name];
+					}
 				}
 
 				// <method />
@@ -625,7 +675,6 @@ class Vanity_Lexer
 					// <related>
 					//   <method></method>
 					// </related>
-					/* @todo: Support groups.yml */
 					if (isset($ptags['see']))
 					{
 						$xmethodrelated = $xmethod->addChild('related');

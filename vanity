@@ -374,7 +374,7 @@ echo PHP_EOL;
 // RUN THE LEXER
 
 echo "RUNNING THE LEXER" . PHP_EOL;
-$lexer = new Vanity_Lexer($LINKMAP);
+$lexer = new Vanity_Lexer();
 foreach ($parse_me as $class)
 {
 	$lexer->parse_class($class, OUTPUT_DIR);

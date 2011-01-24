@@ -1,0 +1,17 @@
+<?php if (isset($this->data->class->constants->constant)): ?>
+	<?php foreach ($this->data->class->constants->constant as $constant): ?>
+	<div class="method">
+		<div class="title" id="<?= (string) $constant->name ?>">
+			<a name="<?= (string) $constant->name ?>" id="<?= (string) $constant->name ?>"></a><strong><?= (string) $constant->name ?></strong>
+		</div>
+
+		<div class="description">
+			<p><em><?= (string) $constant->value->attributes()->type ?></em> <code><?= (string) $constant->value ?></code></p>
+		</div>
+	</div>
+	<?php endforeach; ?>
+<?php else: ?>
+	<div class="method">
+		<p>There are no constants defined in this class.</p>
+	</div>
+<?php endif; ?>

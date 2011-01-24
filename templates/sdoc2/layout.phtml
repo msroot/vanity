@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title><?php echo $this->template->titlebar; ?></title>
+		<link rel="stylesheet" href="../../styles/production.min.css" type="text/css" media="screen" charset="utf-8">
+		<?php echo (isset($this->partials) && isset($this->partials['header'])) ? $this->partials['header'] : ''; ?>
+
+	</head>
+	<body class="body_">
+
+		<?php echo (isset($this->partials) && isset($this->partials['prepend'])) ? $this->partials['prepend'] : ''; ?>
+		<div class="banner container">
+			<div class="left">
+				<span class="type"><?php echo $this->template->type; ?></span>
+			    <h1><span class="title"><?php echo $this->template->title; ?></span>
+				<p><?php echo $this->template->subtext; ?></p>
+			</div>
+			<?php if (!(isset($this->options['skip-offline']) && $this->options['skip-offline'])): ?>
+			<div class="right">
+				<p class="downloads"><a href="#offline" class="offline"><img src="../../images/box.png" alt="Download offline documentation" title="Download offline documentation" /></a></p>
+			</div>
+			<?php endif; ?>
+		</div>
+
+		<div id="bodyContent">
+			<div id="content">
+				<?= $this->body ?>
+			</div>
+		</div>
+
+		<?php include 'partials/offline_docs.phtml'; ?>
+
+		<script src="../../scripts/production.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		$(function() {
+			var _ = DOMBuilder;
+
+			SyntaxHighlighter.defaults['auto-links'] = false;
+			SyntaxHighlighter.all();
+
+			// Toggle source view
+			$('a.showsource').click(function(evt) {
+				$('div.source').slideToggle('fast');
+				evt.preventDefault();
+			});
+
+			// Handle offline modal
+			$(".banner a.offline").fancybox({
+				'transitionIn'	:	'elastic',
+				'transitionOut'	:	'elastic',
+				'speedIn'		:	200,
+				'speedOut'		:	200,
+				'overlayShow'	:	true
+			});
+		});
+		</script>
+
+		<?php echo (isset($this->partials) && isset($this->partials['append'])) ? $this->partials['append'] : ''; ?>
+	</body>
+</html>

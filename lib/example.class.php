@@ -61,7 +61,7 @@ class Example
 		}
 	}
 
-	public function display($code)
+	public static function display($code)
 	{
 		$example = new Examplify($code);
 		$code = $example->output();

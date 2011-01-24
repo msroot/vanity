@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<title>panel</title>
+	<link rel="stylesheet" href="../styles/panel.min.css" type="text/css" media="screen" charset="utf-8">
+</head>
+<body>
+	<div class="panel panel_tree" id="panel">
+		<div class="header">
+			<div>
+				<label for="search" id="search-label" style="display: none">Search</label>
+				<table>
+					<tr><td>
+						<input type="Search" placeholder="Search" autosave="searchdoc" results="10" id="search" autocomplete="off"/>
+					</td></tr>
+				</table>
+			</div>
+		</div>
+		<div class="tree"><ul></ul></div>
+		<div class="result"><ul></ul></div>
+	</div>
+
+	<script src="../scripts/production.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../scripts/searchdoc.js" type="text/javascript" charset="utf-8"></script>
+	<script src="search_index.js" type="text/javascript" charset="utf-8"></script>
+	<script src="tree.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+	function placeholder() {
+	    if ('placeholder' in document.createElement('input')) return;
+
+	    $('#search-label').click(function () {
+	        $('#search').focus();
+	        $('#search-label').hide();
+	    });
+
+	    $('#search').focus(function () {
+	        $('#search-label').hide();
+	    });
+
+	    $('#search').blur(function () {
+	        this.value == '' && $('#search-label').show()
+	    });
+
+	    $('#search')[0].value == '' && $('#search-label').show();
+	}
+
+	$(function () {
+	    placeholder();
+	    var panel = new Searchdoc.Panel($('#panel'), search_data, tree, top.frames[1]);
+	    $('#search').focus();
+
+	    var s = window.parent.location.search.match(/\?q=([^&]+)/);
+	    if (s) {
+	        s = decodeURIComponent(s[1]).replace(/\+/g, ' ');
+	        if (s.length > 0) {
+	            $('#search').val(s);
+	            panel.search(s, true);
+	        }
+	    }
+
+		$(window).bind('hashchange', function(e) {
+			var method = $.bbq.getState('m'),
+				property = $.bbq.getState('p'),
+				constant = $.bbq.getState('c'),
+				classIndex = $.bbq.getState('i'),
+				$class, $item;
+
+			if (method) {
+				method = method.split('/');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === method[0].toLowerCase();
+				}).closest('li.level_0');
+				panel.tree.toggle($class);
+				$item = $class.nextUntil('div.tree li.level_0').find('span').filter(function() {
+					return $(this).text().toLowerCase() === method[1].toLowerCase();
+				}).closest('li');
+				panel.tree.select($item);
+			}
+			else if (property) {
+				property = property.split('/');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === property[0].toLowerCase();
+				}).closest('li.level_0');
+				panel.tree.toggle($class);
+				panel.tree.select($class.next().next());
+			}
+			else if (constant) {
+				constant = constant.split('/');
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === constant[0].toLowerCase();
+				}).closest('li.level_0');
+				panel.tree.toggle($class);
+				panel.tree.select($class.next());
+			}
+			else if (classIndex) {
+				$class = $('div.tree li.level_0 h1 span').filter(function() {
+					return $(this).text().toLowerCase() === classIndex.toLowerCase();
+				}).closest('li.level_0');
+				panel.tree.toggle($class);
+				panel.tree.select($class);
+			}
+		});
+		$(window).trigger('hashchange');
+	});
+	</script>
+</body>
+</html>

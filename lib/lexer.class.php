@@ -86,6 +86,7 @@ class Vanity_Lexer
 		<class>
 			<name></name>
 			<file></file>
+			<url></url>
 			<description>
 				<![CDATA[]]>
 			</description>
@@ -119,6 +120,11 @@ class Vanity_Lexer
 			// <file />
 			$xclass->addChild('file', $short_filename);
 
+			// <url />
+			$filename = $rclass->getFileName();
+			$url = isset($filename) ? ('../' . strtolower($rclass->getName()) . '/index.html') : ('http://php.net/' . strtolower($rclass->getName()));
+			$xclass->addChild('url', $url);
+
 			// <description />
 			$pclassdescription = new DocblockParser($rclass->getDocComment());
 			$xclassdescription = $xclass->addChild('description');
@@ -132,17 +138,25 @@ class Vanity_Lexer
 				$xmetadata = $xclass->addChild('metadata');
 				foreach ($xtags as $tag => $value)
 				{
-					if (trim($tag) !== '')
+					if (is_string($value))
 					{
-						$xtag = $xmetadata->addChild($tag);
+						$value = array($value);
+					}
 
-						// Handle special cases
-						if ($tag === 'author')
+					foreach ($value as $val)
+					{
+						if (trim($tag) !== '')
 						{
-							$value = DocblockParser::parse_author($value);
-						}
+							$xtag = $xmetadata->addChild($tag);
 
-						$xtag->addCDATA($value);
+							// Handle special cases
+							if ($tag === 'author')
+							{
+								$value = DocblockParser::parse_author($val);
+							}
+
+							$xtag->addCDATA($val);
+						}
 					}
 				}
 			}
@@ -166,6 +180,15 @@ class Vanity_Lexer
 					{
 						$xinheritanceclass->addChild('file', str_replace(WORKING_DIR, '', $rclass_file));
 					}
+
+					if ($rclass_file && isset($this->linkmap['map'][$rclass_lookup->getName()]))
+					{
+						$xinheritanceclass->addChild('url', '../' . strtolower($rclass_lookup->getName()) . '/index.html');
+					}
+					if (!$rclass_file && !isset($this->linkmap['map'][$rclass_lookup->getName()]))
+					{
+						$xinheritanceclass->addChild('url', 'http://php.net/' . strtolower($rclass_lookup->getName()));
+					}
 				}
 			}
 
@@ -187,6 +210,15 @@ class Vanity_Lexer
 					{
 						$ximplementsinterface->addChild('file', str_replace(WORKING_DIR, '', $rinterface_file));
 					}
+
+					if ($rinterface_file && isset($this->linkmap['map'][$pinterface->getName()]))
+					{
+						$ximplementsinterface->addChild('url', '../' . strtolower($pinterface->getName()) . '/index.html');
+					}
+					if (!$rinterface_file && !isset($this->linkmap['map'][$pinterface->getName()]))
+					{
+						$ximplementsinterface->addChild('url', 'http://php.net/' . strtolower($pinterface->getName()));
+					}
 				}
 			}
 
@@ -196,6 +228,34 @@ class Vanity_Lexer
 			$xmethods = $xclass->addChild('methods');
 			$xmethods->addAttribute('count', sizeof($rclass_methods));
 
+			// Filter out excluded methods
+			$parse_methods = array();
+			foreach ($rclass_methods as $rmethod)
+			{
+				$add_method = true;
+				if (isset($this->options['exclude-methods']))
+				{
+					if (is_string($this->options['exclude-methods']))
+					{
+						$this->options['exclude-methods'] = array($this->options['exclude-methods']);
+					}
+
+					foreach ($this->options['exclude-methods'] as $exclusion)
+					{
+						if (preg_match('/' . $exclusion . '/i', $rmethod->getName()))
+						{
+							$add_method = false;
+						}
+					}
+				}
+				if ($add_method)
+				{
+					$parse_methods[] = $rmethod;
+				}
+			}
+			$rclass_methods = $parse_methods;
+
+			// Loop through each method object
 			foreach ($rclass_methods as $rmethod)
 			{
 				// Should we look this method up from the PHP reference?
@@ -341,7 +401,6 @@ class Vanity_Lexer
 							$tarray[$tparam['name']] = $tparam;
 							unset($tarray[$tparam['name']]['name']);
 						}
-
 						$ptags['param'] = $tarray;
 						unset($tarray);
 					}
@@ -363,7 +422,9 @@ class Vanity_Lexer
 						unset($tarray);
 					}
 
-					$pcomment = Util::htmlify_text($pcomment->getComments());
+					$pcomment = Util::htmlify_text(
+						Util::apply_linkmap($rclass->name, $pcomment->getComments())
+					);
 				}
 
 				// Convert any strings to arrays
@@ -455,8 +516,16 @@ class Vanity_Lexer
 									$xmetadata = $xmethod->addChild('metadata');
 								}
 
-								$ptag = $xmetadata->addChild($tag);
-								$ptag->addCDATA(Util::apply_linkmap($rclass->name, $value));
+								if (is_string($value))
+								{
+									$value = array($value);
+								}
+
+								foreach ($value as $val)
+								{
+									$ptag = $xmetadata->addChild($tag);
+									$ptag->addCDATA(Util::apply_linkmap($rclass->name, $val));
+								}
 							}
 						}
 					}
@@ -479,10 +548,12 @@ class Vanity_Lexer
 								// <type />
 								if (isset($ptags['param']) &&
 								    isset($ptags['param'][$rparameter->getName()]) &&
-								    isset($ptags['param'][$rparameter->getName()]['type']))
+								    isset($ptags['param'][$rparameter->getName()]['type'])
+								)
 								{
 									$ttypes = $ptags['param'][$rparameter->getName()]['type'];
 									$ttypes = explode('|', $ttypes);
+									$new_ttypes = array();
 
 									if (is_string($ttypes))
 									{
@@ -491,8 +562,10 @@ class Vanity_Lexer
 
 									foreach ($ttypes as $ttype)
 									{
-										$xparameter->addChild('type', Util::elongate_type($ttype));
+										$new_ttypes[] = Util::elongate_type($ttype);
 									}
+
+									$xparameter->addChild('type', implode('|', $new_ttypes));
 								}
 
 								// <description />
@@ -643,17 +716,17 @@ class Vanity_Lexer
 								$xtitle = $xexample->addChild('title');
 								$xtitle->addCDATA(
 									trim(
-										Util::apply_linkmap($rclass->name, $tsections['TEST'])
+										Util::apply_linkmap($rclass->name, Markdown($tsections['TEST']))
 									)
 								);
 							}
 
 							if (isset($tsections['DESCRIPTION']))
 							{
-								$xtitle = $xexample->addChild('description');
-								$xtitle->addCDATA(
+								$xdescription = $xexample->addChild('description');
+								$xdescription->addCDATA(
 									Util::htmlify_text(
-										Util::apply_linkmap($rclass->name, $tsections['DESCRIPTION'])
+										Util::apply_linkmap($rclass->name, Markdown($tsections['DESCRIPTION']))
 									)
 								);
 							}
@@ -661,13 +734,21 @@ class Vanity_Lexer
 							if (isset($tsections['FILE']))
 							{
 								$xcode = $xexample->addChild('code');
-								$xcode->addCDATA($tsections['FILE']);
+								$xcode->addCDATA(Example::display($tsections['FILE']));
 							}
 
 							if (isset($tsections['EXPECT']))
 							{
 								$xresult = $xexample->addChild('result');
-								$xresult->addCDATA($tsections['EXPECT']);
+
+								if ($method_xml)
+								{
+									$xresult->addCDATA(htmlentities($tsections['EXPECT'], ENT_COMPAT, 'UTF-8'));
+								}
+								else
+								{
+									$xresult->addCDATA($tsections['EXPECT']);
+								}
 							}
 						}
 					}
@@ -862,6 +943,10 @@ class Vanity_Lexer
 		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
 		$json_write_path = $dir_output . 'json' . DIRECTORY_SEPARATOR;
 
+		// Write Serialized PHP output
+		$sphp_output = serialize(json_decode($json_output, true));
+		$sphp_write_path = $dir_output . 'sphp' . DIRECTORY_SEPARATOR;
+
 		if (!is_writable($xml_write_path))
 		{
 			mkdir($xml_write_path, 0777, true);
@@ -874,16 +959,28 @@ class Vanity_Lexer
 			chmod($json_write_path, 0777);
 		}
 
+		if (!is_writable($sphp_write_path))
+		{
+			mkdir($sphp_write_path, 0777, true);
+			chmod($sphp_write_path, 0777);
+		}
+
 		$xml_path = $xml_write_path . $class_name . '.xml';
 		$xml_success = file_put_contents($xml_path, (string) $xml_output);
 
 		$json_path = $json_write_path . $class_name . '.js';
 		$json_success = file_put_contents($json_path, (string) $json_output);
 
+		$sphp_path = $sphp_write_path . $class_name . '.sphp';
+		$sphp_success = file_put_contents($sphp_path, (string) $sphp_output);
+
 		if ($xml_success) echo TAB . 'Created ' . $xml_path . PHP_EOL;
 		else echo TAB . 'Failed to write ' . $xml_path . PHP_EOL;
 
 		if ($json_success) echo TAB . 'Created ' . $json_path . PHP_EOL;
 		else echo TAB . 'Failed to write ' . $json_path . PHP_EOL;
+
+		if ($sphp_success) echo TAB . 'Created ' . $sphp_path . PHP_EOL;
+		else echo TAB . 'Failed to write ' . $sphp_path . PHP_EOL;
 	}
 }

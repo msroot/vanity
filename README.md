@@ -15,29 +15,3 @@ Vanity was created as a much-improved replacement for [NaturalDocs](http://natur
 ## Documentation
 
 A list of to-dos is here: <https://github.com/skyzyx/vanity/issues>
-
-Documentation is not ready yet, as this branch is in the middle of a complete rewrite. However, here is a list of configuration options:
-
-### Working
-
-* help
-* match
-* output
-* version
-
-### Not working yet
-
-<table>
-	<tr><td>exclude-access</td><td>Simple, but haven't gotten to it yet.</td></tr>
-	<tr><td>exclude-classes</td><td>Simple, but haven't gotten to it yet.</td></tr>
-	<tr><td>markdown (all)</td><td>Markdown is already in the core. I just need to determine when/where to call it.</td></tr>
-	<tr><td>readme</td><td>This depends on Markdown being hooked up.</td></tr>
-	<tr><td>template</td><td>This depends on the lexer being hooked up.</td></tr>
-	<tr><td>title</td><td>This depends on having one or more templates.</td></tr>
-	<tr><td>add-group</td><td>This depends on having one or more templates.</td></tr>
-	<tr><td>add-files</td><td>This depends on having one or more templates.</td></tr>
-	<tr><td>offline</td><td>This depends on having one or more templates.</td></tr>
-	<tr><td>skip-lexer</td><td>This depends on the lexer being hooked up and a template existing before I can add/test this.</td></tr>
-	<tr><td>cache</td><td>Pretty easy, but will likely be one of the very last things I implement.</td></tr>
-	<tr><td>fresh</td><td>This depends on caching.</td></tr>
-</table>

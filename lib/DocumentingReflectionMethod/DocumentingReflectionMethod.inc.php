@@ -5,9 +5,11 @@
  * This file contains the definition for the documenting reflection method class
  *
  * @copyright Copyright 2009, Ian Selby
+ * @copyright Copyright 2010, Ryan Parman
  * @author Ian Selby <ian@gen-x-design.com>
+ * @author Ryan Parman <http://ryanparman.com>
  * @license MIT License
- * @version 1.0
+ * @version 1.1
  */
 
 /**
@@ -102,6 +104,11 @@ class DocblockParser
 	protected $declaringClass;
 
 	/**
+	 *
+	 */
+	protected $docComment;
+
+	/**
 	 * Class Constructor
 	 *
 	 * @param Object $object Instance of the object that contains the method we're going to parse comments for
@@ -117,8 +124,21 @@ class DocblockParser
 		// $docComment				= $this->getDocComment();
 		// $this->declaringClass 	= $object;
 
-		$this->tokenizeDocComment($docComment);
+		$this->docComment = $docComment;
+
+		$this->cleanLists();
+		$this->tokenizeDocComment($this->docComment);
 		$this->parseTokens();
+	}
+
+	/**
+	 *
+	 */
+	public function cleanLists()
+	{
+		$this->docComment = preg_replace('/<ul>(\s+\*\s+)<li>/im', "<ul><li>", $this->docComment);
+		$this->docComment = preg_replace('/<\/li>(\s+\*\s+)<li>/im', "</li><li>", $this->docComment);
+		$this->docComment = preg_replace('/<\/li>(\s+\*\s+)<\/ul>/im', "</li></ul>", $this->docComment);
 	}
 
 	/**
@@ -164,31 +184,6 @@ class DocblockParser
 	}
 
 	/**
-	 * Returns a Markdown-friendly block of text.
-	 *
-	 * @return string
-	 */
-	public function makeMarkdownFriendly ($docBlock)
-	{
-		$docBlock = str_replace("\r\n", "\n", $docBlock);
-		$lines = explode("\n", $docBlock);
-		$newLines = array();
-
-		foreach ($lines as $line)
-		{
-			foreach (self::$newLineChars as $token)
-			{
-				$regex = '/^(\s|\t)*' . Util::regex_token($token) . '\s?/';
-				$line = preg_replace($regex, '', $line);
-			}
-
-			$newLines[] = $line;
-		}
-
-		return implode("\n", $newLines);
-	}
-
-	/**
 	 * Parses the Tokens
 	 *
 	 * This function loops over all the token groups and splits the tags and comments
@@ -218,7 +213,23 @@ class DocblockParser
 				{
 					if ($tagName !== null)
 					{
-						$this->tags[str_replace('@', '', $tagName)] = $token[1];
+						if (isset($this->tags[str_replace('@', '', $tagName)]) &&
+						    is_string($this->tags[str_replace('@', '', $tagName)]))
+						{
+							$this->tags[str_replace('@', '', $tagName)] = array(
+								$this->tags[str_replace('@', '', $tagName)],
+								$token[1]
+							);
+						}
+						elseif (!isset($this->tags[str_replace('@', '', $tagName)]))
+						{
+							$this->tags[str_replace('@', '', $tagName)] = $token[1];
+						}
+						else
+						{
+							$this->tags[str_replace('@', '', $tagName)][] = $token[1];
+						}
+
 						$tagName = null;
 					}
 					else
@@ -314,6 +325,11 @@ class DocblockParser
 	 */
 	public static function parse_return($return)
 	{
+		if (is_array($return))
+		{
+			$return = array_shift($return);
+		}
+
 		$return = explode(' ', $return);
 
 		return array(

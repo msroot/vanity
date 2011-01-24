@@ -1,0 +1,102 @@
+<div class="description">
+
+	<table border="0" class="class-reference">
+		<tbody>
+			<tr>
+				<th><p>Inherits from</p></th>
+				<td><ul>
+					<?php if (isset($this->data->class->inheritance)): ?>
+						<?php foreach ($this->data->class->inheritance->class as $class): ?>
+							<?php if (isset($class->url)): ?>
+								<li><a href="<?php echo (string) $class->url; ?>"><?php echo (string) $class->name; ?></a></li>
+							<?php else: ?>
+								<li><?php echo (string) $class->name; ?></li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					<?php else: ?>
+						<p>None (<code><?php echo (string) $this->data->class->name; ?></code> is a root class)</p>
+					<?php endif; ?>
+				</ul></td>
+			</tr>
+			<?php if (isset($this->data->class->implements)): ?>
+			<tr>
+				<th><p>Conforms to</p></th>
+				<td><ul>
+					<?php foreach ($this->data->class->implements->interface as $interface): ?>
+						<?php if (isset($interface->url)): ?>
+							<li><a href="<?php echo (string) $interface->url; ?>"><?php echo (string) $interface->name; ?></a></li>
+						<?php else: ?>
+							<li><?php echo (string) $interface->name; ?></li>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</ul></td>
+			</tr>
+			<?php endif; ?>
+			<?php if (isset($this->data->class->file)): ?>
+			<tr>
+				<th><p>Location</p></th>
+				<td>
+					<p><?php echo (string) $this->data->class->file; ?></p>
+				</td>
+			</tr>
+			<?php endif; ?>
+		</tbody>
+	</table>
+
+	<div class="sectiontitle">Overview</div>
+	<div class="container">
+		<?php echo (string) $this->data->class->description; ?>
+	</div>
+
+	<?php if (isset($this->data->class->methods->method)): ?>
+	<div class="sectiontitle">Methods (<?php echo (string) $this->data->class->methods->attributes()->count; ?>)</div>
+	<dl class="methods">
+		<?php $method_list = Template::group_by_letter($this->data->class->methods->method, 'name'); ?>
+		<? foreach ($method_list as $letter => $methods): ?>
+			<dt><?= strtoupper($letter) ?></dt>
+			<dd>
+				<ul>
+					<? foreach ($methods as $method): ?>
+					<li><a href="<?= $method ?>.html" rel="../../#m=<?= (string) $this->data->class->name ?>/<?php echo $method ?>"><?php echo $method; ?></a></li>
+					<? endforeach; ?>
+				</ul>
+			</dd>
+		<? endforeach; ?>
+	</dl>
+	<?php endif; ?>
+
+	<?php if (isset($this->data->class->constants->constant)): ?>
+	<div class="sectiontitle">Constants (<?php echo (string) $this->data->class->constants->attributes()->count; ?>)</div>
+	<dl class="methods constants">
+		<?php $constant_list = Template::group_by_letter($this->data->class->constants->constant, 'name'); ?>
+		<? foreach ($constant_list as $letter => $constants): ?>
+			<dt><?= strtoupper($letter) ?></dt>
+			<dd>
+				<ul>
+					<? foreach ($constants as $constant): ?>
+					<li><a href="constants.html#<?= $constant ?>" rel="../../#c=<?= (string) $this->data->class->name ?>/<?php echo $constant ?>"><?php echo $constant; ?></a></li>
+					<? endforeach; ?>
+				</ul>
+			</dd>
+		<? endforeach; ?>
+	</dl>
+	<?php endif; ?>
+
+	<?php if (isset($this->data->class->properties->property)): ?>
+	<div class="sectiontitle">Properties (<?php echo (string) $this->data->class->properties->attributes()->count; ?>)</div>
+	<dl class="methods properties">
+		<?php $property_list = Template::group_by_letter($this->data->class->properties->property, 'name'); ?>
+		<? foreach ($property_list as $letter => $properties): ?>
+			<dt><?= strtoupper($letter) ?></dt>
+			<dd>
+				<ul>
+					<? foreach ($properties as $property): ?>
+					<li><a href="properties.html#<?= $property ?>" rel="../../#p=<?= (string) $this->data->class->name ?>/<?php echo $property ?>"><?php echo $property; ?></a></li>
+					<? endforeach; ?>
+				</ul>
+			</dd>
+		<? endforeach; ?>
+	</dl>
+	<?php endif; ?>
+
+</div>

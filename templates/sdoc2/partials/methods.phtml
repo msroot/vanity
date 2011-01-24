@@ -1,0 +1,190 @@
+<?php
+$parameters = array();
+$inline_params = '';
+
+if (isset($method->parameters->parameter))
+{
+	foreach ($method->parameters->parameter as $parameter)
+	{
+		if (isset($parameter->initializer->value))
+		{
+			$value = (string) $parameter->initializer->value;
+			if (isset($parameter->initializer) &&
+			    isset($parameter->initializer->value) &&
+			    isset($parameter->initializer->value->attributes()->type))
+			{
+				switch ((string) $parameter->initializer->value->attributes()->type)
+				{
+					case 'string':
+						$value = '"' . $value . '"';
+						break;
+				}
+			}
+			elseif (isset($parameter->type))
+			{
+				switch ((string) $parameter->type)
+				{
+					case 'string':
+						$value = '"' . $value . '"';
+						break;
+				}
+			}
+
+			$parameters[] = array('$' . (string) $parameter->name, $value);
+		}
+		else
+		{
+			$parameters[] = '$' . (string) $parameter->name;
+		}
+	}
+
+	$inline_params = array();
+	foreach ($parameters as $parameter)
+	{
+		if (is_array($parameter))
+		{
+			$inline_params[] = '[ <span class="parameterValue">' . $parameter[0] . ' = ' . $parameter[1] . '</span>' . ' ]';
+		}
+		else
+		{
+			$inline_params[] = $parameter;
+		}
+	}
+	$inline_params = ' ' . implode(', ', $inline_params) . ' ';
+}
+?>
+
+<div class="method">
+	<div class="title container" id="<?= $method->name ?>">
+		<a name="<?= $method->name ?>" id="<?= $method->name ?>"></a><strong><?= $method->name ?></strong> (<?php echo $inline_params; ?>)
+	</div>
+
+	<div class="description">
+		<?php if (isset($method->description)): ?>
+			<?php echo (string) $method->description; ?>
+		<?php endif; ?>
+
+		<?php if (isset($method->modifier)): ?>
+		<h4>Access</h4>
+		<div class="description">
+			<p><?php echo (string) $method->modifier; ?></p>
+		</div>
+		<?php endif; ?>
+
+		<?php if (isset($method->parameters->parameter)): ?>
+		<h4>Parameters</h4>
+		<div class="description">
+			<table cellpadding="0" cellspacing="0" border="0" width="100%" class="parameters">
+				<thead>
+					<tr>
+						<th><p>Parameter</p></th>
+						<th><p>Type</p></th>
+						<th><p>Required</p></th>
+						<th class="description"><p>Description</p></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($method->parameters->parameter as $parameter): ?>
+					<tr>
+						<td>
+							<p><code>$<?php echo (string) $parameter->name; ?></code></p>
+						</td>
+						<td>
+							<?php if (isset($parameter->type)): ?>
+							<?php
+							$new_types = array();
+							$types = explode('|', (string) $parameter->type);
+							if (is_string($types))
+							{
+								$types = array($types);
+							}
+							foreach ($types as $type)
+							{
+								if (isset($this->linkmap['map'][$type]))
+								{
+									$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<' . $type . '>', $this->linkmap);
+								}
+								else
+								{
+									$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<php:' . $type . '>', $this->linkmap);
+								}
+							}
+							$types = implode('</code><br><code>', $new_types);
+							?>
+							<p><code><?php echo $types; ?></code></p>
+							<?php endif; ?>
+						</td>
+						<td>
+							<p><?php echo (isset($parameter->attributes()->choice) && (string) $parameter->attributes()->choice === 'req') ? 'Required' : 'Optional'; ?></p>
+						</td>
+						<td class="description">
+							<?php echo (string) $parameter->description; ?>
+						</td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		<?php endif; ?>
+
+		<?php if (isset($method->returnvalue) && (string) $method->returnvalue !== ''): ?>
+			<h4>Returns</h4>
+			<div class="description">
+				<?php if (isset($method->returnvalue->attributes()->type)): ?>
+					<?php
+					$new_types = array();
+					$types = explode('|', (string) $method->returnvalue->attributes()->type);
+					if (is_string($types))
+					{
+						$types = array($types);
+					}
+					foreach ($types as $type)
+					{
+						if (isset($this->linkmap['map'][$type]))
+						{
+							$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<' . $type . '>', $this->linkmap);
+						}
+						else
+						{
+							$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<php:' . $type . '>', $this->linkmap);
+						}
+					}
+					$types = implode('|', $new_types);
+					?>
+					<p><strong>Type:</strong> <code><?php echo $types; ?></code></p>
+				<?php endif; ?>
+				<?php echo (string) $method->returnvalue; ?>
+			</div>
+		<?php endif; ?>
+
+		<?php if (isset($method->examples)): ?>
+		<h4>Examples</h4>
+			<?php foreach ($method->examples->example as $example): ?>
+			<div class="example description">
+				<h5><?php echo (string) $example->title; ?></h5>
+				<?php echo (string) $example->description; ?>
+				<pre class="brush: php"><?php echo (string) $example->code; ?></pre>
+				<?php if (isset($example->result)): ?>
+				<strong>Result:</strong>
+				<pre><?php echo (string) $example->result; ?></pre>
+				<?php endif; ?>
+			</div>
+			<?php endforeach; ?>
+		<?php endif; ?>
+
+		<?php if (isset($method->source)): ?>
+		<h4>Source</h4>
+		<div class="description">
+			<?php if (isset($this->options['github'])): ?>
+			<p>Method defined in <a href="https://github.com/<?php echo $this->options['github']; ?>/blob/master/<?php echo (string) $method->source->attributes()->file; ?>"><?php echo (string) $method->source->attributes()->file; ?></a> | <a href="" class="showsource">Toggle source view</a> (<?php echo (string) $method->source->attributes()->lines; ?> lines) | <a href="https://github.com/<?php echo $this->options['github']; ?>/blob/master/<?php echo (string) $method->source->attributes()->file; ?>#L<?php echo (string) $method->source->attributes()->start; ?>">View on GitHub</a></p>
+			<?php else: ?>
+			<p>Method defined in <?php echo (string) $method->source->attributes()->file; ?> | <a href="" class="showsource">Toggle source view</a> (<?php echo (string) $method->source->attributes()->lines; ?> lines)</p>
+			<?php endif; ?>
+			<div class="source hide">
+				<pre class="brush: php; first-line: <?php echo (string) $method->source->attributes()->start; ?>"><?php echo (string) $method->source; ?></pre>
+			</div>
+		</div>
+		<?php endif; ?>
+
+	</div>
+</div>

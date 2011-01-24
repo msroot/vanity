@@ -1,0 +1,294 @@
+.methods dt {
+	width: 1em;
+	font-size: 1.5em;
+	color: #AAA;
+	position: absolute;
+	font-weight: normal;
+	margin: 0;
+}
+
+.methods dd {
+	margin-left: 2.5em;
+	min-height: 1.8em;
+	-height: 1.8em;
+	padding-bottom: 0.8em;
+}
+
+
+.methods ul li {
+	margin-right: 0.7em;
+	margin-left: 0;
+	list-style: none;
+	display: inline;
+}
+
+#content {
+	margin: 2em;
+	margin-left: 3.5em;
+	margin-right: 3.5em;
+}
+
+#content h1 {
+	display: none;
+}
+
+.sectiontitle {
+	margin-top: 2em;
+	margin-bottom: 1.3em;
+	margin-left: -1.2em;
+	font-size: 1.3em;
+	padding: 0 0 0.25em 0;
+	font-weight: bold;
+	border-bottom: 1px solid #000;
+}
+
+tt {
+	font-size: 1em;
+}
+
+pre {
+	padding: 0.5em;
+	border: #ffe0bb dotted 1px;
+	background: #fffde8;
+}
+
+.hide {
+	display: none;
+}
+
+
+/*********************************************
+Footnotes
+*********************************************/
+.footnote,
+.footnote a {
+	font-size: 0.8em;
+	line-height: 1.3em;
+	color: #aaa;
+	letter-spacing: 0;
+}
+
+.footnote a {
+	font-size: 1em;
+}
+
+.footnote em {
+	background-color: transparent;
+	font-style: italic;
+}
+
+
+/*********************************************
+Method style
+*********************************************/
+.method {
+	margin-bottom: 2em;
+}
+
+.method .description,
+.method .sourcecode {
+	margin-left: 1.2em;
+}
+
+.method h2 {
+	padding: 0 0 0.15em 0;
+	margin: 1em 0 0.5em 0;
+	font-size: 1.4em;
+	line-height: 1.25em;
+
+	color: #fff;
+	background-color: #333;
+	padding: 2px 5px;
+	display: inline-block;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.method h3 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+	background: transparent;
+	font-weight: 500;
+}
+
+.method h3,
+.method .title {
+	border-bottom: 1px dotted #666;
+	padding: 0 0 0.15em 0;
+	margin: 0 0 0.5em 0;
+	font-size: 1.2em;
+	line-height: 1.25em;
+}
+
+.method h4 {
+	border-bottom: 1px dotted #999;
+	padding: 0 0 0.2em 0;
+	margin-bottom: 0.8em;
+	font-size: 1.1em;
+	color: #333;
+}
+
+.method .sourcecode p.source-link {
+	text-indent: 0em;
+	margin-top: 0.5em;
+}
+
+.method .aka {
+	margin-top: 0.3em;
+	margin-left: 1em;
+	font-style: italic;
+	text-indent: 2em;
+}
+
+.method .source-link {
+	font-size: 0.85em;
+}
+
+.method .source {
+	padding: 0;
+}
+
+.method .parameterValue {
+	color: #666;
+	font-style: italic;
+}
+
+.method ul.parameterList p {
+	display: inline;
+	padding: 0;
+}
+
+
+/*********************************************
+Class reference table
+*********************************************/
+table.class-reference {
+	margin: 1em 0;
+	padding: 0;
+}
+
+table.class-reference,
+table.class-reference tr,
+table.class-reference tr th,
+table.class-reference tr td {
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+	border-width: 1px 0;
+}
+
+table.class-reference tr {}
+
+table.class-reference tr th,
+table.class-reference tr td {
+	padding: 0 2em;
+}
+
+table.class-reference tr th {
+	text-align: left;
+	font-weight: bold;
+	border-right: 1px dotted #ddd;
+}
+
+table.class-reference tr p {
+	margin: 0.5em 0;
+}
+
+table.class-reference tr td {
+	border-left: 1px dotted #ddd;
+}
+
+table.class-reference tr td ul {
+	margin: 0.5em 0;
+	padding: 0;
+}
+
+table.class-reference tr td ul li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+
+/*********************************************
+Parameter table
+*********************************************/
+table.parameters {
+	margin: 1em 0;
+	padding: 0;
+	width: 100%;
+}
+
+table.parameters,
+table.parameters tr,
+table.parameters tr th,
+table.parameters tr td {
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+	border-width: 1px 0 0 0;
+}
+
+table.parameters tbody tr td {
+	border: 1px solid #ccc;
+	border-width: 1px 0 0 0;
+}
+
+table.parameters tr {}
+
+table.parameters tr th,
+table.parameters tr td {
+	padding: 0 1em;
+	width: 1%;
+	white-space: nowrap;
+}
+
+table.parameters thead tr,
+table.parameters thead tr th {
+	background: #EDF3FE;
+	background-image: -moz-linear-gradient(
+		center bottom,
+		#E5E5EE 0%,
+		#EDF3FE 100%
+	);
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, #E5E5EE),
+		color-stop(1, #EDF3FE)
+	);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+table.parameters tr th.description {
+	text-align: left;
+}
+
+table.parameters tr td.description {
+	width: 99%;
+	white-space: normal;
+}
+
+table.parameters tr th p {
+	margin: 0.3em 0;
+}
+
+table.parameters tr td p {
+	margin: 0.5em 0;
+}
+
+table.parameters tr td ul {
+	margin: 0.5em 1em;
+	padding: 0 0 0 0.5em;
+}
+
+table.parameters tr td ul li {
+	list-style: square;
+	margin: 0;
+	padding: 0.4em 0;
+}

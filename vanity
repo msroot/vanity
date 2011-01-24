@@ -3,7 +3,7 @@
 /********************************************************/
 // PREPARATION
 
-if (php_sapi_name() != 'cli') {
+if (php_sapi_name() !== 'cli') {
 	die('Must run from command line');
 }
 
@@ -41,6 +41,7 @@ include 'lib/linkmap.class.php';
 include 'lib/markdown.php';
 include 'lib/phpt.class.php';
 include 'lib/spyc.php';
+include 'lib/templatexml.class.php';
 include 'lib/utilities.class.php';
 
 
@@ -49,19 +50,25 @@ include 'lib/utilities.class.php';
 
 $help = array(
 	'match:' => '(Required; Optional if defined in config) The file pattern to recursively match. Defaults to *.php.',
-	'title:' => '(Required; Optional if defined in config) The title to use for the README page.',
+
+	'product-name:' => '(Required; Optional if defined in config) The product name to use for the README page.',
+	'product-version:' => '(Required; Optional if defined in config) The product version to use for the README page.',
 
 	'exclude-access:' => '(Optional) Access types to exclude. Use this option multiple times to set multiple values. (e.g., public, protected, private)',
 	'exclude-classes:' => '(Optional) The classname pattern to exclude. Use this option multiple times to set multiple values.',
+	'exclude-methods:' => '(Optional) The method name pattern to exclude. Use this option multiple times to set multiple values.',
 
-	'cache:' => '(Optional) The location to use for cache files. Set to `false` to disable caching.',
+	// 'cache:' => '(Optional) The location to use for cache files. Set to `false` to disable caching.',
 	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
 	'readme:' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
 	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
 
-	'skip-update' => '(Optional) Skips the attempt to update the internal PHP reference from Subversion.',
+	'github:' => '(Optional) If the project is hosted on GitHub (e.g., github.com/<username>/<projectname>), pass the <username>/<projectname> (e.g., skyzyx/vanity).',
+
 	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
-	'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
+	'skip-update' => '(Optional) Skips the attempt to update the internal PHP reference from Subversion.',
+	'skip-offline' => '(Optional) Skips the process of generating offline archives of documentation.',
+	// 'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
 
 	'help' => 'This help documentation.',
 	'version' => 'The version number.',
@@ -102,14 +109,18 @@ echo PHP_EOL;
 /********************************************************/
 // DEFAULT VALUES
 
+// Global storage mechanism
+$STORAGE = array();
+
 // Defaults
 $OPTIONS = $default_options = array(
 	'exclude-access' => array('private'),
+	'exclude-methods' => array('__call', '__toString'),
 	'match' => '*.php',
 	'output' => './output',
 	'readme' => 'README.md',
-	'template' => './templates/sdoc',
-	'title' => 'Documentation',
+	'template' => 'sdoc2',
+	'product-name' => 'Documentation',
 );
 
 // Create CONFIG_DIR if it doesn't exist.
@@ -159,7 +170,7 @@ if (isset($OPTIONS['template']))
 {
 	if (strpos($OPTIONS['template'], '/') !== 0)
 	{
-		$OPTIONS['template'] = Util::normalize_path(VANITY_DIR . $OPTIONS['template']);
+		$OPTIONS['template'] = Util::normalize_path(VANITY_DIR . 'templates/' . $OPTIONS['template']);
 	}
 }
 
@@ -173,6 +184,11 @@ if (isset($OPTIONS['skip-lexer']))
 	$OPTIONS['skip-lexer'] = true;
 }
 
+if (isset($OPTIONS['skip-offline']))
+{
+	$OPTIONS['skip-offline'] = true;
+}
+
 if (isset($OPTIONS['skip-update']))
 {
 	$OPTIONS['skip-update'] = true;
@@ -181,6 +197,7 @@ if (isset($OPTIONS['skip-update']))
 ksort($OPTIONS);
 echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
 echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
+file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options', serialize($OPTIONS));
 
 
 /********************************************************/
@@ -189,6 +206,60 @@ echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
 echo 'RETICULATING SPLINES' . PHP_EOL;
 echo TAB . 'Done.' . PHP_EOL;
 echo PHP_EOL;
+
+
+/********************************************************/
+// WORKING DIRECTORIES
+
+echo 'WORKING DIRECTORIES' . PHP_EOL;
+
+echo TAB . 'VANITY_DIR:        ' . VANITY_DIR . PHP_EOL;
+echo TAB . 'VANITY_CACHE_DIR:  ' . VANITY_CACHE_DIR . PHP_EOL;
+
+// Template
+if (realpath($OPTIONS['template']) == '')
+{
+	echo PHP_EOL . 'FATAL: The requested template directory does not exist.' . PHP_EOL . PHP_EOL;
+	die();
+}
+define('TEMPLATE_DIR', $OPTIONS['template'] . DIRECTORY_SEPARATOR);
+echo TAB . 'TEMPLATE_DIR:      ' . TEMPLATE_DIR . PHP_EOL;
+
+echo TAB . 'WORKING_DIR:       ' . WORKING_DIR . PHP_EOL;
+echo TAB . 'CONFIG_DIR:        ' . CONFIG_DIR . PHP_EOL;
+
+// Cache
+if (isset($OPTIONS['cache']))
+{
+	if (realpath($OPTIONS['cache']) == '')
+	{
+		shell_exec('mkdir -p ' . $OPTIONS['cache']);
+	}
+	define('CACHE_DIR', realpath($OPTIONS['cache']) . DIRECTORY_SEPARATOR);
+	echo TAB . 'CACHE_DIR:         ' . CACHE_DIR . PHP_EOL;
+}
+
+echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
+
+// Output
+if (realpath($OPTIONS['output']) == '')
+{
+	shell_exec('mkdir -p ' . $OPTIONS['output']);
+}
+define('OUTPUT_DIR', realpath($OPTIONS['output']) . DIRECTORY_SEPARATOR);
+define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
+echo TAB . 'OUTPUT_DIR:        ' . OUTPUT_DIR . PHP_EOL;
+echo TAB . 'HTML_DIR:          ' . HTML_DIR . PHP_EOL;
+
+// README
+
+echo PHP_EOL;
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# START SKIPPING THE LEXER, IF REQUESTED
+if (!isset($OPTIONS['skip-lexer']) || !$OPTIONS['skip-lexer']) {
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 /********************************************************/
@@ -237,56 +308,15 @@ echo PHP_EOL;
 /********************************************************/
 // INDEXING PARTIALS
 
+$PARTIALS = array();
 if (realpath(PARTIALS_DIR) != '')
 {
 	echo 'INDEXING PARTIALS' . PHP_EOL;
 	$files = Util::rglob(PARTIALS_DIR . '**.*');
 	$PARTIALS = Util::content_partials($files);
-	echo TAB . count($files) . ' partials indexed.' . PHP_EOL;
+	echo TAB . count($files) . ' partial' . ((count($files) === 1) ? '' : 's') . ' indexed.' . PHP_EOL;
 	echo PHP_EOL;
 }
-
-
-/********************************************************/
-// WORKING DIRECTORIES
-
-echo 'WORKING DIRECTORIES' . PHP_EOL;
-
-// Cache
-if (isset($OPTIONS['cache']))
-{
-	if (realpath($OPTIONS['cache']) == '')
-	{
-		shell_exec('mkdir -p ' . $OPTIONS['cache']);
-	}
-	define('CACHE_DIR', realpath($OPTIONS['cache']) . DIRECTORY_SEPARATOR);
-	echo TAB . 'Cache: ' . CACHE_DIR . PHP_EOL;
-}
-
-// Output
-if (realpath($OPTIONS['output']) == '')
-{
-	shell_exec('mkdir -p ' . $OPTIONS['output']);
-}
-define('OUTPUT_DIR', realpath($OPTIONS['output']) . DIRECTORY_SEPARATOR);
-define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
-echo TAB . 'Output: ' . OUTPUT_DIR . PHP_EOL;
-
-// Template
-if (realpath($OPTIONS['template']) == '')
-{
-	// echo PHP_EOL . 'FATAL: The requested template directory does not exist.' . PHP_EOL . PHP_EOL;
-	// die();
-}
-define('TEMPLATE_DIR', $OPTIONS['template'] . DIRECTORY_SEPARATOR);
-echo TAB . 'Template: ' . TEMPLATE_DIR . PHP_EOL;
-
-// README
-
-// PHP REFERENCE
-echo TAB . 'PHP Ref: ' . PHPREF_DIR . PHP_EOL;
-
-echo PHP_EOL;
 
 
 /********************************************************/
@@ -366,6 +396,7 @@ foreach ($parse_me as $class)
 	$lmap->add_class($class);
 }
 $LINKMAP = $lmap->generate_map();
+file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap', serialize($LINKMAP));
 echo TAB . 'Done.' . PHP_EOL;
 echo PHP_EOL;
 
@@ -379,6 +410,116 @@ foreach ($parse_me as $class)
 {
 	$lexer->parse_class($class, OUTPUT_DIR);
 }
+echo PHP_EOL;
+
+
+/********************************************************/
+// PERSIST STORAGE
+
+file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($STORAGE));
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# STOP SKIPPING THE LEXER
+} else {
+	echo 'SKIPPING THE LEXER' . PHP_EOL . TAB . 'Skipped.' . PHP_EOL . PHP_EOL;
+	echo "REMOVING OLD HTML OUTPUT DIRECTORY" . PHP_EOL;
+	if (HTML_DIR == '/') die('Current working directory doesn\'t exist. Stopping.');
+	$cmd = 'rm -Rf ' . HTML_DIR;
+	echo TAB . $cmd . PHP_EOL;
+	shell_exec($cmd);
+	echo PHP_EOL;
+}
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+/********************************************************/
+// READ AND APPLY THE TEMPLATES
+
+echo "RUNNING THE GENERATOR" . PHP_EOL;
+include TEMPLATE_DIR . 'template_definition.php';
+$files = glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
+foreach ($files as $file)
+{
+	$template = new Template($file);
+}
+$generated = Util::rglob(OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . '**.html');
+echo TAB . 'Generated ' . count($generated) . ' files.' . PHP_EOL;
+echo PHP_EOL;
+
+
+/********************************************************/
+// COPY STATIC FILES
+
+echo "COPYING STATIC FILES TO OUTPUT DIRECTORY" . PHP_EOL;
+Template::copy();
+echo PHP_EOL;
+
+
+/********************************************************/
+// COPYING DOCUMENTATION FILES FROM PROJECT
+
+echo "COPYING DOCUMENTATION FILES FROM PROJECT" . PHP_EOL;
+if (realpath(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included') == '')
+{
+	shell_exec('mkdir -p ' . HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included');
+}
+$template->files();
+echo PHP_EOL;
+
+
+/********************************************************/
+// FIRE ANY LAST FUNCTIONALITY DEFINED BY THE TEMPLATE.
+
+Template::fire_last();
+
+
+/********************************************************/
+// GENERATE OFFLINE DOCS
+
+echo "GENERATING OFFLINE DOCS" . PHP_EOL;
+
+if (isset($OPTIONS['skip-offline']) && $OPTIONS['skip-offline'])
+{
+	echo TAB . 'Skipped.' . PHP_EOL;
+}
+else
+{
+	$title = $GLOBALS['OPTIONS']['product-name'];
+	$title .= isset($GLOBALS['OPTIONS']['product-version']) ? (' ' . $GLOBALS['OPTIONS']['product-version']) : '';
+	$clean_title = strtolower(str_replace(array('(',')','|','/','\\'), '', str_replace(' ', '_', $title)));
+
+	$cmd = 'cd ' . OUTPUT_DIR . ' && ' . PHP_EOL;
+	$cmd .= 'cp -Rf ' . HTML_DIR . ' ' . OUTPUT_DIR . $clean_title . DIRECTORY_SEPARATOR . ' && ' . PHP_EOL;
+
+	// zip
+	$cmd .= 'zip -r latest_docs .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . PHP_EOL;
+	$cmd .= 'mv latest_docs.zip ' . HTML_DIR . ' && ' . PHP_EOL;
+
+	// gzip
+	$cmd .= 'tar -cf latest_docs.tar .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . '* && gzip -9 latest_docs.tar && ' . PHP_EOL;
+	$cmd .= 'mv latest_docs.tar.gz ' . HTML_DIR . ' && ' . PHP_EOL;
+
+	// bzip2
+	$cmd .= 'tar -cf latest_docs.tar .' . DIRECTORY_SEPARATOR . $clean_title . DIRECTORY_SEPARATOR . '* && bzip2 -9 latest_docs.tar && ' . PHP_EOL;
+	$cmd .= 'mv latest_docs.tar.bz2 ' . HTML_DIR . ' && ' . PHP_EOL;
+
+	$cmd .= 'rm -Rf ' . OUTPUT_DIR . $clean_title . DIRECTORY_SEPARATOR . PHP_EOL;
+	shell_exec($cmd);
+
+	// zip
+	$doc_path = HTML_DIR . 'latest_docs.zip';
+	echo TAB . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
+
+	// gzip
+	$doc_path = HTML_DIR . 'latest_docs.tar.gz';
+	echo TAB . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
+
+	// bzip2
+	$doc_path = HTML_DIR . 'latest_docs.tar.bz2';
+	echo TAB . $doc_path . ' (' . Util::size_readable(filesize($doc_path)) . ')' . PHP_EOL;
+}
+
 echo PHP_EOL;
 
 

@@ -438,32 +438,45 @@ class Util
 			$path = str_replace(PARTIALS_DIR, '', $full_path);
 			$path = explode(DIRECTORY_SEPARATOR, strtolower($path));
 
-			if (!isset($map[$path[0]]))
+			if (count($path) === 3)
 			{
-				$map[$path[0]] = array();
+				$class = $path[0];
+				$method = $path[1];
+				$content = $path[2];
+			}
+			elseif (count($path) === 2)
+			{
+				$class = $path[0];
+				$method = null;
+				$content = $path[1];
 			}
 
-			if (!isset($map[$path[0]][$path[1]]))
+			if (!isset($map[$class]))
 			{
-				$map[$path[0]][$path[1]] = array();
+				$map[$class] = array();
 			}
 
-			$content = explode('.', $path[2]);
+			if ($method && !isset($map[$class][$method]))
+			{
+				$map[$class][$method] = array();
+			}
+
+			$content = explode('.', $content);
+			if (is_array($content))
+			{
+				$filename = $content[0];
+				$extension = $content[1];
+			}
+			else
+			{
+				$filename = $content;
+				$extension = '';
+			}
 
 			if (!isset($map[$path[0]][$path[1]][$content[0]]))
 			{
-				switch ($content[1])
-				{
-					case 'md':
-					case 'mdown':
-					case 'markdown':
-						$map[$path[0]][$path[1]][$content[0]] = trim(Markdown(file_get_contents($full_path)));
-						break;
-
-					default:
-						$map[$path[0]][$path[1]][$content[0]] = trim(file_get_contents($full_path));
-						break;
-				}
+				if (!$method) $method = '';
+				$map[$class][$method][$filename] = Util::convert_to_html($full_path);
 			}
 
 		}
@@ -471,13 +484,49 @@ class Util
 		return $map;
 	}
 
+	public static function convert_to_html($path)
+	{
+		$pathinfo = pathinfo($path);
+		$extension = strtolower($pathinfo['extension']);
+
+		switch ($extension)
+		{
+			// Markdown
+			case 'md':
+			case 'mdown':
+			case 'markdown':
+				return trim(Markdown(file_get_contents($path)));
+				break;
+
+			// PHP-infused HTML
+			case 'phtml':
+				Generator::start();
+				include $path;
+				$phtml_content = Generator::end();
+				return trim($phtml_content);
+				break;
+
+			// Pre-formatted text
+			case '':
+			case 'txt':
+			case 'text':
+				return '<pre>' . trim(file_get_contents($path)) . '</pre>';
+				break;
+
+			// Plain ol' HTML
+			default:
+				return trim(file_get_contents($path));
+				break;
+		}
+	}
+
 	/**
 	 *
 	 */
-	public static function apply_linkmap($current, $s)
+	public static function apply_linkmap($current, $s, $linkmap = null)
 	{
 		$i = 0;
-		$map = $GLOBALS['LINKMAP'];
+		$map = $linkmap ? $linkmap : $GLOBALS['LINKMAP'];
 		preg_match_all('/<([^>]*)>/', $s, $m);
 
 		foreach ($m[1] as $match)
@@ -489,7 +538,7 @@ class Util
 				if (strpos($pieces[0], 'php:') !== false)
 				{
 					$pieces[0] = str_replace('php:', '', $pieces[0]);
-					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($pieces[0]) . '.' . strtolower($pieces[1]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($pieces[0]) . '.' . str_replace('()', '', strtolower($pieces[1])) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$pieces[0]][$pieces[1]]))
 				{
@@ -501,7 +550,7 @@ class Util
 				if (strpos($match, 'php:') !== false)
 				{
 					$match = str_replace('php:', '', $match);
-					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($match) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . str_replace('()', '', strtolower($match)) . '"><code>' . $match . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$current][$match])) // Match same-class methods
 				{
@@ -600,5 +649,14 @@ class Util
 		}
 
 		return array();
+	}
+
+	/**
+	 *
+	 */
+	public static function strip_whitespace($buffer)
+	{
+		// @todo: Strip whitespace from HTML while respecting <pre> tags.
+		return $buffer;
 	}
 }

@@ -542,7 +542,7 @@ class Util
 				}
 				elseif (isset($map['map'][$pieces[0]][$pieces[1]]))
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$pieces[0]][$pieces[1]]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$pieces[0]][$pieces[1]]) . '" rel="../../index.html' . strtolower($map['altmap'][$pieces[0]][$pieces[1]]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
 				}
 			}
 			else
@@ -554,11 +554,11 @@ class Util
 				}
 				elseif (isset($map['map'][$current][$match])) // Match same-class methods
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$current][$match]) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$current][$match]) . '" rel="../../index.html' . strtolower($map['altmap'][$current][$match]) . '"><code>' . $match . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$match]['index'])) // Match same class index
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$match]['index']) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$match]['index']) . '" rel="../../index.html' . strtolower($map['altmap'][$match]['index']) . '"><code>' . $match . '</code></a>', $s);
 				}
 			}
 

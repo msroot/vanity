@@ -182,9 +182,9 @@ class Generator
 	 */
 	public static function copy()
 	{
-		if (file_exists(TEMPLATE_DIR . 'copy.yml'))
+		if (file_exists(CONFIG_DIR . 'copy.yml'))
 		{
-			$files = spyc_load_file(TEMPLATE_DIR . 'copy.yml');
+			$files = spyc_load_file(CONFIG_DIR . 'copy.yml');
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';

@@ -130,30 +130,44 @@ if (isset($method->parameters->parameter))
 		<?php if (isset($method->returnvalue) && (string) $method->returnvalue !== ''): ?>
 			<h4>Returns</h4>
 			<div class="description">
-				<?php if (isset($method->returnvalue->attributes()->type)): ?>
-					<?php
-					$new_types = array();
-					$types = explode('|', (string) $method->returnvalue->attributes()->type);
-					if (is_string($types))
-					{
-						$types = array($types);
-					}
-					foreach ($types as $type)
-					{
-						if (isset($this->linkmap['map'][$type]))
-						{
-							$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<' . $type . '>', $this->linkmap);
-						}
-						else
-						{
-							$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<php:' . $type . '>', $this->linkmap);
-						}
-					}
-					$types = implode('|', $new_types);
-					?>
-					<p><strong>Type:</strong> <code><?php echo $types; ?></code></p>
-				<?php endif; ?>
-				<?php echo (string) $method->returnvalue; ?>
+				<table cellpadding="0" cellspacing="0" border="0" width="100%" class="parameters">
+					<thead>
+						<tr>
+							<th><p>Type</p></th>
+							<th class="description"><p>Description</p></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<?php
+								$new_types = array();
+								$types = explode('|', (string) $method->returnvalue->attributes()->type);
+								if (is_string($types))
+								{
+									$types = array($types);
+								}
+								foreach ($types as $type)
+								{
+									if (isset($this->linkmap['map'][$type]))
+									{
+										$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<' . $type . '>', $this->linkmap);
+									}
+									else
+									{
+										$new_types[] = Util::apply_linkmap((string) $this->data->class->name, '<php:' . $type . '>', $this->linkmap);
+									}
+								}
+								$types = implode('</code><br><code>', $new_types);
+								?>
+								<p><code><?php echo $types; ?></code></p>
+							</td>
+							<td class="description">
+								<?php echo (string) $method->returnvalue; ?>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		<?php endif; ?>
 

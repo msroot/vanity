@@ -8,6 +8,12 @@
 		<title><?php echo $OPTIONS['product-name']; ?></title>
 		<?php endif; ?>
 
+		<?php if (!isset($OPTIONS['skip-offline']) || $OPTIONS['skip-offline'] === 'false'): ?>
+		<link rel="alternate" type="application/zip" title="Zip Archive" href="latest_docs.zip">
+		<link rel="alternate" type="application/x-gzip" title="GZip Archive" href="latest_docs.tar.gz">
+		<link rel="alternate" type="application/x-bzip-compressed-tar" title="BZip2 Archive" href="latest_docs.tar.bz2">
+		<?php endif; ?>
+
 	    <script src="scripts/production.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 		$(function() {
@@ -15,11 +21,12 @@
 				var method = $.bbq.getState('m'),
 					property = $.bbq.getState('p'),
 					constant = $.bbq.getState('c'),
-					classIndex = $.bbq.getState('i');
+					classIndex = $.bbq.getState('i'),
+					defaultIndex = $.bbq.getState('d');
 
 				if (method) {
 					method = method.split('/');
-					$('#mainContent').attr('src', 'class/' + method[0].toLowerCase() + '/' + method[1].toLowerCase() + '.html');
+					$('#mainContent').attr('src', 'class/' + method[0].toLowerCase() + '/' + method[1] + '.html');
 				}
 				else if (property) {
 					property = property.split('/');
@@ -31,6 +38,9 @@
 				}
 				else if (classIndex) {
 					$('#mainContent').attr('src', 'class/' + classIndex.toLowerCase() + '/index.html');
+				}
+				else if (defaultIndex) {
+					$('#mainContent').attr('src', 'files/included/' + defaultIndex.toLowerCase() + '.html');
 				}
 				else {
 					$('#mainContent').attr('src', 'files/included/readme.html');

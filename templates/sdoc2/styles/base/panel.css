@@ -317,9 +317,10 @@
 
         .panel .tree ul li h1 i
         {
-            color: #999;
+            color: #666;
             font-style: normal;
 			font-size: 0.9em;
+			font-weight: bold;
         }
 
         .panel .tree ul li.empty

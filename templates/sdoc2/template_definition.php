@@ -23,6 +23,23 @@ class Template extends Generator
 		 * and search functionality. Set up the base structure.
 		 */
 
+		// Add groups
+		if (isset($this->options['add-group']) && is_array($this->options['add-group']))
+		{
+			foreach ($this->options['add-group'] as $group => $patterns)
+			{
+				if (!isset($this->storage['tree-nodes']))
+				{
+					$this->storage['tree-nodes'] = array();
+				}
+
+				if (!isset($this->storage['tree-nodes'][$group]))
+				{
+					$this->storage['tree-nodes'][$group] = array('', '#', $group, array());
+				}
+			}
+		}
+
 		// Build tree
 		if (!isset($this->storage['tree']))
 		{
@@ -156,7 +173,35 @@ class Template extends Generator
 			);
 		}
 
-		$this->storage['tree'][] = $tree_node;
+		$add = false;
+		$added = false;
+
+		if (isset($this->options['add-group']) && is_array($this->options['add-group']))
+		{
+			foreach ($this->options['add-group'] as $group => $patterns)
+			{
+				$add = false;
+
+				foreach ($patterns as $pattern)
+				{
+					if (preg_match('/' . $pattern . '/i', (string) $this->data->class->name))
+					{
+						$add = true;
+					}
+				}
+
+				if ($add)
+				{
+					$this->storage['tree-nodes'][$group][3][] = $tree_node;
+					$added = true;
+				}
+			}
+		}
+
+		if (!$added)
+		{
+			$this->storage['tree'][] = $tree_node;
+		}
 
 		file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
 	}
@@ -250,8 +295,29 @@ class Template extends Generator
 		$path = HTML_DIR . 'index.html';
 		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
 		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
-
 		echo PHP_EOL;
+
+		// Add groups to the tree
+		if (isset($STORAGE['tree-nodes']) && is_array($STORAGE['tree-nodes']))
+		{
+			foreach ($STORAGE['tree-nodes'] as $node)
+			{
+				$STORAGE['tree'][] = $node;
+			}
+		}
+
+		// Add files to the tree
+		if (isset($OPTIONS['add-files']) && is_array($OPTIONS['add-files']))
+		{
+			foreach ($OPTIONS['add-files'] as $key => $file)
+			{
+				$filename = pathinfo($file, PATHINFO_FILENAME);
+				$STORAGE['tree'][] = array($key, 'd=' . $filename . '', '', array());
+			}
+		}
+
+		// Add the README
+		$STORAGE['tree'][] = array('README', 'd=README', '', array());
 
 		// Generate search and browse tree indexes
 		self::start();

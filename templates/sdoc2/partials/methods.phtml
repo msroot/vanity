@@ -55,8 +55,8 @@ if (isset($method->parameters->parameter))
 ?>
 
 <div class="method">
-	<div class="title container" id="<?= $method->name ?>">
-		<a name="<?= $method->name ?>" id="<?= $method->name ?>"></a><strong><?= $method->name ?></strong> (<?php echo $inline_params; ?>)
+	<div class="title container" id="<?php echo $method->name ?>">
+		<a name="<?php echo $method->name ?>" id="<?php echo $method->name ?>"></a><strong><?php echo $method->name ?></strong> (<?php echo $inline_params; ?>)
 	</div>
 
 	<div class="description">
@@ -184,6 +184,24 @@ if (isset($method->parameters->parameter))
 				<?php endif; ?>
 			</div>
 			<?php endforeach; ?>
+		<?php endif; ?>
+
+		<?php if (isset($method->related)): ?>
+		<h4>Related Methods</h4>
+		<ul class="related-methods">
+			<?php foreach ($method->related->method as $link): ?>
+			<li><?php echo (string) $link; ?></li>
+			<?php endforeach; ?>
+		</ul>
+		<?php endif; ?>
+
+		<?php if (isset($method->seealso)): ?>
+		<h4>See Also</h4>
+		<ul class="see-also">
+			<?php foreach ($method->seealso->link as $link): ?>
+			<li><?php echo (string) $link; ?></li>
+			<?php endforeach; ?>
+		</ul>
 		<?php endif; ?>
 
 		<?php if (isset($method->source)): ?>

@@ -495,7 +495,7 @@ class Util
 			case 'md':
 			case 'mdown':
 			case 'markdown':
-				return trim(Markdown(file_get_contents($path)));
+				return trim(SmartyPants(Markdown(file_get_contents($path))));
 				break;
 
 			// PHP-infused HTML
@@ -503,7 +503,7 @@ class Util
 				Generator::start();
 				include $path;
 				$phtml_content = Generator::end();
-				return trim($phtml_content);
+				return SmartyPants(trim($phtml_content));
 				break;
 
 			// Pre-formatted text
@@ -515,7 +515,7 @@ class Util
 
 			// Plain ol' HTML
 			default:
-				return trim(file_get_contents($path));
+				return trim(SmartyPants(file_get_contents($path)));
 				break;
 		}
 	}
@@ -527,7 +527,7 @@ class Util
 	{
 		$i = 0;
 		$map = $linkmap ? $linkmap : $GLOBALS['LINKMAP'];
-		preg_match_all('/<([^>]*)>/', $s, $m);
+		$matches = preg_match_all('/<([^>]*)>/', $s, $m);
 
 		foreach ($m[1] as $match)
 		{
@@ -606,15 +606,25 @@ class Util
 							$out[$class][$method] = array();
 						}
 
-						$out[$class][$method] = $group;
+						$out[$class][$method] = array_merge($out[$class][$method], $group);
 						$a = array();
 
 						foreach ($out[$class][$method] as $m)
 						{
-							$a[] = str_replace($class . '::', '', $m) . '()';
+							$x = str_replace($class . '::', '', $m);
+
+							if (strpos($m, '()') === false)
+							{
+								$x .= '()';
+							}
+
+							$a[] = $x;
 						}
 
 						$out[$class][$method] = $a;
+
+						$out[$class][$method] = array_unique($out[$class][$method]);
+						sort($out[$class][$method]);
 					}
 					else
 					{
@@ -633,13 +643,21 @@ class Util
 								$out[$class][$method] = array();
 							}
 
-							$out[$class][$method] = $methods;
+							$out[$class][$method] = array_merge($out[$class][$method], $methods);
 
 							$out[$class][$method] = array_map(function($method)
 							{
-								return $method . '()';
+								if (strpos($method, '()') === false)
+								{
+									$method .= '()';
+								}
+
+								return $method;
 
 							}, $out[$class][$method]);
+
+							$out[$class][$method] = array_unique($out[$class][$method]);
+							sort($out[$class][$method]);
 						}
 					}
 				}

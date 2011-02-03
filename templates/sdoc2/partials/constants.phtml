@@ -1,12 +1,12 @@
 <?php if (isset($this->data->class->constants->constant)): ?>
 	<?php foreach ($this->data->class->constants->constant as $constant): ?>
 	<div class="method">
-		<div class="title" id="<?= (string) $constant->name ?>">
-			<a name="<?= (string) $constant->name ?>" id="<?= (string) $constant->name ?>"></a><strong><?= (string) $constant->name ?></strong>
+		<div class="title" id="<?php echo (string) $constant->name ?>">
+			<a name="<?php echo (string) $constant->name ?>" id="<?php echo (string) $constant->name ?>"></a><strong><?php echo (string) $constant->name ?></strong>
 		</div>
 
 		<div class="description">
-			<p><em><?= (string) $constant->value->attributes()->type ?></em> <code><?= (string) $constant->value ?></code></p>
+			<p><em><?php echo (string) $constant->value->attributes()->type ?></em> <code><?php echo (string) $constant->value ?></code></p>
 		</div>
 	</div>
 	<?php endforeach; ?>

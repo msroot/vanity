@@ -356,4 +356,16 @@ class DocblockParser
 
 		}, trim($s));
 	}
+
+	/**
+	 *
+	 */
+	public static function parse_link($s)
+	{
+		$pieces = explode(' ', $s);
+		$url = array_shift($pieces);
+		$label = implode(' ', $pieces);
+
+		return sprintf('<a href="%s">%s</a>', $url, $label);
+	}
 }

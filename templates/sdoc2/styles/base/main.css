@@ -283,12 +283,31 @@ table.parameters tr td p {
 }
 
 table.parameters tr td ul {
-	margin: 0.5em 1em;
+	margin: 0.4em 1em;
 	padding: 0 0 0 0.5em;
+}
+
+table.parameters tr td ul ul {
+	margin: 0.4em 1em;
+	padding: 0 0 0 2em;
 }
 
 table.parameters tr td ul li {
 	list-style: square;
 	margin: 0;
-	padding: 0.4em 0;
+	padding: 0.5em 0;
+}
+
+
+/*********************************************
+Parameter table
+*********************************************/
+ul.related-methods {
+	-webkit-column-width: 25em;
+	-moz-column-width: 25em;
+	column-width: 25em;
+
+	-webkit-column-gap: 1em;
+	-moz-column-gap: 1em;
+	column-gap: 1em;
 }

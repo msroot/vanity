@@ -13,8 +13,8 @@ a {
 	text-decoration: underline;
 	padding: 1px 2px;
 
-	-webkit-transition: background-color 0.15s;
-	-webkit-transition: color 0.15s;
+	-webkit-transition: background-color 0.15s !important;
+	-webkit-transition: color 0.15s !important;
 
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
@@ -44,6 +44,8 @@ h2 {
 	margin: 1.8em 0 0.8em 0;
 	font-weight: 500;
 	line-height: 1.2em;
+	border-bottom: 1px dotted #666;
+	padding-bottom: 0.25em;
 }
 
 /*

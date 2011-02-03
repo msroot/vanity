@@ -182,9 +182,9 @@ class Generator
 	 */
 	public static function copy()
 	{
-		if (file_exists(CONFIG_DIR . 'copy.yml'))
+		if (file_exists(TEMPLATE_DIR . 'copy.yml'))
 		{
-			$files = spyc_load_file(CONFIG_DIR . 'copy.yml');
+			$files = spyc_load_file(TEMPLATE_DIR . 'copy.yml');
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';
@@ -202,7 +202,7 @@ class Generator
 			}
 		}
 
-		foreach (array('xml', 'json', 'sphp') as $type)
+		foreach (array('xml', 'json', 'php') as $type)
 		{
 			$cmd = 'cp -Rf ' . OUTPUT_DIR . $type . ' ' . HTML_DIR;
 			echo TAB . $cmd . PHP_EOL;
@@ -257,7 +257,18 @@ class Generator
 			$doc->loadHTML($this->body);
 
 			$this->template->type = isset($map[$file]) ? $map[$file] : 'README';
-			$this->template->title = (string) $doc->getElementsByTagName('h1')->item(0)->textContent;
+			if (strtolower($this->template->type) === 'readme')
+			{
+				$title = array();
+				if (isset($this->options['product-name'])) $title[] = SmartyPants($this->options['product-name']);
+				if (isset($this->options['product-version'])) $title[] = SmartyPants($this->options['product-version']);
+
+				$this->template->title = implode(' ', $title);
+			}
+			else
+			{
+				$this->template->title = (string) $doc->getElementsByTagName('h1')->item(0)->textContent;
+			}
 			$this->template->subtext = str_replace(WORKING_DIR, '', $file);
 			$this->template->titlebar = $this->template->type;
 
@@ -327,7 +338,7 @@ class Generator
 	{
 		$files = Util::rglob(PARTIALS_DIR . '**.*');
 		$PARTIALS = Util::content_partials($files);
-		return $PARTIALS['__all__'][''];
+		return (isset($PARTIALS['__all__']) && isset($PARTIALS['__all__'][''])) ? $PARTIALS['__all__'][''] : array();
 	}
 
 	/**

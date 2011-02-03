@@ -40,6 +40,7 @@ include 'lib/lexer.class.php';
 include 'lib/linkmap.class.php';
 include 'lib/markdown.php';
 include 'lib/phpt.class.php';
+include 'lib/smartypants.php';
 include 'lib/spyc.php';
 include 'lib/templatexml.class.php';
 include 'lib/utilities.class.php';

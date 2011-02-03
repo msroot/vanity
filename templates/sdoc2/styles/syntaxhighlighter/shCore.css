@@ -224,3 +224,6 @@
 .syntaxhighlighter.printing .break, .syntaxhighlighter.printing .break a {
   color: black !important;
 }
+.syntaxhighlighter .line {
+  white-space: pre-wrap !important; /* make code wrap */
+}

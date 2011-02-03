@@ -62,9 +62,6 @@ class Vanity_Lexer
 		$long_filename = $rclass->getFileName();
 		$short_filename = str_replace(WORKING_DIR, '', $long_filename);
 
-		// http://php.net/<function>
-		// http://php.net/<class>.<method>
-
 		/*****************************************************************************************/
 
 		/*
@@ -129,7 +126,7 @@ class Vanity_Lexer
 			$pclassdescription = new DocblockParser($rclass->getDocComment());
 			$xclassdescription = $xclass->addChild('description');
 			$pclasscomments = Util::apply_linkmap($rclass->name, $pclassdescription->getComments());
-			$xclassdescription->addCDATA(Util::htmlify_text($pclasscomments));
+			$xclassdescription->addCDATA(SmartyPants(Util::htmlify_text($pclasscomments)));
 
 			// <metadata />
 			$xtags = $pclassdescription->getTags();
@@ -499,7 +496,7 @@ class Vanity_Lexer
 						}
 
 						$pcomment = Util::apply_linkmap($rclass->name, $pcomment);
-						$xdescription->addCDATA($pcomment);
+						$xdescription->addCDATA(SmartyPants($pcomment));
 					}
 
 					// <metadata />
@@ -509,7 +506,7 @@ class Vanity_Lexer
 
 						foreach ($ptags as $tag => $value)
 						{
-							if (!in_array($tag, array('param', 'return', 'since', 'see'), true) && trim($tag) !== '')
+							if (!in_array($tag, array('param', 'return', 'since', 'see', 'link'), true) && trim($tag) !== '')
 							{
 								if (!isset($xmetadata))
 								{
@@ -524,7 +521,7 @@ class Vanity_Lexer
 								foreach ($value as $val)
 								{
 									$ptag = $xmetadata->addChild($tag);
-									$ptag->addCDATA(Util::apply_linkmap($rclass->name, $val));
+									$ptag->addCDATA(SmartyPants(Util::apply_linkmap($rclass->name, $val)));
 								}
 							}
 						}
@@ -573,8 +570,10 @@ class Vanity_Lexer
 								{
 									$xdescription = $xparameter->addChild('description');
 									$xdescription->addCDATA(
-										Util::htmlify_text(
-											Util::apply_linkmap($rclass->name, $ptags['param'][$rparameter->getName()]['description'])
+										SmartyPants(
+											Util::htmlify_text(
+												Util::apply_linkmap($rclass->name, $ptags['param'][$rparameter->getName()]['description'])
+											)
 										)
 									);
 									unset($xdescription);
@@ -625,8 +624,10 @@ class Vanity_Lexer
 					if (isset($ptags['return']) && isset($ptags['return']['description']))
 					{
 						$xreturnvalue->addCDATA(
-							Util::htmlify_text(
-								Util::apply_linkmap($rclass->name, $ptags['return']['description'])
+							SmartyPants(
+								Util::htmlify_text(
+									Util::apply_linkmap($rclass->name, $ptags['return']['description'])
+								)
 							)
 						);
 					}
@@ -725,8 +726,10 @@ class Vanity_Lexer
 							{
 								$xdescription = $xexample->addChild('description');
 								$xdescription->addCDATA(
-									Util::htmlify_text(
-										Util::apply_linkmap($rclass->name, Markdown($tsections['DESCRIPTION']))
+									SmartyPants(
+										Util::htmlify_text(
+											Util::apply_linkmap($rclass->name, Markdown($tsections['DESCRIPTION']))
+										)
 									)
 								);
 							}
@@ -767,14 +770,32 @@ class Vanity_Lexer
 
 						foreach ($ptags['see'] as $see)
 						{
-							$xmethodrelatedmethod = $xmethodrelated->addChild('method');
-							$xmethodrelatedmethod->addCDATA(Util::apply_linkmap($rclass->name, '<' . $see . '>'));
+							if ($see !== $rmethod->getName() . '()')
+							{
+								$xmethodrelatedmethod = $xmethodrelated->addChild('method');
+								$xmethodrelatedmethod->addCDATA(Util::apply_linkmap($rclass->name, '<' . $see . '>'));
+							}
 						}
 					}
 
 					// <seealso>
-					//   <link url=""></link>
+					//   <link></link>
 					// </seealso>
+					if (isset($ptags['link']))
+					{
+						$xmethodrelated = $xmethod->addChild('seealso');
+
+						if (is_string($ptags['link']))
+						{
+							$ptags['link'] = array($ptags['link']);
+						}
+
+						foreach ($ptags['link'] as $link)
+						{
+							$xmethodseelink = $xmethodrelated->addChild('link');
+							$xmethodseelink->addCDATA(DocblockParser::parse_link($link));
+						}
+					}
 			}
 
 
@@ -911,10 +932,18 @@ class Vanity_Lexer
 							$xmetadata = $xproperty->addChild('metadata');
 							foreach ($xtags as $tag => $value)
 							{
+								if (!is_array($value))
+								{
+									$value = array($value);
+								}
+
 								if (trim($tag) !== '')
 								{
-									$xtag = $xmetadata->addChild($tag);
-									$xtag->addCDATA(Util::apply_linkmap($rclass->name, $value));
+									foreach ($value as $v)
+									{
+										$xtag = $xmetadata->addChild($tag);
+										$xtag->addCDATA(Util::apply_linkmap($rclass->name, $v));
+									}
 								}
 							}
 						}
@@ -925,8 +954,10 @@ class Vanity_Lexer
 						{
 							$xdescription = $xproperty->addChild('description');
 							$xdescription->addCDATA(
-								Util::htmlify_text(
-									Util::apply_linkmap($rclass->name, $tcomments)
+								SmartyPants(
+									Util::htmlify_text(
+										Util::apply_linkmap($rclass->name, $tcomments)
+									)
 								)
 							);
 						}
@@ -945,7 +976,7 @@ class Vanity_Lexer
 
 		// Write Serialized PHP output
 		$sphp_output = serialize(json_decode($json_output, true));
-		$sphp_write_path = $dir_output . 'sphp' . DIRECTORY_SEPARATOR;
+		$sphp_write_path = $dir_output . 'php' . DIRECTORY_SEPARATOR;
 
 		if (!is_writable($xml_write_path))
 		{
@@ -971,7 +1002,7 @@ class Vanity_Lexer
 		$json_path = $json_write_path . $class_name . '.js';
 		$json_success = file_put_contents($json_path, (string) $json_output);
 
-		$sphp_path = $sphp_write_path . $class_name . '.sphp';
+		$sphp_path = $sphp_write_path . $class_name . '.php';
 		$sphp_success = file_put_contents($sphp_path, (string) $sphp_output);
 
 		if ($xml_success) echo TAB . 'Created ' . $xml_path . PHP_EOL;

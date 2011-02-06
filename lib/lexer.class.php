@@ -17,6 +17,7 @@ class Vanity_Lexer
 	private $documents;
 	private $examples;
 	private $groups;
+	private $seealso;
 
 	public function __construct()
 	{
@@ -26,7 +27,10 @@ class Vanity_Lexer
 		$this->documents = array();
 		$this->examples = Util::read_examples('examples.yml');
 		$this->groups = Util::parse_groups();
+		$this->seealso = array();
+
 		$this->collect_file_contents();
+		$this->collect_see_also();
 	}
 
 	public function collect_file_contents()
@@ -40,6 +44,27 @@ class Vanity_Lexer
 				{
 					$this->documents[$class->getName()] = file($filepath);
 				}
+			}
+		}
+	}
+
+	public function collect_see_also()
+	{
+		if (file_exists(CONFIG_DIR . 'seealso.yml'))
+		{
+			$see_also = spyc_load_file(CONFIG_DIR . 'seealso.yml');
+		}
+
+		foreach ($see_also as $class => $methods)
+		{
+			if (!isset($this->seealso[$class]))
+			{
+				$this->seealso[$class] = array();
+			}
+
+			foreach ($methods as $method => $links)
+			{
+				$this->seealso[$class][$method] = $links;
 			}
 		}
 	}
@@ -282,7 +307,20 @@ class Vanity_Lexer
 							$ptags['param'][(string) $param->term->parameter]['description'] = Util::clean_docbook($param_description_stripped);
 						}
 					}
+
+					// Handle method types
 					$mtypes = $method_xml->xpath('descendant-or-self::refsect1[@role="description"]/methodsynopsis/methodparam[type and parameter]');
+					$mtypesc = $method_xml->xpath('descendant-or-self::refsect1[@role="description"]/constructorsynopsis/methodparam[type and parameter]');
+
+					if (is_array($mtypes) && is_array($mtypesc))
+					{
+						$mtypes = array_merge($mtypes, $mtypesc);
+					}
+					elseif (is_array($mtypesc))
+					{
+						$mtypes = $mtypesc;
+					}
+
 					if (is_array($mtypes) && count($mtypes))
 					{
 						// Match types to existing parameters
@@ -290,13 +328,24 @@ class Vanity_Lexer
 						{
 							if (isset($ptags['param'][(string) $mtype->parameter]))
 							{
-								$ptags['param'][(string) $param->term->parameter]['type'] = Util::elongate_type((string) $mtype->type);
+								$ptags['param'][(string) $mtype->parameter]['type'] = Util::elongate_type((string) $mtype->type);
 							}
 						}
 					}
 
 					// Return types
 					$return_type = $method_xml->xpath('descendant-or-self::refsect1[@role="description"]/methodsynopsis/type');
+					$return_typec = $method_xml->xpath('descendant-or-self::refsect1[@role="description"]/constructorsynopsis/type');
+
+					if (is_array($return_type) && is_array($return_typec))
+					{
+						$return_type = array_merge($return_type, $return_typec);
+					}
+					elseif (is_array($return_typec))
+					{
+						$return_type = $return_typec;
+					}
+
 					$return_paras = $method_xml->xpath('descendant-or-self::refsect1[@role="returnvalues"]/para');
 					if (is_array($return_paras))
 					{
@@ -441,6 +490,23 @@ class Vanity_Lexer
 					{
 						$ptags['see'] = $this->groups[$rclass->name][$rmethod->name];
 					}
+				}
+
+				// Merge in seealso
+				if (
+				    isset($ptags['link']) &&
+				    isset($this->seealso[$rclass->getName()]) &&
+				    isset($this->seealso[$rclass->getName()][$rmethod->getName()])
+				)
+				{
+					$ptags['link'] = array_merge($ptags['link'], $this->seealso[$rclass->getName()][$rmethod->getName()]);
+				}
+				elseif (
+				    isset($this->seealso[$rclass->getName()]) &&
+				    isset($this->seealso[$rclass->getName()][$rmethod->getName()])
+				)
+				{
+					$ptags['link'] = $this->seealso[$rclass->getName()][$rmethod->getName()];
 				}
 
 				// <method />
@@ -717,7 +783,11 @@ class Vanity_Lexer
 								$xtitle = $xexample->addChild('title');
 								$xtitle->addCDATA(
 									trim(
-										Util::apply_linkmap($rclass->name, Markdown($tsections['TEST']))
+										Markdown(
+											Util::apply_linkmap($rclass->name,
+												html_entity_decode($tsections['TEST'], ENT_COMPAT, 'UTF-8')
+											)
+										)
 									)
 								);
 							}
@@ -728,7 +798,11 @@ class Vanity_Lexer
 								$xdescription->addCDATA(
 									SmartyPants(
 										Util::htmlify_text(
-											Util::apply_linkmap($rclass->name, Markdown($tsections['DESCRIPTION']))
+											Markdown(
+												Util::apply_linkmap($rclass->name,
+													html_entity_decode($tsections['DESCRIPTION'], ENT_COMPAT, 'UTF-8')
+												)
+											)
 										)
 									)
 								);
@@ -737,7 +811,11 @@ class Vanity_Lexer
 							if (isset($tsections['FILE']))
 							{
 								$xcode = $xexample->addChild('code');
-								$xcode->addCDATA(Example::display($tsections['FILE']));
+								$xcode->addCDATA(
+									htmlentities(html_entity_decode(
+										Example::display($tsections['FILE'])
+									, ENT_COMPAT, 'UTF-8'), ENT_COMPAT, 'UTF-8')
+								);
 							}
 
 							if (isset($tsections['EXPECT']))

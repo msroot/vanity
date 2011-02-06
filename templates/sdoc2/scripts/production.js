@@ -2,7 +2,7 @@
  * BUNDLE PRODUCTION
  * Merges all of the production JavaScript into a single file.
  *
- * @depend jquery-1.4.4.min.js
+ * @depend jquery-1.4.4.js
  * @depend jquery-effect.js
  * @depend jquery.bbq.min.js
  * @depend fancybox/jquery.easing-1.3.pack.js

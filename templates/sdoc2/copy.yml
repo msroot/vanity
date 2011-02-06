@@ -8,6 +8,7 @@
 # FILES
 - README.md
 - scripts/searchdoc.js
+- scripts/panel.min.js
 - scripts/production.min.js
 - styles/panel.min.css
 - styles/production.min.css

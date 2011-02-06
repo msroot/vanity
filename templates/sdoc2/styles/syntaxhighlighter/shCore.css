@@ -56,7 +56,8 @@
   width: 100% !important;
   margin: 1em 0 1em 0 !important;
   position: relative !important;
-  overflow: hidden !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   font-size: 1em !important;
 }
 .syntaxhighlighter.source {
@@ -223,7 +224,4 @@
 }
 .syntaxhighlighter.printing .break, .syntaxhighlighter.printing .break a {
   color: black !important;
-}
-.syntaxhighlighter .line {
-  white-space: pre-wrap !important; /* make code wrap */
 }

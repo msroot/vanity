@@ -450,6 +450,39 @@ echo PHP_EOL;
 
 
 /********************************************************/
+// GENERATING MANIFESTS
+
+echo "GENERATING MANIFEST FILES" . PHP_EOL;
+
+// XML
+$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><manifest xmlns="http://vanitydoc.org"></manifest>', 'Vanity_SimpleXMLExtended', LIBXML_NOCDATA);
+$files = glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
+$xfiles = $xml->addChild('files');
+foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_BASENAME)); }
+$manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
+file_put_contents($manifest, $xml->asXML());
+echo TAB . $manifest . PHP_EOL;
+
+// JSON
+$json = array('file' => array());
+$files = glob(OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . '*.js');
+foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME); }
+$manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
+file_put_contents($manifest, json_encode($json));
+echo TAB . $manifest . PHP_EOL;
+
+// Serialized PHP
+$php = array('file' => array());
+$files = glob(OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . '*.php');
+foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME); }
+$manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
+file_put_contents($manifest, serialize($php));
+echo TAB . $manifest . PHP_EOL;
+
+echo PHP_EOL;
+
+
+/********************************************************/
 // COPY STATIC FILES
 
 echo "COPYING STATIC FILES TO OUTPUT DIRECTORY" . PHP_EOL;

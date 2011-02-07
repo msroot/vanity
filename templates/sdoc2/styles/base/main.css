@@ -154,6 +154,10 @@ Method style
 	padding: 0;
 }
 
+.method .optionalParameter {
+	white-space: nowrap;
+}
+
 .method .parameterValue {
 	color: #666;
 	font-style: italic;

@@ -18,6 +18,7 @@ class Vanity_Lexer
 	private $examples;
 	private $groups;
 	private $seealso;
+	private $changelog;
 
 	public function __construct()
 	{
@@ -28,9 +29,11 @@ class Vanity_Lexer
 		$this->examples = Util::read_examples('examples.yml');
 		$this->groups = Util::parse_groups();
 		$this->seealso = array();
+		$this->changelog = array();
 
 		$this->collect_file_contents();
 		$this->collect_see_also();
+		$this->collect_changelog();
 	}
 
 	public function collect_file_contents()
@@ -65,6 +68,35 @@ class Vanity_Lexer
 			foreach ($methods as $method => $links)
 			{
 				$this->seealso[$class][$method] = $links;
+			}
+		}
+	}
+
+	public function collect_changelog()
+	{
+		if (file_exists(CONFIG_DIR . 'changelog.yml'))
+		{
+			$changelog = spyc_load_file(CONFIG_DIR . 'changelog.yml');
+		}
+
+		foreach ($changelog as $class => $methods)
+		{
+			if (!isset($this->changelog[$class]))
+			{
+				$this->changelog[$class] = array();
+			}
+
+			foreach ($methods as $method => $versions)
+			{
+				if (!isset($this->changelog[$class][$method]))
+				{
+					$this->changelog[$class][$method] = array();
+				}
+
+				foreach ($versions as $version => $description)
+				{
+					$this->changelog[$class][$method][$version] = trim(Markdown($description));
+				}
 			}
 		}
 	}
@@ -492,6 +524,12 @@ class Vanity_Lexer
 					}
 				}
 
+				// Convert any strings to arrays
+				if (isset($ptags['link']) && is_string($ptags['link']))
+				{
+					$ptags['link'] = array($ptags['link']);
+				}
+
 				// Merge in seealso
 				if (
 				    isset($ptags['link']) &&
@@ -507,6 +545,45 @@ class Vanity_Lexer
 				)
 				{
 					$ptags['link'] = $this->seealso[$rclass->getName()][$rmethod->getName()];
+				}
+
+				// Convert any strings to arrays
+				if (isset($ptags['changelog']) && is_string($ptags['changelog']))
+				{
+					$ptags['changelog'] = array($ptags['changelog']);
+				}
+
+				// Handle inline changelog
+				if (isset($ptags['changelog']))
+				{
+					$new_log = array();
+
+					foreach ($ptags['changelog'] as $changelog)
+					{
+						$changelog = explode(' ', $changelog);
+						$version = array_shift($changelog);
+						$description = implode(' ', $changelog);
+						$new_log[$version] = trim(Markdown($description));
+					}
+
+					$ptags['changelog'] = $new_log;
+				}
+
+				// Merge in changelog
+				if (
+				    isset($ptags['changelog']) &&
+				    isset($this->changelog[$rclass->getName()]) &&
+				    isset($this->changelog[$rclass->getName()][$rmethod->getName()])
+				)
+				{
+					$ptags['changelog'] = array_merge($ptags['changelog'], $this->changelog[$rclass->getName()][$rmethod->getName()]);
+				}
+				elseif (
+				    isset($this->changelog[$rclass->getName()]) &&
+				    isset($this->changelog[$rclass->getName()][$rmethod->getName()])
+				)
+				{
+					$ptags['changelog'] = $this->changelog[$rclass->getName()][$rmethod->getName()];
 				}
 
 				// <method />
@@ -572,7 +649,7 @@ class Vanity_Lexer
 
 						foreach ($ptags as $tag => $value)
 						{
-							if (!in_array($tag, array('param', 'return', 'since', 'see', 'link'), true) && trim($tag) !== '')
+							if (!in_array($tag, array('param', 'return', 'since', 'see', 'link', 'changelog'), true) && trim($tag) !== '')
 							{
 								if (!isset($xmetadata))
 								{
@@ -872,6 +949,27 @@ class Vanity_Lexer
 						{
 							$xmethodseelink = $xmethodrelated->addChild('link');
 							$xmethodseelink->addCDATA(DocblockParser::parse_link($link));
+						}
+					}
+
+					// <changelog>
+					//   <change version=""></change>
+					// </changelog>
+					if (isset($ptags['changelog']))
+					{
+						ksort($ptags['changelog']);
+						$xmethodchangelog = $xmethod->addChild('changelog');
+
+						if (is_string($ptags['changelog']))
+						{
+							$ptags['changelog'] = array($ptags['changelog']);
+						}
+
+						foreach ($ptags['changelog'] as $version => $changelog)
+						{
+							$xmethodchange = $xmethodchangelog->addChild('change');
+							$xmethodchange->addAttribute('version', $version);
+							$xmethodchange->addCDATA($changelog);
 						}
 					}
 			}

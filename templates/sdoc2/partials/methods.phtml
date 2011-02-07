@@ -43,7 +43,7 @@ if (isset($method->parameters->parameter))
 	{
 		if (is_array($parameter))
 		{
-			$inline_params[] = '[ <span class="parameterValue">' . $parameter[0] . ' = ' . $parameter[1] . '</span>' . ' ]';
+			$inline_params[] = '<span class="optionalParameter">[ <span class="parameterValue">' . $parameter[0] . ' = ' . $parameter[1] . '</span> ]</span>';
 		}
 		else
 		{
@@ -184,6 +184,32 @@ if (isset($method->parameters->parameter))
 				<?php endif; ?>
 			</div>
 			<?php endforeach; ?>
+		<?php endif; ?>
+
+		<?php if (isset($method->changelog)): ?>
+			<h4>Changelog</h4>
+			<div class="description">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%" class="parameters">
+					<thead>
+						<tr>
+							<th><p>Version</p></th>
+							<th class="description"><p>Description</p></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ($method->changelog->change as $change): ?>
+						<tr>
+							<td>
+								<p><?php echo (string) $change->attributes()->version; ?></p>
+							</td>
+							<td class="description">
+								<?php echo (string) $change; ?>
+							</td>
+						</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
 		<?php endif; ?>
 
 		<?php if (isset($method->related)): ?>

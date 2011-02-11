@@ -166,8 +166,8 @@ class Template extends Generator
 		{
 			$tree_node[3][] = array(
 				(string) $method->name,
-				// 'class/' . strtolower((string) $this->data->class->name) . '/' . (string) $method->name . '.html',
-				'#m=' . (string) $this->data->class->name . '/' . (string) $method->name,
+				// 'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html',
+				'#m=' . (string) $this->data->class->name . '/' . strtolower((string) $method->name),
 				'',
 				array()
 			);
@@ -264,7 +264,7 @@ class Template extends Generator
 			$this->storage['search_index']->index->info[] = array(
 				(string) $method->name . '()', // Property name
 				(string) $this->data->class->name, // Class name
-				// 'class/' . strtolower((string) $this->data->class->name) . '/' . (string) $method->name . '.html', // File location
+				// 'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html', // File location
 				'#m=' . (string) $this->data->class->name . '/' . (string) $method->name, // File location
 				'', // After the name
 				strip_tags((string) $method->description), // Description

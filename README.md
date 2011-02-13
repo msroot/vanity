@@ -1,4 +1,4 @@
-# Vanity 2 (Beta)
+# Vanity 2 (Beta): Now with less suck!
 
 **Vanity generates API reference documentation from PHP source code, and is intended to be a replacement for PHPDocumentor.**
 

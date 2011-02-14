@@ -128,9 +128,10 @@ of the Reflection API.
 ## Known Issues & TODOs
 
 * Currently, Vanity determines which classes to document by diffing <code>get_declared_classes()</code> before and after loading all classes into memory. There are much better ways of doing this.
-* I haven't yet tested any packages that leverage PHP 5.3 namespaces. I'm not even sure what would happen. I haven't _intentionally_ done anything to support namespaces yet.
+* <strike>I haven't yet tested any packages that leverage PHP 5.3 namespaces. I'm not even sure what would happen.</strike> I haven't _intentionally_ done anything to support namespaces yet.
+	* [ComplexPie](https://github.com/gsnedders/complexpie) uses namespaces extensively. It seems like these should be turned into subfolders in the browse tree. I'm not yet sure how to treat class names: keep backslashes or not?
 * While Vanity tries to be responsible with the memory it uses, it still relies on loading a bunch of code into memory. This makes large projects explode violently. (e.g., Zend Framework)
 * Vanity doesn't do a very good job of handling code with a crap-ton of dependencies, complex autoloading rules, or things that rely on the magic of `PATH` definitions. (e.g., Zend Framework)
-* As of this moment, I've only tested Vanity on the AWS SDK for PHP, SimplePie and Zend Framework. Zend Framework exploded. I still have a lot more testing to do.
+* As of this moment, I've only tested Vanity on the AWS SDK for PHP, SimplePie, ComplexPie and Zend Framework. Zend Framework exploded. I still have a lot more testing to do.
 
 A list of other TODOs is here: <https://github.com/skyzyx/vanity/issues>

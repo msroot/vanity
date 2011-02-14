@@ -56,18 +56,18 @@ class Vanity_Lexer
 		if (file_exists(CONFIG_DIR . 'seealso.yml'))
 		{
 			$see_also = spyc_load_file(CONFIG_DIR . 'seealso.yml');
-		}
 
-		foreach ($see_also as $class => $methods)
-		{
-			if (!isset($this->seealso[$class]))
+			foreach ($see_also as $class => $methods)
 			{
-				$this->seealso[$class] = array();
-			}
+				if (!isset($this->seealso[$class]))
+				{
+					$this->seealso[$class] = array();
+				}
 
-			foreach ($methods as $method => $links)
-			{
-				$this->seealso[$class][$method] = $links;
+				foreach ($methods as $method => $links)
+				{
+					$this->seealso[$class][$method] = $links;
+				}
 			}
 		}
 	}
@@ -77,25 +77,25 @@ class Vanity_Lexer
 		if (file_exists(CONFIG_DIR . 'changelog.yml'))
 		{
 			$changelog = spyc_load_file(CONFIG_DIR . 'changelog.yml');
-		}
 
-		foreach ($changelog as $class => $methods)
-		{
-			if (!isset($this->changelog[$class]))
+			foreach ($changelog as $class => $methods)
 			{
-				$this->changelog[$class] = array();
-			}
-
-			foreach ($methods as $method => $versions)
-			{
-				if (!isset($this->changelog[$class][$method]))
+				if (!isset($this->changelog[$class]))
 				{
-					$this->changelog[$class][$method] = array();
+					$this->changelog[$class] = array();
 				}
 
-				foreach ($versions as $version => $description)
+				foreach ($methods as $method => $versions)
 				{
-					$this->changelog[$class][$method][$version] = trim(Markdown($description));
+					if (!isset($this->changelog[$class][$method]))
+					{
+						$this->changelog[$class][$method] = array();
+					}
+
+					foreach ($versions as $version => $description)
+					{
+						$this->changelog[$class][$method][$version] = trim(Markdown($description));
+					}
 				}
 			}
 		}

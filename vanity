@@ -85,7 +85,7 @@ if (isset($console_options['version']))
 elseif (isset($console_options['help']))
 {
 	echo PHP_EOL;
-	echo 'VANITY ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+	echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
 	echo TAB . "API reference generator for PHP." . PHP_EOL;
 	echo PHP_EOL;
 
@@ -103,7 +103,7 @@ elseif (isset($console_options['help']))
 }
 
 echo PHP_EOL;
-echo 'VANITY ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
 echo PHP_EOL;
 
 

@@ -377,6 +377,10 @@ class Vanity_Lexer
 					{
 						$return_type = $return_typec;
 					}
+					else
+					{
+						$return_type = array('');
+					}
 
 					$return_paras = $method_xml->xpath('descendant-or-self::refsect1[@role="returnvalues"]/para');
 					if (is_array($return_paras))

@@ -7,9 +7,11 @@
 				<td><ul>
 					<?php if (isset($this->data->class->inheritance)): ?>
 						<?php foreach ($this->data->class->inheritance->class as $class): ?>
-							<?php if (isset($class->url)): ?>
+							<?php if (isset($class->url) && substr((string) $class->url, 0, 4) === 'http'): /* Class has external link */ ?>
+								<li><a href="<?php echo (string) $class->url; ?>"><?php echo (string) $class->name; ?></a></li>
+							<?php elseif (isset($class->url)): /* Class has a local link */ ?>
 								<li><a href="<?php echo (string) $class->url; ?>" rel="../../index.html#i=<?php echo (string) $class->name; ?>"><?php echo (string) $class->name; ?></a></li>
-							<?php else: ?>
+							<?php else: /* Class has no link */ ?>
 								<li><?php echo (string) $class->name; ?></li>
 							<?php endif; ?>
 						<?php endforeach; ?>
@@ -23,9 +25,11 @@
 				<th><p>Conforms to</p></th>
 				<td><ul>
 					<?php foreach ($this->data->class->implements->interface as $interface): ?>
-						<?php if (isset($interface->url)): ?>
+						<?php if (isset($interface->url) && substr((string) $interface->url, 0, 4) === 'http'): /* Interface has external link */ ?>
+							<li><a href="<?php echo (string) $interface->url; ?>"><?php echo (string) $interface->name; ?></a></li>
+						<?php elseif (isset($interface->url)): /* Interface has a local link */ ?>
 							<li><a href="<?php echo (string) $interface->url; ?>" rel="../../index.html#i=<?php echo (string) $interface->name; ?>"><?php echo (string) $interface->name; ?></a></li>
-						<?php else: ?>
+						<?php else: /* Interface has no link */ ?>
 							<li><?php echo (string) $interface->name; ?></li>
 						<?php endif; ?>
 					<?php endforeach; ?>
@@ -36,7 +40,11 @@
 			<tr>
 				<th><p>Location</p></th>
 				<td>
+					<?php if (isset($this->options['github'])): ?>
+					<p><a href="https://github.com/<?php echo $this->options['github']; ?>/blob/master/<?php echo (string) $this->data->class->file; ?>"><?php echo (string) $this->data->class->file; ?></a></p>
+					<?php else: ?>
 					<p><?php echo (string) $this->data->class->file; ?></p>
+					<?php endif; ?>
 				</td>
 			</tr>
 			<?php endif; ?>

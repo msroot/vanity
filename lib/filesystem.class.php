@@ -70,6 +70,14 @@ interface Vanity_Filesystem
 	public function mv($from, $to);
 
 	/**
+	 * Search for files matching a pattern
+	 *
+	 * @param string $pattern Standard glob pattern, relative to {@see $directory}
+	 * @return array Relative file names matching pattern
+	 */
+	public function glob($pattern);
+
+	/**
 	 * Get the contents of a file
 	 *
 	 * @param string $file File to read, relative to {@see $directory}
@@ -188,10 +196,9 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		}
 		if ($recursive)
 		{
-			$files = glob($path . DIRECTORY_SEPARATOR . '*');
+			$files = $this->glob($directory . DIRECTORY_SEPARATOR . '*');
 			foreach ($files as $file)
 			{
-				$file = str_replace($this->directory, '', $file);
 				$fpath = $this->realpath($file);
 				if (is_dir($fpath))
 				{
@@ -231,6 +238,23 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	public function mv($from, $to) {
 		$from = $this->realpath($from);
 		$to = $this->realpath($to);
+	}
+
+	/**
+	 * Search for files matching a pattern
+	 *
+	 * @param string $pattern Standard glob pattern, relative to {@see $directory}
+	 * @return array Relative file names matching pattern
+	 */
+	public function glob($pattern)
+	{
+		$return = array();
+		$files = glob($this->path($pattern));
+		foreach ($files as $file)
+		{
+			$return[] = str_replace($this->directory, '', $file);
+		}
+		return $return;
 	}
 
 	/**

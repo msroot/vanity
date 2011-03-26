@@ -174,7 +174,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	{
 		if ($this->exists($directory))
 		{
-			throw new Exception(sprintf('Directory %s already exists', $directory))
+			throw new Exception(sprintf('Directory %s already exists', $directory));
 		}
 		$path = $this->path($directory);
 		return mkdir($path, 0755, $parents);

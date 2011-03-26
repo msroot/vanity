@@ -257,12 +257,18 @@ if (isset($OPTIONS['cache']))
 echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
 
 // Output
-if (!$configdir->exists($OPTIONS['output']))
-{
-	$configdir->mkdir($OPTIONS['output'], true);
-}
 define('OUTPUT_DIR', $OPTIONS['output'] . DIRECTORY_SEPARATOR);
+if (!$configdir->exists(OUTPUT_DIR))
+{
+	$configdir->mkdir(OUTPUT_DIR, true);
+}
+
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
+if (!$configdir->exists(HTML_DIR))
+{
+	$configdir->mkdir(HTML_DIR, true);
+}
+
 echo TAB . 'OUTPUT_DIR:        ' . $configdir->realpath(OUTPUT_DIR) . PHP_EOL;
 echo TAB . 'HTML_DIR:          ' . $configdir->realpath(HTML_DIR) . PHP_EOL;
 

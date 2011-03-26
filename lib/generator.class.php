@@ -183,10 +183,10 @@ class Generator
 	 */
 	public static function copy()
 	{
-		global $configdir;
-		if (file_exists(TEMPLATE_DIR . 'copy.yml'))
+		global $configdir, $vanitydir;
+		if ($vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
 		{
-			$files = spyc_load_file(TEMPLATE_DIR . 'copy.yml');
+			$files = spyc_load($vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';
@@ -195,7 +195,10 @@ class Generator
 					$subsequent_path = explode(DIRECTORY_SEPARATOR, $file);
 					array_pop($subsequent_path);
 					$subsequent_path = implode(DIRECTORY_SEPARATOR, $subsequent_path) . DIRECTORY_SEPARATOR;
-					$configdir->mkdir(HTML_DIR . $subsequent_path, true);
+					if (!$configdir->exists(HTML_DIR . $subsequent_path))
+					{
+						$configdir->mkdir(HTML_DIR . $subsequent_path, true);
+					}
 				}
 
 				$cmd = 'cp -Rf ' . TEMPLATE_DIR . $file . ' ' . HTML_DIR . $subsequent_path;

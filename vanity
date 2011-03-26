@@ -456,9 +456,10 @@ $vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', seria
 
 echo "RUNNING THE GENERATOR" . PHP_EOL;
 include TEMPLATE_DIR . 'template_definition.php';
-$files = glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
+$files = $configdir->glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
 foreach ($files as $file)
 {
+	$file = $configdir->realpath($file);
 	$template = new Template($file);
 }
 $generated = Util::rglob(OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . '**.html');

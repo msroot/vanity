@@ -474,7 +474,7 @@ $files = glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
 $xfiles = $xml->addChild('files');
 foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_BASENAME)); }
 $manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
-file_put_contents($manifest, $xml->asXML());
+file_put_contents($configdir->realpath($manifest), $xml->asXML());
 echo TAB . $manifest . PHP_EOL;
 
 // JSON
@@ -482,7 +482,7 @@ $json = array('file' => array());
 $files = glob(OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . '*.js');
 foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 $manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
-file_put_contents($manifest, json_encode($json));
+file_put_contents($configdir->realpath($manifest), json_encode($json));
 echo TAB . $manifest . PHP_EOL;
 
 // Serialized PHP
@@ -490,7 +490,7 @@ $php = array('file' => array());
 $files = glob(OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . '*.php');
 foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 $manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
-file_put_contents($manifest, serialize($php));
+file_put_contents($configdir->realpath($manifest), serialize($php));
 echo TAB . $manifest . PHP_EOL;
 
 echo PHP_EOL;

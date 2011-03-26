@@ -222,8 +222,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			$files = $this->glob($directory . DIRECTORY_SEPARATOR . '*');
 			foreach ($files as $file)
 			{
-				$fpath = $this->realpath($file);
-				if ($this->is_dir($fpath))
+				if ($this->is_dir($file))
 				{
 					$this->rmdir($file, true);
 				}

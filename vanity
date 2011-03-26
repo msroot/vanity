@@ -476,6 +476,11 @@ $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><manifest xm
 $files = $configdir->glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
 $xfiles = $xml->addChild('files');
 foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_BASENAME)); }
+
+if (!$configdir->exists(OUTPUT_DIR . 'xml'))
+{
+	$configdir->mkdir(OUTPUT_DIR . 'xml');
+}
 $manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
 $configdir->put_contents($manifest, $xml->asXML());
 echo TAB . $manifest . PHP_EOL;
@@ -484,6 +489,11 @@ echo TAB . $manifest . PHP_EOL;
 $json = array('file' => array());
 $files = $configdir->glob(OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . '*.js');
 foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME); }
+
+if (!$configdir->exists(OUTPUT_DIR . 'json'))
+{
+	$configdir->mkdir(OUTPUT_DIR . 'json');
+}
 $manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
 $configdir->put_contents($manifest, json_encode($json));
 echo TAB . $manifest . PHP_EOL;
@@ -492,6 +502,11 @@ echo TAB . $manifest . PHP_EOL;
 $php = array('file' => array());
 $files = $configdir->glob(OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . '*.php');
 foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME); }
+
+if (!$configdir->exists(OUTPUT_DIR . 'php'))
+{
+	$configdir->mkdir(OUTPUT_DIR . 'php');
+}
 $manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
 $configdir->put_contents($manifest, serialize($php));
 echo TAB . $manifest . PHP_EOL;

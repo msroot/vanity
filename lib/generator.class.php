@@ -16,13 +16,14 @@ class Generator
 	 */
 	public function __construct($datafile)
 	{
+		global $vanitydir;
 		$this->data = simplexml_load_file($datafile, 'Vanity_Template_XML', LIBXML_NOCDATA);
 		$this->classname = (string) $this->data->class->name;
 		$this->template = new stdClass();
 		$this->partials = self::fetch_all_partials();
-		$this->linkmap = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap'));
-		$this->options = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
-		$this->storage = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		$this->linkmap = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap'));
+		$this->options = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
+		$this->storage = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
 
 		// Default values
 		$this->template->type = 'Class';

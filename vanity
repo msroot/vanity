@@ -480,7 +480,7 @@ foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_B
 
 if (!$configdir->exists(OUTPUT_DIR . 'xml'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'xml');
+	$configdir->mkdir(OUTPUT_DIR . 'xml', true);
 }
 $manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
 $configdir->put_contents($manifest, $xml->asXML());
@@ -493,7 +493,7 @@ foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME)
 
 if (!$configdir->exists(OUTPUT_DIR . 'json'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'json');
+	$configdir->mkdir(OUTPUT_DIR . 'json', true);
 }
 $manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
 $configdir->put_contents($manifest, json_encode($json));
@@ -506,7 +506,7 @@ foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME);
 
 if (!$configdir->exists(OUTPUT_DIR . 'php'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'php');
+	$configdir->mkdir(OUTPUT_DIR . 'php', true);
 }
 $manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
 $configdir->put_contents($manifest, serialize($php));

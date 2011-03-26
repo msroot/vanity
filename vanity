@@ -207,6 +207,10 @@ ksort($OPTIONS);
 echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
 echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
 
+if (!$vanitydir->exists(VANITY_CACHE_DIR))
+{
+	$vanitydir->mkdir(VANITY_CACHE_DIR);
+}
 file_put_contents($vanitydir->path(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'), serialize($OPTIONS));
 
 

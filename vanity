@@ -17,7 +17,7 @@ ini_set('html_errors', 0);
 define('VERSION', '2.0');
 define('TAB', '    ');
 define('VANITY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
-define('VANITY_CACHE_DIR', VANITY_DIR . 'cache' . DIRECTORY_SEPARATOR);
+define('VANITY_CACHE_DIR', 'cache' . DIRECTORY_SEPARATOR);
 define('PHPREF_DIR', VANITY_CACHE_DIR . 'php' . DIRECTORY_SEPARATOR);
 define('ENTITY_GLOBAL_DIR', VANITY_CACHE_DIR . 'entities' . DIRECTORY_SEPARATOR);
 define('ENTITY_LANG_DIR', VANITY_CACHE_DIR . 'language-entities' . DIRECTORY_SEPARATOR);
@@ -35,6 +35,7 @@ include 'lib/cachecore/cachefile.class.php';
 include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
 include 'lib/example.class.php';
 include 'lib/examplify.class.php';
+include 'lib/filesystem.class.php';
 include 'lib/generator.class.php';
 include 'lib/lexer.class.php';
 include 'lib/linkmap.class.php';
@@ -124,18 +125,25 @@ $OPTIONS = $default_options = array(
 	'product-name' => 'Documentation',
 );
 
-// Create CONFIG_DIR if it doesn't exist.
-if (realpath(CONFIG_DIR) == '')
+// Filesystem objects
+$vanitydir = new Vanity_Filesystem_Directory(VANITY_DIR);
+
+try
 {
-	shell_exec('mkdir -p ' . CONFIG_DIR);
-	file_put_contents(CONFIG_DIR . 'README.txt', 'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.');
+	$configdir = new Vanity_Filesystem_Directory(CONFIG_DIR);
+}
+catch (Exception $e)
+{
+	// Create CONFIG_DIR if it doesn't exist.
+	$configdir = new Vanity_Filesystem_Directory(CONFIG_DIR, true, true);
+	file_put_contents($configdir->path('README.txt'), 'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.');
 }
 
 // Config file options
-if (file_exists(CONFIG_DIR . 'config.yml'))
+if ($configdir->exists('config.yml'))
 {
 	echo TAB . 'Merged configuration options from ' . CONFIG_DIR . 'config.yml' . PHP_EOL;
-	$config_options = spyc_load_file(CONFIG_DIR . 'config.yml');
+	$config_options = spyc_load_file($configdir->path('config.yml'));
 	$OPTIONS = array_merge($OPTIONS, $config_options);
 }
 
@@ -151,7 +159,7 @@ echo PHP_EOL;
 /********************************************************/
 // NORMALIZE PATHS
 
-if (isset($OPTIONS['cache']))
+/*if (isset($OPTIONS['cache']))
 {
 	if (strpos($OPTIONS['cache'], '/') !== 0)
 	{
@@ -165,7 +173,7 @@ if (isset($OPTIONS['output']))
 	{
 		$OPTIONS['output'] = Util::normalize_path(CONFIG_DIR . $OPTIONS['output']);
 	}
-}
+}*/
 
 if (isset($OPTIONS['template']))
 {
@@ -198,7 +206,8 @@ if (isset($OPTIONS['skip-update']))
 ksort($OPTIONS);
 echo 'ACTIVE CONFIGURATION OPTIONS' . PHP_EOL;
 echo Util::indent(Spyc::YAMLDump($OPTIONS)) . PHP_EOL;
-file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options', serialize($OPTIONS));
+
+file_put_contents($vanitydir->path(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'), serialize($OPTIONS));
 
 
 /********************************************************/
@@ -229,28 +238,29 @@ echo TAB . 'TEMPLATE_DIR:      ' . TEMPLATE_DIR . PHP_EOL;
 echo TAB . 'WORKING_DIR:       ' . WORKING_DIR . PHP_EOL;
 echo TAB . 'CONFIG_DIR:        ' . CONFIG_DIR . PHP_EOL;
 
+
 // Cache
 if (isset($OPTIONS['cache']))
 {
-	if (realpath($OPTIONS['cache']) == '')
+	if (!$configdir->exists($OPTIONS['cache']))
 	{
-		shell_exec('mkdir -p ' . $OPTIONS['cache']);
+		$configdir->mkdir($OPTIONS['cache'], true);
 	}
-	define('CACHE_DIR', realpath($OPTIONS['cache']) . DIRECTORY_SEPARATOR);
-	echo TAB . 'CACHE_DIR:         ' . CACHE_DIR . PHP_EOL;
+	define('CACHE_DIR', $OPTIONS['cache']);
+	echo TAB . 'CACHE_DIR:         ' . $configdir->path(CACHE_DIR) . PHP_EOL;
 }
 
 echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
 
 // Output
-if (realpath($OPTIONS['output']) == '')
+if (!$configdir->exists($OPTIONS['output']))
 {
-	shell_exec('mkdir -p ' . $OPTIONS['output']);
+	$configdir->mkdir($OPTIONS['output'], true);
 }
-define('OUTPUT_DIR', realpath($OPTIONS['output']) . DIRECTORY_SEPARATOR);
+define('OUTPUT_DIR', $OPTIONS['output'] . DIRECTORY_SEPARATOR);
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
-echo TAB . 'OUTPUT_DIR:        ' . OUTPUT_DIR . PHP_EOL;
-echo TAB . 'HTML_DIR:          ' . HTML_DIR . PHP_EOL;
+echo TAB . 'OUTPUT_DIR:        ' . $configdir->path(OUTPUT_DIR) . PHP_EOL;
+echo TAB . 'HTML_DIR:          ' . $configdir->path(HTML_DIR) . PHP_EOL;
 
 // README
 
@@ -274,24 +284,24 @@ if (isset($OPTIONS['skip-update']) && $OPTIONS['skip-update'] === true)
 }
 else
 {
-	if (realpath(VANITY_CACHE_DIR) == '')
+	if (!$vanitydir->exists(VANITY_CACHE_DIR))
 	{
-		shell_exec('mkdir -p ' . VANITY_CACHE_DIR);
+		$vanitydir->mkdir(VANITY_CACHE_DIR, true);
 	}
 
-	if (realpath(PHPREF_DIR) == '' || realpath(ENTITY_GLOBAL_DIR) == '' || realpath(ENTITY_LANG_DIR) == '')
+	if (!$vanitydir->exists(PHPREF_DIR) || !$vanitydir->exists(ENTITY_GLOBAL_DIR) || !$vanitydir->exists(ENTITY_LANG_DIR))
 	{
 		echo 'DOWNLOADING INTERNAL PHP REFERENCE FOR THE FIRST TIME (THIS MIGHT TAKE A FEW MINUTES)' . PHP_EOL;
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . PHPREF_DIR));
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . ENTITY_GLOBAL_DIR));
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . ENTITY_LANG_DIR . ' --depth files'));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . PHPREF_DIR));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . ENTITY_GLOBAL_DIR));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . ENTITY_LANG_DIR . ' --depth files'));
 	}
 	else
 	{
 		echo 'UPDATING INTERNAL PHP REFERENCE' . PHP_EOL;
-		echo Util::indent(shell_exec('svn up ' . PHPREF_DIR));
-		echo Util::indent(shell_exec('svn up ' . ENTITY_GLOBAL_DIR));
-		echo Util::indent(shell_exec('svn up ' . ENTITY_LANG_DIR));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(PHPREF_DIR)));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(ENTITY_GLOBAL_DIR)));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(ENTITY_LANG_DIR)));
 	}
 	echo PHP_EOL;
 }
@@ -380,10 +390,7 @@ echo PHP_EOL;
 // REMOVING OLD OUTPUT DIRECTORY
 
 echo "REMOVING OLD OUTPUT DIRECTORY" . PHP_EOL;
-if (OUTPUT_DIR == '/') die('Current working directory doesn\'t exist. Stopping.');
-$cmd = 'rm -Rf ' . OUTPUT_DIR;
-echo TAB . $cmd . PHP_EOL;
-shell_exec($cmd);
+$configdir->rmdir(OUTPUT_DIR, true);
 echo PHP_EOL;
 
 
@@ -425,10 +432,7 @@ file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($S
 } else {
 	echo 'SKIPPING THE LEXER' . PHP_EOL . TAB . 'Skipped.' . PHP_EOL . PHP_EOL;
 	echo "REMOVING OLD HTML OUTPUT DIRECTORY" . PHP_EOL;
-	if (HTML_DIR == '/') die('Current working directory doesn\'t exist. Stopping.');
-	$cmd = 'rm -Rf ' . HTML_DIR;
-	echo TAB . $cmd . PHP_EOL;
-	shell_exec($cmd);
+	$configdir->rmdir(HTML_DIR, true);
 	echo PHP_EOL;
 }
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -494,9 +498,9 @@ echo PHP_EOL;
 // COPYING DOCUMENTATION FILES FROM PROJECT
 
 echo "COPYING DOCUMENTATION FILES FROM PROJECT" . PHP_EOL;
-if (realpath(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included') == '')
+if (!$configdir->exists(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included'))
 {
-	shell_exec('mkdir -p ' . HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included');
+	$configdir->mkdir(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included', true);
 }
 $template->files();
 echo PHP_EOL;
@@ -539,7 +543,8 @@ else
 	$cmd .= 'mv latest_docs.tar.bz2 ' . HTML_DIR . ' && ' . PHP_EOL;
 
 	$cmd .= 'rm -Rf ' . OUTPUT_DIR . $clean_title . DIRECTORY_SEPARATOR . PHP_EOL;
-	shell_exec($cmd);
+	//shell_exec($cmd);
+	echo $cmd;
 
 	// zip
 	$doc_path = HTML_DIR . 'latest_docs.zip';

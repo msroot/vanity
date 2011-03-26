@@ -1153,31 +1153,25 @@ class Vanity_Lexer
 		// Write XML output
 		$xml_output = $xml->asXML();
 		$xml_write_path = $dir_output . 'xml' . DIRECTORY_SEPARATOR;
+		if (!$configdir->exists($xml_write_path))
+		{
+			$configdir->mkdir($xml_write_path);
+		}
 
 		// Write JSON output
 		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
 		$json_write_path = $dir_output . 'json' . DIRECTORY_SEPARATOR;
+		if (!$configdir->exists($json_write_path))
+		{
+			$configdir->mkdir($json_write_path);
+		}
 
 		// Write Serialized PHP output
 		$sphp_output = serialize(json_decode($json_output, true));
 		$sphp_write_path = $dir_output . 'php' . DIRECTORY_SEPARATOR;
-
-		if (!is_writable($xml_write_path))
+		if (!$configdir->exists($sphp_write_path))
 		{
-			mkdir($xml_write_path, 0777, true);
-			chmod($xml_write_path, 0777);
-		}
-
-		if (!is_writable($json_write_path))
-		{
-			mkdir($json_write_path, 0777, true);
-			chmod($json_write_path, 0777);
-		}
-
-		if (!is_writable($sphp_write_path))
-		{
-			mkdir($sphp_write_path, 0777, true);
-			chmod($sphp_write_path, 0777);
+			$configdir->mkdir($sphp_write_path);
 		}
 
 		$xml_path = $xml_write_path . $class_name . '.xml';

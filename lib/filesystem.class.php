@@ -35,6 +35,14 @@ interface Vanity_Filesystem
 	public function exists($file);
 
 	/**
+	 * Check if the path is a directory
+	 *
+	 * @param string $dir Path to check, relative to {@see $directory}
+	 * @return bool
+	 */
+	public function is_dir($dir);
+
+	/**
 	 * Create a directory
 	 *
 	 * @param string $directory Directory to create, relative to {@see $directory}
@@ -167,6 +175,18 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	}
 
 	/**
+	 * Check if the path is a directory
+	 *
+	 * @param string $dir Path to check, relative to {@see $directory}
+	 * @return bool
+	 */
+	public function is_dir($dir)
+	{
+		$path = $this->realpath($dir);
+		return isdir($path);
+	}
+
+	/**
 	 * Create a directory
 	 *
 	 * @param string $directory Directory to create, relative to {@see $directory}
@@ -203,7 +223,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			foreach ($files as $file)
 			{
 				$fpath = $this->realpath($file);
-				if (is_dir($fpath))
+				if ($this->is_dir($fpath))
 				{
 					$this->rmdir($file, true);
 				}

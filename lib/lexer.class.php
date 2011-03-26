@@ -53,9 +53,10 @@ class Vanity_Lexer
 
 	public function collect_see_also()
 	{
-		if (file_exists(CONFIG_DIR . 'seealso.yml'))
+		global $configdir;
+		if ($configdir->exists('seealso.yml'))
 		{
-			$see_also = spyc_load_file(CONFIG_DIR . 'seealso.yml');
+			$see_also = spyc_load($configdir->get_contents('seealso.yml'));
 
 			foreach ($see_also as $class => $methods)
 			{
@@ -74,9 +75,10 @@ class Vanity_Lexer
 
 	public function collect_changelog()
 	{
-		if (file_exists(CONFIG_DIR . 'changelog.yml'))
+		global $configdir;
+		if ($configdir->exists('changelog.yml'))
 		{
-			$changelog = spyc_load_file(CONFIG_DIR . 'changelog.yml');
+			$changelog = spyc_load($configdir->get_contents('changelog.yml'));
 
 			foreach ($changelog as $class => $methods)
 			{
@@ -1146,6 +1148,8 @@ class Vanity_Lexer
 
 		/*****************************************************************************************/
 
+		global $configdir;
+
 		// Write XML output
 		$xml_output = $xml->asXML();
 		$xml_write_path = $dir_output . 'xml' . DIRECTORY_SEPARATOR;
@@ -1177,13 +1181,13 @@ class Vanity_Lexer
 		}
 
 		$xml_path = $xml_write_path . $class_name . '.xml';
-		$xml_success = file_put_contents($xml_path, (string) $xml_output);
+		$xml_success = $configdir->put_contents($xml_path, (string) $xml_output);
 
 		$json_path = $json_write_path . $class_name . '.js';
-		$json_success = file_put_contents($json_path, (string) $json_output);
+		$json_success = $configdir->put_contents($json_path, (string) $json_output);
 
 		$sphp_path = $sphp_write_path . $class_name . '.php';
-		$sphp_success = file_put_contents($sphp_path, (string) $sphp_output);
+		$sphp_success = $configdir->put_contents($sphp_path, (string) $sphp_output);
 
 		if ($xml_success) echo TAB . 'Created ' . $xml_path . PHP_EOL;
 		else echo TAB . 'Failed to write ' . $xml_path . PHP_EOL;

@@ -135,7 +135,7 @@ try
 catch (Exception $e)
 {
 	// Create CONFIG_DIR if it doesn't exist.
-	$configdir = new Vanity_Filesystem_Directory(CONFIG_DIR, true, true);
+	$configdir = new Vanity_Filesystem_Direct(CONFIG_DIR, true, true);
 	$configdir->put_contents(
 		'README.txt',
 		'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.'

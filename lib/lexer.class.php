@@ -1155,7 +1155,7 @@ class Vanity_Lexer
 		$xml_write_path = $dir_output . 'xml' . DIRECTORY_SEPARATOR;
 		if (!$configdir->exists($xml_write_path))
 		{
-			$configdir->mkdir($xml_write_path);
+			$configdir->mkdir($xml_write_path, true);
 		}
 
 		// Write JSON output
@@ -1163,7 +1163,7 @@ class Vanity_Lexer
 		$json_write_path = $dir_output . 'json' . DIRECTORY_SEPARATOR;
 		if (!$configdir->exists($json_write_path))
 		{
-			$configdir->mkdir($json_write_path);
+			$configdir->mkdir($json_write_path, true);
 		}
 
 		// Write Serialized PHP output
@@ -1171,7 +1171,7 @@ class Vanity_Lexer
 		$sphp_write_path = $dir_output . 'php' . DIRECTORY_SEPARATOR;
 		if (!$configdir->exists($sphp_write_path))
 		{
-			$configdir->mkdir($sphp_write_path);
+			$configdir->mkdir($sphp_write_path, true);
 		}
 
 		$xml_path = $xml_write_path . $class_name . '.xml';

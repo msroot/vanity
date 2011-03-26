@@ -148,7 +148,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 */
 	public function mkdir($directory, $parents = false)
 	{
-		$path = $this->realpath($directory);
+		$path = $this->path($directory);
 		//return mkdir($path, 0755, $parents);
 	}
 

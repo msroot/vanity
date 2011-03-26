@@ -126,11 +126,11 @@ $OPTIONS = $default_options = array(
 );
 
 // Filesystem objects
-$vanitydir = new Vanity_Filesystem_Directory(VANITY_DIR);
+$vanitydir = new Vanity_Filesystem_Direct(VANITY_DIR);
 
 try
 {
-	$configdir = new Vanity_Filesystem_Directory(CONFIG_DIR);
+	$configdir = new Vanity_Filesystem_Direct(CONFIG_DIR);
 }
 catch (Exception $e)
 {

@@ -68,6 +68,23 @@ interface Vanity_Filesystem
 	 * @return bool Success status
 	 */
 	public function mv($from, $to);
+
+	/**
+	 * Get the contents of a file
+	 *
+	 * @param string $file File to read, relative to {@see $directory}
+	 * @return string Data from file
+	 */
+	public function get_contents($file);
+
+	/**
+	 * Write to a file
+	 *
+	 * @param string $file File to write, relative to {@see $directory}
+	 * @param string $contents New contents of the file
+	 * @return string Data from file
+	 */
+	public function put_contents($file, $contents);
 }
 
 class Vanity_Filesystem_Direct implements Vanity_Filesystem
@@ -210,5 +227,38 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	public function mv($from, $to) {
 		$from = $this->realpath($from);
 		$to = $this->realpath($to);
+	}
+
+	/**
+	 * Get the contents of a file
+	 *
+	 * @param string $file File to read, relative to {@see $directory}
+	 * @return string Data from file
+	 */
+	public function get_contents($file)
+	{
+		$path = $this->realpath($file);
+		if (is_dir($path))
+		{
+			throw new Exception(sprintf('%s is a directory, not a file', $file));
+		}
+		return file_get_contents($path);
+	}
+
+	/**
+	 * Write to a file
+	 *
+	 * @param string $file File to write, relative to {@see $directory}
+	 * @param string $contents New contents of the file
+	 * @return string Data from file
+	 */
+	public function put_contents($file, $contents)
+	{
+		$path = $this->path($file);
+		if (is_dir($path))
+		{
+			throw new Exception(sprintf('%s is a directory, not a file', $file));
+		}
+		return file_put_contents($path, $contents);
 	}
 }

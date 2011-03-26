@@ -136,7 +136,10 @@ catch (Exception $e)
 {
 	// Create CONFIG_DIR if it doesn't exist.
 	$configdir = new Vanity_Filesystem_Directory(CONFIG_DIR, true, true);
-	file_put_contents($configdir->path('README.txt'), 'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.');
+	$configdir->put_contents(
+		'README.txt',
+		'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.'
+	);
 }
 
 // Config file options
@@ -211,7 +214,7 @@ if (!$vanitydir->exists(VANITY_CACHE_DIR))
 {
 	$vanitydir->mkdir(VANITY_CACHE_DIR);
 }
-file_put_contents($vanitydir->path(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'), serialize($OPTIONS));
+$vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options', serialize($OPTIONS));
 
 
 /********************************************************/
@@ -414,7 +417,7 @@ foreach ($parse_me as $class)
 	$lmap->add_class($class);
 }
 $LINKMAP = $lmap->generate_map();
-file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap', serialize($LINKMAP));
+$vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap', serialize($LINKMAP));
 echo TAB . 'Done.' . PHP_EOL;
 echo PHP_EOL;
 
@@ -434,7 +437,7 @@ echo PHP_EOL;
 /********************************************************/
 // PERSIST STORAGE
 
-file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($STORAGE));
+$vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($STORAGE));
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -474,7 +477,7 @@ $files = glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
 $xfiles = $xml->addChild('files');
 foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_BASENAME)); }
 $manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
-file_put_contents($configdir->realpath($manifest), $xml->asXML());
+$configdir->put_contents($manifest, $xml->asXML());
 echo TAB . $manifest . PHP_EOL;
 
 // JSON
@@ -482,7 +485,7 @@ $json = array('file' => array());
 $files = glob(OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . '*.js');
 foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 $manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
-file_put_contents($configdir->realpath($manifest), json_encode($json));
+$configdir->put_contents($manifest, json_encode($json));
 echo TAB . $manifest . PHP_EOL;
 
 // Serialized PHP
@@ -490,7 +493,7 @@ $php = array('file' => array());
 $files = glob(OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . '*.php');
 foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 $manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
-file_put_contents($configdir->realpath($manifest), serialize($php));
+$configdir->put_contents($manifest, serialize($php));
 echo TAB . $manifest . PHP_EOL;
 
 echo PHP_EOL;

@@ -11,7 +11,7 @@ readme: README.md
 output: ./output
 
 # Default template
-template: ./template/sdoc
+template: sdoc2
 
 # Skip the lexer/tokenizer phase
 skip-lexer: false

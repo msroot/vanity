@@ -231,7 +231,7 @@ echo PHP_EOL;
 echo 'WORKING DIRECTORIES' . PHP_EOL;
 
 echo TAB . 'VANITY_DIR:        ' . VANITY_DIR . PHP_EOL;
-echo TAB . 'VANITY_CACHE_DIR:  ' . VANITY_CACHE_DIR . PHP_EOL;
+echo TAB . 'VANITY_CACHE_DIR:  ' . $vanitydir->realpath(VANITY_CACHE_DIR) . PHP_EOL;
 
 // Template
 if (realpath($OPTIONS['template']) == '')

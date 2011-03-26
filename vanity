@@ -146,7 +146,7 @@ catch (Exception $e)
 if ($configdir->exists('config.yml'))
 {
 	echo TAB . 'Merged configuration options from ' . CONFIG_DIR . 'config.yml' . PHP_EOL;
-	$config_options = spyc_load_file($configdir->realpath('config.yml'));
+	$config_options = spyc_load($configdir->get_contents('config.yml'));
 	$OPTIONS = array_merge($OPTIONS, $config_options);
 }
 

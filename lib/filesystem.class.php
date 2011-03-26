@@ -149,7 +149,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	public function mkdir($directory, $parents = false)
 	{
 		$path = $this->path($directory);
-		//return mkdir($path, 0755, $parents);
+		return mkdir($path, 0755, $parents);
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			}
 		}
 		echo $path . DIRECTORY_SEPARATOR . "\n";
-		//return rmdir($path);
+		return rmdir($path);
 	}
 
 	/**
@@ -200,7 +200,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			throw new Exception(sprintf('%s is a directory, not a file', $file));
 		}
 		echo $path . "\n";
-		//return unlink($path);
+		return unlink($path);
 	}
 
 	/**

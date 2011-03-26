@@ -183,7 +183,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	public function is_dir($dir)
 	{
 		$path = $this->realpath($dir);
-		return isdir($path);
+		return is_dir($path);
 	}
 
 	/**

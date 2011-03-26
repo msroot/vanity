@@ -14,6 +14,16 @@ interface Vanity_Filesystem
 	 * @param string $file Path to make absolute
 	 * @return string Real path
 	 */
+	public function realpath($file);
+
+	/**
+	 * Convert a relative path to an absolute path, hypothetically
+	 *
+	 * Used before a file is actually created
+	 * @see $directory
+	 * @param string $file Path to make absolute
+	 * @return string Real path
+	 */
 	public function path($file);
 
 	/**
@@ -92,13 +102,20 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 * @param string $file Path to make absolute
 	 * @return string Real path
 	 */
-	public function path($file)
+	public function realpath($file)
 	{
 		$path = realpath($this->directory . $file);
 		if ($path === false)
 		{
 			throw new Exception(sprintf('File %s does not exist', $this->directory . $file));
 		}
+		return $path;
+	}
+
+	public function path($file)
+	{
+		$path = $this->directory . $file;
+		$path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
 		return $path;
 	}
 
@@ -113,7 +130,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		echo "Checking if $file exists";
 		try
 		{
-			$this->path($file);
+			$this->realpath($file);
 			return true;
 		}
 		catch (Exception $e)
@@ -131,7 +148,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 */
 	public function mkdir($directory, $parents = false)
 	{
-		$path = $this->path($directory);
+		$path = $this->realpath($directory);
 		//return mkdir($path, 0755, $parents);
 	}
 
@@ -144,7 +161,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 */
 	public function rmdir($directory, $recursive = false)
 	{
-		$path = $this->path($directory);
+		$path = $this->realpath($directory);
 		if (!is_dir($path))
 		{
 			throw new Exception(sprintf('%s is a file, not a directory', $file));
@@ -155,7 +172,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			foreach ($files as $file)
 			{
 				$file = str_replace($this->directory, '', $file);
-				$fpath = $this->path($file);
+				$fpath = $this->realpath($file);
 				if (is_dir($fpath))
 				{
 					$this->rmdir($file, true);
@@ -177,7 +194,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 * @return bool Success status
 	 */
 	public function rm($file) {
-		$path = $this->path($file);
+		$path = $this->realpath($file);
 		if (is_dir($path))
 		{
 			throw new Exception(sprintf('%s is a directory, not a file', $file));
@@ -194,7 +211,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 * @return bool Success status
 	 */
 	public function mv($from, $to) {
-		$from = $this->path($from);
-		$to = $this->path($to);
+		$from = $this->realpath($from);
+		$to = $this->realpath($to);
 	}
 }

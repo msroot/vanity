@@ -143,7 +143,7 @@ catch (Exception $e)
 if ($configdir->exists('config.yml'))
 {
 	echo TAB . 'Merged configuration options from ' . CONFIG_DIR . 'config.yml' . PHP_EOL;
-	$config_options = spyc_load_file($configdir->path('config.yml'));
+	$config_options = spyc_load_file($configdir->realpath('config.yml'));
 	$OPTIONS = array_merge($OPTIONS, $config_options);
 }
 
@@ -247,7 +247,7 @@ if (isset($OPTIONS['cache']))
 		$configdir->mkdir($OPTIONS['cache'], true);
 	}
 	define('CACHE_DIR', $OPTIONS['cache']);
-	echo TAB . 'CACHE_DIR:         ' . $configdir->path(CACHE_DIR) . PHP_EOL;
+	echo TAB . 'CACHE_DIR:         ' . $configdir->realpath(CACHE_DIR) . PHP_EOL;
 }
 
 echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
@@ -259,8 +259,8 @@ if (!$configdir->exists($OPTIONS['output']))
 }
 define('OUTPUT_DIR', $OPTIONS['output'] . DIRECTORY_SEPARATOR);
 define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
-echo TAB . 'OUTPUT_DIR:        ' . $configdir->path(OUTPUT_DIR) . PHP_EOL;
-echo TAB . 'HTML_DIR:          ' . $configdir->path(HTML_DIR) . PHP_EOL;
+echo TAB . 'OUTPUT_DIR:        ' . $configdir->realpath(OUTPUT_DIR) . PHP_EOL;
+echo TAB . 'HTML_DIR:          ' . $configdir->realpath(HTML_DIR) . PHP_EOL;
 
 // README
 
@@ -292,16 +292,16 @@ else
 	if (!$vanitydir->exists(PHPREF_DIR) || !$vanitydir->exists(ENTITY_GLOBAL_DIR) || !$vanitydir->exists(ENTITY_LANG_DIR))
 	{
 		echo 'DOWNLOADING INTERNAL PHP REFERENCE FOR THE FIRST TIME (THIS MIGHT TAKE A FEW MINUTES)' . PHP_EOL;
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . PHPREF_DIR));
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . ENTITY_GLOBAL_DIR));
-		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . $vanitydir->path('/') . DIRECTORY_SEPARATOR . ENTITY_LANG_DIR . ' --depth files'));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . $vanitydir->path(PHPREF_DIR)));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . $vanitydir->path(ENTITY_GLOBAL_DIR)));
+		echo Util::indent(shell_exec('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . $vanitydir->path(ENTITY_LANG_DIR) . ' --depth files'));
 	}
 	else
 	{
 		echo 'UPDATING INTERNAL PHP REFERENCE' . PHP_EOL;
-		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(PHPREF_DIR)));
-		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(ENTITY_GLOBAL_DIR)));
-		echo Util::indent(shell_exec('svn up ' . $vanitydir->path(ENTITY_LANG_DIR)));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->realpath(PHPREF_DIR)));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->realpath(ENTITY_GLOBAL_DIR)));
+		echo Util::indent(shell_exec('svn up ' . $vanitydir->realpath(ENTITY_LANG_DIR)));
 	}
 	echo PHP_EOL;
 }

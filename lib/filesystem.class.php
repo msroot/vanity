@@ -140,7 +140,10 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	public function path($file)
 	{
 		$path = $this->directory . $file;
+		// "/a/b\c"
 		$path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+		// "/a/./b/c"
+		$path = str_replace(DIRECTORY_SEPARATOR . '.' . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
 		return $path;
 	}
 

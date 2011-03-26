@@ -127,7 +127,6 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 	 */
 	public function exists($file)
 	{
-		echo "Checking if $file exists";
 		try
 		{
 			$this->realpath($file);
@@ -183,7 +182,6 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 				}
 			}
 		}
-		echo $path . DIRECTORY_SEPARATOR . "\n";
 		return rmdir($path);
 	}
 
@@ -199,7 +197,6 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		{
 			throw new Exception(sprintf('%s is a directory, not a file', $file));
 		}
-		echo $path . "\n";
 		return unlink($path);
 	}
 

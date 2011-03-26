@@ -179,7 +179,7 @@ if (isset($OPTIONS['template']))
 {
 	if (strpos($OPTIONS['template'], '/') !== 0)
 	{
-		$OPTIONS['template'] = Util::normalize_path(VANITY_DIR . 'templates/' . $OPTIONS['template']);
+		$OPTIONS['template'] = $vanitydir->realpath('templates/' . $OPTIONS['template']);
 	}
 }
 

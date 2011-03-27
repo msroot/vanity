@@ -293,7 +293,7 @@ class Template extends Generator
 		self::end(HTML_DIR . 'index.html', $outputdir);
 
 		$path = HTML_DIR . 'index.html';
-		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
+		if ($outputdir->exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
 		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
 		echo PHP_EOL;
 
@@ -331,11 +331,11 @@ class Template extends Generator
 		echo 'GENERATING SEARCH AND BROWSE TREE INDEXES' . PHP_EOL;
 
 		$path = HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'tree.js';
-		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
+		if ($outputdir->exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
 		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
 
 		$path = HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'search_index.js';
-		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
+		if ($outputdir->exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
 		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
 
 		echo PHP_EOL;

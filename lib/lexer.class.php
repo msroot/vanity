@@ -19,8 +19,9 @@ class Vanity_Lexer
 	private $groups;
 	private $seealso;
 	private $changelog;
+	private $configdir;
 
-	public function __construct()
+	public function __construct(&$configdir)
 	{
 		$this->linkmap = $GLOBALS['LINKMAP'];
 		$this->options = $GLOBALS['OPTIONS'];
@@ -30,6 +31,7 @@ class Vanity_Lexer
 		$this->groups = Util::parse_groups();
 		$this->seealso = array();
 		$this->changelog = array();
+		$this->configdir = $configdir;
 
 		$this->collect_file_contents();
 		$this->collect_see_also();
@@ -53,10 +55,9 @@ class Vanity_Lexer
 
 	public function collect_see_also()
 	{
-		global $configdir;
-		if ($configdir->exists('seealso.yml'))
+		if ($this->configdir->exists('seealso.yml'))
 		{
-			$see_also = spyc_load($configdir->get_contents('seealso.yml'));
+			$see_also = spyc_load($this->configdir->get_contents('seealso.yml'));
 
 			foreach ($see_also as $class => $methods)
 			{
@@ -75,10 +76,9 @@ class Vanity_Lexer
 
 	public function collect_changelog()
 	{
-		global $configdir;
-		if ($configdir->exists('changelog.yml'))
+		if ($this->configdir->exists('changelog.yml'))
 		{
-			$changelog = spyc_load($configdir->get_contents('changelog.yml'));
+			$changelog = spyc_load($this->configdir->get_contents('changelog.yml'));
 
 			foreach ($changelog as $class => $methods)
 			{

@@ -200,8 +200,7 @@ class Generator
 					}
 				}
 
-				$cmd = 'cp -Rf ' . TEMPLATE_DIR . $file . ' ' . HTML_DIR . $subsequent_path;
-				echo TAB . $cmd . PHP_EOL;
+				echo TAB . 'Copied ' . $file . PHP_EOL;
 				$outputdir->copy(TEMPLATE_DIR . $file, HTML_DIR);
 				//shell_exec($cmd);
 			}

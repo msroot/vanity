@@ -54,11 +54,10 @@ class Generator
 	 */
 	public static function end($fname = null, &$outputdir = null)
 	{
-		/*if (!is_writable(dirname($fname)))
+		if (!$outputdir->exists(dirname($fname)))
 		{
-			@mkdir(dirname($fname), 0777, true);
-			@chmod(dirname($fname), 0777);
-		}*/
+			$outputdir->mkdir(dirname($fname), true);
+		}
 
 		$contents = ob_get_contents();
 		ob_end_clean();

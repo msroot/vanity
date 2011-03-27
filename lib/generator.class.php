@@ -54,7 +54,7 @@ class Generator
 	 */
 	public static function end($fname = null, &$outputdir = null)
 	{
-		if (!$outputdir->exists(dirname($fname)))
+		if ($fname !== null && !$outputdir->exists(dirname($fname)))
 		{
 			$outputdir->mkdir(dirname($fname), true);
 		}

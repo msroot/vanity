@@ -207,7 +207,7 @@ class Generator
 				}
 				else
 				{
-					$outputdir->copy(TEMPLATEDIR . $file, HTML_DIR . DIRECTORY_SEPARATOR . $file);
+					$outputdir->copy(TEMPLATE_DIR . $file, HTML_DIR . DIRECTORY_SEPARATOR . $file);
 				}
 				//shell_exec($cmd);
 			}

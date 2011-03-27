@@ -460,7 +460,7 @@ $files = $outputdir->glob('xml' . DIRECTORY_SEPARATOR . '*.xml');
 foreach ($files as $file)
 {
 	$file = $outputdir->realpath($file);
-	$template = new Template($file);
+	$template = new Template($file, $vanitydir, $outputdir);
 }
 $generated = Util::rglob(OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . '**.html');
 echo TAB . 'Generated ' . count($generated) . ' files.' . PHP_EOL;

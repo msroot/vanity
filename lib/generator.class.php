@@ -14,13 +14,14 @@ class Generator
 	 *
 	 * @return void
 	 */
-	public function __construct($datafile, &$vanitydir)
+	public function __construct($datafile, &$vanitydir, &$outputdir)
 	{
 		$this->data = simplexml_load_file($datafile, 'Vanity_Template_XML', LIBXML_NOCDATA);
 		$this->classname = (string) $this->data->class->name;
 		$this->template = new stdClass();
 		$this->partials = self::fetch_all_partials();
 		$this->vanitydir = $vanitydir;
+		$this->outputdir = $outputdir;
 		$this->linkmap = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap'));
 		$this->options = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
 		$this->storage = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
@@ -64,7 +65,7 @@ class Generator
 
 		if ($fname)
 		{
-			$this->vanitydir->put_contents($fname, Util::strip_whitespace($contents));
+			$this->outputdir->put_contents($fname, Util::strip_whitespace($contents));
 		}
 
 		return $contents;

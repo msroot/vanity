@@ -14,9 +14,9 @@ class Template extends Generator
 	 * @param string $datafile (Required) The file path to the XML definition of the class.
 	 * @return void
 	 */
-	public function __construct($datafile, &$vanitydir)
+	public function __construct($datafile, &$vanitydir, &$outputdir)
 	{
-		parent::__construct($datafile, $vanitydir);
+		parent::__construct($datafile, $vanitydir, $outputdir);
 
 		/**
 		 * Custom code needed by this template. Used for building class browser

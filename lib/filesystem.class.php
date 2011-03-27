@@ -328,7 +328,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		$local = realpath($localpath);
 		if ($local === false)
 		{
-			throw new Exception(sprintf('%s does not exist'), $localpath);
+			throw new Exception(sprintf('%s does not exist', $localpath));
 		}
 		if (is_dir($local))
 		{

@@ -14,9 +14,9 @@ class Template extends Generator
 	 * @param string $datafile (Required) The file path to the XML definition of the class.
 	 * @return void
 	 */
-	public function __construct($datafile)
+	public function __construct($datafile, &$vanitydir)
 	{
-		parent::__construct($datafile);
+		parent::__construct($datafile, $vanitydir);
 
 		/**
 		 * Custom code needed by this template. Used for building class browser
@@ -203,7 +203,7 @@ class Template extends Generator
 			$this->storage['tree'][] = $tree_node;
 		}
 
-		file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
+		$this->vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
 	}
 
 	/**
@@ -272,7 +272,7 @@ class Template extends Generator
 			);
 		}
 
-		file_put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
+		$this->vanitydir->contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
 	}
 
 	/**
@@ -283,8 +283,8 @@ class Template extends Generator
 	 */
 	public static function fire_last()
 	{
-		$OPTIONS = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
-		$STORAGE = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		$OPTIONS = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
+		$STORAGE = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
 
 		// Generate frame
 		echo 'GENERATING FRAMESET' . PHP_EOL;

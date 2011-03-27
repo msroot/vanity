@@ -14,16 +14,16 @@ class Generator
 	 *
 	 * @return void
 	 */
-	public function __construct($datafile)
+	public function __construct($datafile, &$vanitydir)
 	{
-		global $vanitydir;
 		$this->data = simplexml_load_file($datafile, 'Vanity_Template_XML', LIBXML_NOCDATA);
 		$this->classname = (string) $this->data->class->name;
 		$this->template = new stdClass();
 		$this->partials = self::fetch_all_partials();
-		$this->linkmap = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap'));
-		$this->options = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
-		$this->storage = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		$this->vanitydir = $vanitydir;
+		$this->linkmap = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.linkmap'));
+		$this->options = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
+		$this->storage = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
 
 		// Default values
 		$this->template->type = 'Class';
@@ -53,18 +53,18 @@ class Generator
 	 */
 	public static function end($fname = null)
 	{
-		if (!is_writable(dirname($fname)))
+		/*if (!is_writable(dirname($fname)))
 		{
 			@mkdir(dirname($fname), 0777, true);
 			@chmod(dirname($fname), 0777);
-		}
+		}*/
 
 		$contents = ob_get_contents();
 		ob_end_clean();
 
 		if ($fname)
 		{
-			file_put_contents($fname, Util::strip_whitespace($contents));
+			$this->vanitydir->put_contents($fname, Util::strip_whitespace($contents));
 		}
 
 		return $contents;
@@ -183,10 +183,10 @@ class Generator
 	 */
 	public static function copy()
 	{
-		global $configdir, $vanitydir;
-		if ($vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
+		global $configdir;
+		if ($this->vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
 		{
-			$files = spyc_load($vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
+			$files = spyc_load($this->vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';

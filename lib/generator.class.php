@@ -209,15 +209,13 @@ class Generator
 				{
 					$outputdir->copy(TEMPLATE_DIR . $file, HTML_DIR . DIRECTORY_SEPARATOR . $file);
 				}
-				//shell_exec($cmd);
 			}
 		}
 
 		foreach (array('xml', 'json', 'php') as $type)
 		{
-			$cmd = 'cp -Rf ' . OUTPUT_DIR . $type . ' ' . HTML_DIR;
-			echo TAB . $cmd . PHP_EOL;
-			//shell_exec($cmd);
+			echo TAB . 'Copied ' . $type . PHP_EOL;
+			$outputdir->localcopy($type, HTML_DIR);
 		}
 	}
 

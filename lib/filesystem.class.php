@@ -111,6 +111,14 @@ interface Vanity_Filesystem
 	 * @param string $file New path
 	 */
 	public function copy($localpath, $file);
+
+	/**
+	 * Copy a file from one part of the filesystem to another
+	 *
+	 * @param string $from Path to copy from, relative to {@see $directory}
+	 * @param string $to Path to copy to, relative to {@see $directory}
+	 */
+	public function localcopy($from, $to)
 }
 
 class Vanity_Filesystem_Direct implements Vanity_Filesystem
@@ -355,5 +363,16 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		{
 			copy($local, $this->path($file));
 		}
+	}
+
+	/**
+	 * Copy a file from one part of the filesystem to another
+	 *
+	 * @param string $from Path to copy from, relative to {@see $directory}
+	 * @param string $to Path to copy to, relative to {@see $directory}
+	 */
+	public function localcopy($from, $to)
+	{
+		$this->copy($this->realpath($from), $to);
 	}
 }

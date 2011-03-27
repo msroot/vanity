@@ -353,7 +353,7 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		}
 		else
 		{
-			copy($local, $file . DIRECTORY_SEPARATOR . basename($file));
+			copy($local, $this->path($file . DIRECTORY_SEPARATOR . basename($file)));
 		}
 	}
 }

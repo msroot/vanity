@@ -523,7 +523,7 @@ echo PHP_EOL;
 // COPY STATIC FILES
 
 echo "COPYING STATIC FILES TO OUTPUT DIRECTORY" . PHP_EOL;
-Template::copy($vanitydir, $configdir);
+Template::copy($outputdir);
 echo PHP_EOL;
 
 

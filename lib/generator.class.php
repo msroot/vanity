@@ -181,11 +181,11 @@ class Generator
 	 *
 	 * @return void
 	 */
-	public static function copy(&$vanitydir, &$configdir)
+	public static function copy(&$outputdir)
 	{
-		if ($vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
+		if (file_exists(TEMPLATE_DIR . 'copy.yml'))
 		{
-			$files = spyc_load($vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
+			$files = spyc_load_file(TEMPLATE_DIR . 'copy.yml');
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';

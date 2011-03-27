@@ -101,6 +101,16 @@ interface Vanity_Filesystem
 	 * @return string Data from file
 	 */
 	public function put_contents($file, $contents);
+
+	/**
+	 * Copy files/directory from local path
+	 *
+	 * Copies a file, or a directory recursively, from a local path
+	 * (i.e. the templates directory) to the filesystem
+	 * @param string $localpath Local path to copy from
+	 * @param string $file New path
+	 */
+	public function copy($localpath, $file);
 }
 
 class Vanity_Filesystem_Direct implements Vanity_Filesystem
@@ -303,5 +313,43 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 			throw new Exception(sprintf('%s is a directory, not a file', $file));
 		}
 		return file_put_contents($path, $contents);
+	}
+
+	/**
+	 * Copy files/directory from local path
+	 *
+	 * Copies a file, or a directory recursively, from a local path
+	 * (i.e. the templates directory) to the filesystem
+	 * @param string $localpath Local path to copy from
+	 * @param string $file New path
+	 */
+	public function copy($localpath, $file)
+	{
+		$local = realpath($localpath);
+		if ($local === false)
+		{
+			throw new Exception(sprintf('%s does not exist'), $localpath);
+		}
+		if (is_dir($local))
+		{
+			$newdir = $file . DIRECTORY_SEPARATOR . basename($local);
+			if (!$this->exists($newdir))
+			{
+				$this->mkdir($newdir, true);
+			}
+			$files = glob($local . DIRECTORY_SEPARATOR . '*');
+			foreach ($files as $old)
+			{
+				if (is_dir($old))
+				{
+					$this->copy($old, $file . DIRECTORY_SEPARATOR . basename(dirname($old)));
+				}
+				else
+				{
+					$newfile = $newdir . DIRECTORY_SEPARATOR . basename($old);
+					copy($old, $this->path($newfile));
+				}
+			}
+		}
 	}
 }

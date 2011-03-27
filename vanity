@@ -519,7 +519,7 @@ echo PHP_EOL;
 // COPY STATIC FILES
 
 echo "COPYING STATIC FILES TO OUTPUT DIRECTORY" . PHP_EOL;
-Template::copy();
+Template::copy($vanitydir, $configdir);
 echo PHP_EOL;
 
 
@@ -538,7 +538,7 @@ echo PHP_EOL;
 /********************************************************/
 // FIRE ANY LAST FUNCTIONALITY DEFINED BY THE TEMPLATE.
 
-Template::fire_last();
+Template::fire_last($vanitydir, $outputdir);
 
 
 /********************************************************/

@@ -52,7 +52,7 @@ class Generator
 	 * @param string $fname (Optional) The file path to write the contents of the buffer to.
 	 * @return void
 	 */
-	public static function end($fname = null)
+	public static function end($fname = null, &$outputdir = null)
 	{
 		/*if (!is_writable(dirname($fname)))
 		{
@@ -65,7 +65,7 @@ class Generator
 
 		if ($fname)
 		{
-			$this->outputdir->put_contents($fname, Util::strip_whitespace($contents));
+			$outputdir->put_contents($fname, Util::strip_whitespace($contents));
 		}
 
 		return $contents;
@@ -102,7 +102,7 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html');
+		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html', $this->outputdir);
 
 		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html');
 	}
@@ -123,7 +123,7 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/constants.html');
+		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/constants.html', $this->outputdir);
 
 		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/constants.html');
 	}
@@ -144,7 +144,7 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/properties.html');
+		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/properties.html', $this->outputdir);
 
 		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/properties.html');
 	}
@@ -168,7 +168,7 @@ class Generator
 
 			self::start();
 			include TEMPLATE_DIR . 'layout.phtml';
-			self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/' . strtolower((string) $method->name) . '.html');
+			self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/' . strtolower((string) $method->name) . '.html', $this->outputdir);
 
 			$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/' . strtolower((string) $method->name) . '.html');
 		}
@@ -182,12 +182,11 @@ class Generator
 	 *
 	 * @return void
 	 */
-	public static function copy()
+	public static function copy(&$vanitydir, &$configdir)
 	{
-		global $configdir;
-		if ($this->vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
+		if ($vanitydir->exists(TEMPLATE_DIR . 'copy.yml'))
 		{
-			$files = spyc_load($this->vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
+			$files = spyc_load($vanitydir->get_contents(TEMPLATE_DIR . 'copy.yml'));
 			foreach ($files as $file)
 			{
 				$subsequent_path = '';
@@ -280,7 +279,7 @@ class Generator
 
 			self::start();
 			include TEMPLATE_DIR . 'layout.phtml';
-			self::end(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included' . DIRECTORY_SEPARATOR . strtolower($filename) . '.html');
+			self::end(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included' . DIRECTORY_SEPARATOR . strtolower($filename) . '.html', $this->outputdir);
 
 			$this->output_success(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included' . DIRECTORY_SEPARATOR . strtolower($filename) . '.html');
 		}
@@ -351,5 +350,5 @@ class Generator
 	 * Extend this method for anything you want Vanity to run once as a
 	 * final pass after the other pages are generated.
 	 */
-	public static function fire_last() {}
+	public static function (&$vanitydir, &$outputdir) {}
 }

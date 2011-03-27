@@ -100,7 +100,7 @@ class Template extends Generator
 	// 	 */
 	// 	self::start();
 	// 	include TEMPLATE_DIR . 'layout.phtml';
-	// 	self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html');
+	// 	self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html', $this->outputdir);
 	//
 	// 	/*
 	// 	 * If the file was successfully created, output the message to the console.
@@ -281,16 +281,16 @@ class Template extends Generator
 	 *
 	 * @return void
 	 */
-	public static function fire_last()
+	public static function fire_last(&$vanitydir, &$outputdir)
 	{
-		$OPTIONS = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
-		$STORAGE = unserialize($this->vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		$OPTIONS = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
+		$STORAGE = unserialize($vanitydir->get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
 
 		// Generate frame
 		echo 'GENERATING FRAMESET' . PHP_EOL;
 		self::start();
 		include TEMPLATE_DIR . 'index.phtml';
-		self::end(HTML_DIR . 'index.html');
+		self::end(HTML_DIR . 'index.html', $outputdir);
 
 		$path = HTML_DIR . 'index.html';
 		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
@@ -322,11 +322,11 @@ class Template extends Generator
 		// Generate search and browse tree indexes
 		self::start();
 		echo 'var tree = ' . json_encode($STORAGE['tree']);
-		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'tree.js');
+		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'tree.js', $outputdir);
 
 		self::start();
 		echo 'var search_data = ' . json_encode($STORAGE['search_index']);
-		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'search_index.js');
+		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'search_index.js', $outputdir);
 
 		echo 'GENERATING SEARCH AND BROWSE TREE INDEXES' . PHP_EOL;
 

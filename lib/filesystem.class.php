@@ -115,15 +115,8 @@ class Vanity_Filesystem_Direct implements Vanity_Filesystem
 		$this->directory = realpath($directory);
 		if ($this->directory === false)
 		{
-			if ($create === true)
-			{
-				mkdir($directory, 0755, $parents);
-				$this->directory = realpath($directory);
-			}
-			else
-			{
-				throw new Exception(sprintf('Directory %s does not exist', $directory));
-			}
+			// Directory doesn't exist yet
+			$this->directory = $directory;
 		}
 		$this->directory .= DIRECTORY_SEPARATOR;
 	}

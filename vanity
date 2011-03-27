@@ -128,14 +128,12 @@ $OPTIONS = $default_options = array(
 // Filesystem objects
 $vanitydir = new Vanity_Filesystem_Direct(VANITY_DIR);
 
-try
-{
-	$configdir = new Vanity_Filesystem_Direct(CONFIG_DIR);
-}
-catch (Exception $e)
+$configdir = new Vanity_Filesystem_Direct(CONFIG_DIR);
+
+if (!$configdir->exists('/'))
 {
 	// Create CONFIG_DIR if it doesn't exist.
-	$configdir = new Vanity_Filesystem_Direct(CONFIG_DIR, true, true);
+	$configdir->mkdir('/');
 	$configdir->put_contents(
 		'README.txt',
 		'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.'

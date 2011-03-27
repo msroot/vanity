@@ -269,7 +269,7 @@ if (!$outputdir->exists('/'))
 define('HTML_DIR', 'html' . DIRECTORY_SEPARATOR);
 if (!$outputdir->exists(HTML_DIR))
 {
-	$output->mkdir(HTML_DIR, true);
+	$outputdir->mkdir(HTML_DIR, true);
 }
 
 echo TAB . 'OUTPUT_DIR:        ' . $outputdir->realpath('/') . PHP_EOL;

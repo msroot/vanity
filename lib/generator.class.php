@@ -293,7 +293,7 @@ class Generator
 	 */
 	public function output_success($path)
 	{
-		if (file_exists($path))
+		if ($this->outputdir->exists($path))
 		{
 			echo TAB . 'Created ' . $path . PHP_EOL;
 		}

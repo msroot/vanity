@@ -118,7 +118,7 @@ interface Vanity_Filesystem
 	 * @param string $from Path to copy from, relative to {@see $directory}
 	 * @param string $to Path to copy to, relative to {@see $directory}
 	 */
-	public function localcopy($from, $to)
+	public function localcopy($from, $to);
 }
 
 class Vanity_Filesystem_Direct implements Vanity_Filesystem

@@ -354,7 +354,7 @@ $files = Util::rglob($OPTIONS['match']);
 echo "FILE MATCHES" . PHP_EOL;
 foreach ($files as $file)
 {
-	if (strpos($file, '_vanity') !== false || strpos($file, $outputdir->realpath('/') !== false)
+	if (strpos($file, '_vanity') !== false || strpos($file, $outputdir->realpath('/')) !== false)
 	{
 		continue;
 	}

@@ -354,11 +354,11 @@ $files = Util::rglob($OPTIONS['match']);
 echo "FILE MATCHES" . PHP_EOL;
 foreach ($files as $file)
 {
+	$file = getcwd() . '/' . $file;
 	if (strpos($file, '_vanity') !== false || strpos($file, $outputdir->realpath('/')) !== false)
 	{
 		continue;
 	}
-	$file = getcwd() . '/' . $file;
 	echo TAB . $file . PHP_EOL;
 	include_once $file;
 }

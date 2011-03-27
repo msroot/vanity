@@ -272,7 +272,7 @@ class Template extends Generator
 			);
 		}
 
-		$this->vanitydir->contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
+		$this->vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', serialize($this->storage));
 	}
 
 	/**

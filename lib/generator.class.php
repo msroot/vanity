@@ -350,5 +350,5 @@ class Generator
 	 * Extend this method for anything you want Vanity to run once as a
 	 * final pass after the other pages are generated.
 	 */
-	public static function (&$vanitydir, &$outputdir) {}
+	public static function fire_last(&$vanitydir, &$outputdir) {}
 }

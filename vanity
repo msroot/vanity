@@ -512,7 +512,7 @@ if (!$outputdir->exists('php/'))
 {
 	$outputdir->mkdir('php', true);
 }
-$manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
+$manifest = 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
 $outputdir->put_contents($manifest, serialize($php));
 echo TAB . $manifest . PHP_EOL;
 

@@ -201,7 +201,14 @@ class Generator
 				}
 
 				echo TAB . 'Copied ' . $file . PHP_EOL;
-				$outputdir->copy(TEMPLATE_DIR . $file, HTML_DIR);
+				if (is_dir(TEMPLATE_DIR . $file))
+				{
+					$outputdir->copy(TEMPLATE_DIR . $file, HTML_DIR);
+				}
+				else
+				{
+					$outputdir->copy(TEMPLATEDIR . $file, HTML_DIR . DIRECTORY_SEPARATOR . $file);
+				}
 				//shell_exec($cmd);
 			}
 		}

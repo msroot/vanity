@@ -195,9 +195,9 @@ class Generator
 					$subsequent_path = explode(DIRECTORY_SEPARATOR, $file);
 					array_pop($subsequent_path);
 					$subsequent_path = implode(DIRECTORY_SEPARATOR, $subsequent_path) . DIRECTORY_SEPARATOR;
-					if (!$configdir->exists(HTML_DIR . $subsequent_path))
+					if (!$outputdir->exists(HTML_DIR . $subsequent_path))
 					{
-						$configdir->mkdir(HTML_DIR . $subsequent_path, true);
+						$outputdir->mkdir(HTML_DIR . $subsequent_path, true);
 					}
 				}
 

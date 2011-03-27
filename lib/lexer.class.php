@@ -103,7 +103,7 @@ class Vanity_Lexer
 		}
 	}
 
-	public function parse_class($class_name, $dir_output)
+	public function parse_class($class_name, $outputdir)
 	{
 		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://vanitydoc.org"></vanity>', 'Vanity_SimpleXMLExtended', LIBXML_NOCDATA);
 
@@ -1148,40 +1148,38 @@ class Vanity_Lexer
 
 		/*****************************************************************************************/
 
-		global $configdir;
-
 		// Write XML output
 		$xml_output = $xml->asXML();
-		$xml_write_path = $dir_output . 'xml' . DIRECTORY_SEPARATOR;
-		if (!$configdir->exists($xml_write_path))
+		$xml_write_path = 'xml' . DIRECTORY_SEPARATOR;
+		if (!$outputdir->exists($xml_write_path))
 		{
-			$configdir->mkdir($xml_write_path, true);
+			$outputdir->mkdir($xml_write_path, true);
 		}
 
 		// Write JSON output
 		$json_output = json_encode(new SimpleXMLElement($xml->asXML(), LIBXML_NOCDATA));
-		$json_write_path = $dir_output . 'json' . DIRECTORY_SEPARATOR;
-		if (!$configdir->exists($json_write_path))
+		$json_write_path = 'json' . DIRECTORY_SEPARATOR;
+		if (!$outputdir->exists($json_write_path))
 		{
-			$configdir->mkdir($json_write_path, true);
+			$outputdir->mkdir($json_write_path, true);
 		}
 
 		// Write Serialized PHP output
 		$sphp_output = serialize(json_decode($json_output, true));
-		$sphp_write_path = $dir_output . 'php' . DIRECTORY_SEPARATOR;
-		if (!$configdir->exists($sphp_write_path))
+		$sphp_write_path = 'php' . DIRECTORY_SEPARATOR;
+		if (!$outputdir->exists($sphp_write_path))
 		{
-			$configdir->mkdir($sphp_write_path, true);
+			$outputdir->mkdir($sphp_write_path, true);
 		}
 
 		$xml_path = $xml_write_path . $class_name . '.xml';
-		$xml_success = $configdir->put_contents($xml_path, (string) $xml_output);
+		$xml_success = $outputdir->put_contents($xml_path, (string) $xml_output);
 
 		$json_path = $json_write_path . $class_name . '.js';
-		$json_success = $configdir->put_contents($json_path, (string) $json_output);
+		$json_success = $outputdir->put_contents($json_path, (string) $json_output);
 
 		$sphp_path = $sphp_write_path . $class_name . '.php';
-		$sphp_success = $configdir->put_contents($sphp_path, (string) $sphp_output);
+		$sphp_success = $outputdir->put_contents($sphp_path, (string) $sphp_output);
 
 		if ($xml_success) echo TAB . 'Created ' . $xml_path . PHP_EOL;
 		else echo TAB . 'Failed to write ' . $xml_path . PHP_EOL;

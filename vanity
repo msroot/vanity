@@ -259,19 +259,21 @@ echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
 
 // Output
 define('OUTPUT_DIR', $OPTIONS['output'] . DIRECTORY_SEPARATOR);
-if (!$configdir->exists(OUTPUT_DIR))
+
+$outputdir = new Vanity_Filesystem_Direct($OPTIONS['output']);
+if (!$outputdir->exists('/'))
 {
-	$configdir->mkdir(OUTPUT_DIR, true);
+	$outputdir->mkdir('/', true);
 }
 
-define('HTML_DIR', OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR);
-if (!$configdir->exists(HTML_DIR))
+define('HTML_DIR', 'html' . DIRECTORY_SEPARATOR);
+if (!$outputdir->exists(HTML_DIR))
 {
-	$configdir->mkdir(HTML_DIR, true);
+	$output->mkdir(HTML_DIR, true);
 }
 
-echo TAB . 'OUTPUT_DIR:        ' . $configdir->realpath(OUTPUT_DIR) . PHP_EOL;
-echo TAB . 'HTML_DIR:          ' . $configdir->realpath(HTML_DIR) . PHP_EOL;
+echo TAB . 'OUTPUT_DIR:        ' . $outputdir->realpath('/') . PHP_EOL;
+echo TAB . 'HTML_DIR:          ' . $outputdir->realpath(HTML_DIR) . PHP_EOL;
 
 // README
 
@@ -401,7 +403,7 @@ echo PHP_EOL;
 // REMOVING OLD OUTPUT DIRECTORY
 
 echo "REMOVING OLD OUTPUT DIRECTORY" . PHP_EOL;
-$configdir->rmdir(OUTPUT_DIR, true);
+$outputdir->rmdir('/', true);
 echo PHP_EOL;
 
 
@@ -424,10 +426,10 @@ echo PHP_EOL;
 // RUN THE LEXER
 
 echo "RUNNING THE LEXER" . PHP_EOL;
-$lexer = new Vanity_Lexer();
+$lexer = new Vanity_Lexer($configdir);
 foreach ($parse_me as $class)
 {
-	$lexer->parse_class($class, OUTPUT_DIR);
+	$lexer->parse_class($class, $outputdir);
 }
 echo PHP_EOL;
 
@@ -443,7 +445,7 @@ $vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', seria
 } else {
 	echo 'SKIPPING THE LEXER' . PHP_EOL . TAB . 'Skipped.' . PHP_EOL . PHP_EOL;
 	echo "REMOVING OLD HTML OUTPUT DIRECTORY" . PHP_EOL;
-	$configdir->rmdir(HTML_DIR, true);
+	$outputdir->rmdir(HTML_DIR, true);
 	echo PHP_EOL;
 }
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -454,10 +456,10 @@ $vanitydir->put_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage', seria
 
 echo "RUNNING THE GENERATOR" . PHP_EOL;
 include TEMPLATE_DIR . 'template_definition.php';
-$files = $configdir->glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
+$files = $outputdir->glob('xml' . DIRECTORY_SEPARATOR . '*.xml');
 foreach ($files as $file)
 {
-	$file = $configdir->realpath($file);
+	$file = $outputdir->realpath($file);
 	$template = new Template($file);
 }
 $generated = Util::rglob(OUTPUT_DIR . 'html' . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . '**.html');
@@ -472,42 +474,42 @@ echo "GENERATING MANIFEST FILES" . PHP_EOL;
 
 // XML
 $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><manifest xmlns="http://vanitydoc.org"></manifest>', 'Vanity_SimpleXMLExtended', LIBXML_NOCDATA);
-$files = $configdir->glob(OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . '*.xml');
+$files = $outputdir->glob('xml' . DIRECTORY_SEPARATOR . '*.xml');
 $xfiles = $xml->addChild('files');
 foreach ($files as $file) { $xfiles->addChild('file', pathinfo($file, PATHINFO_BASENAME)); }
 
-if (!$configdir->exists(OUTPUT_DIR . 'xml'))
+if (!$outputdir->exists('xml/'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'xml', true);
+	$outputdir->mkdir('xml', true);
 }
-$manifest = OUTPUT_DIR . 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
-$configdir->put_contents($manifest, $xml->asXML());
+$manifest = 'xml' . DIRECTORY_SEPARATOR . 'manifest.xml';
+$outputdir->put_contents($manifest, $xml->asXML());
 echo TAB . $manifest . PHP_EOL;
 
 // JSON
 $json = array('file' => array());
-$files = $configdir->glob(OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . '*.js');
+$files = $outputdir->glob('json' . DIRECTORY_SEPARATOR . '*.js');
 foreach ($files as $file) { $json['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 
-if (!$configdir->exists(OUTPUT_DIR . 'json'))
+if (!$outputdir->exists('json/'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'json', true);
+	$outputdir->mkdir('json', true);
 }
-$manifest = OUTPUT_DIR . 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
-$configdir->put_contents($manifest, json_encode($json));
+$manifest = 'json' . DIRECTORY_SEPARATOR . 'manifest.js';
+$outputdir->put_contents($manifest, json_encode($json));
 echo TAB . $manifest . PHP_EOL;
 
 // Serialized PHP
 $php = array('file' => array());
-$files = $configdir->glob(OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . '*.php');
+$files = $outputdir->glob('php' . DIRECTORY_SEPARATOR . '*.php');
 foreach ($files as $file) { $php['file'][] = pathinfo($file, PATHINFO_BASENAME); }
 
-if (!$configdir->exists(OUTPUT_DIR . 'php'))
+if (!$outputdir->exists('php/'))
 {
-	$configdir->mkdir(OUTPUT_DIR . 'php', true);
+	$outputdir->mkdir('php', true);
 }
 $manifest = OUTPUT_DIR . 'php' . DIRECTORY_SEPARATOR . 'manifest.php';
-$configdir->put_contents($manifest, serialize($php));
+$outputdir->put_contents($manifest, serialize($php));
 echo TAB . $manifest . PHP_EOL;
 
 echo PHP_EOL;
@@ -525,9 +527,9 @@ echo PHP_EOL;
 // COPYING DOCUMENTATION FILES FROM PROJECT
 
 echo "COPYING DOCUMENTATION FILES FROM PROJECT" . PHP_EOL;
-if (!$configdir->exists(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included'))
+if (!$outputdir->exists(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included'))
 {
-	$configdir->mkdir(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included', true);
+	$outputdir->mkdir(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included', true);
 }
 $template->files();
 echo PHP_EOL;

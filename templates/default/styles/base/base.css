@@ -95,9 +95,14 @@ ol li {
 
 code, tt {
 	font: 0.95em/1.3em Monaco, monospace;
-	color: #333;
-	padding: 0 2px;
+	background-color: #F0F0F0;
+	border: 1px solid #CCCCCC;
+	padding: 0 3px;
 	white-space: nowrap;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
 }
 
 a code {

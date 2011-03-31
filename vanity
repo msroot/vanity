@@ -36,6 +36,7 @@ include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
 include 'lib/example.class.php';
 include 'lib/examplify.class.php';
 include 'lib/generator.class.php';
+include 'lib/html-compressor.php';
 include 'lib/lexer.class.php';
 include 'lib/linkmap.class.php';
 include 'lib/markdown.php';
@@ -120,7 +121,7 @@ $OPTIONS = $default_options = array(
 	'match' => '*.php',
 	'output' => './output',
 	'readme' => 'README.md',
-	'template' => 'sdoc2',
+	'template' => 'default',
 	'product-name' => 'Documentation',
 );
 

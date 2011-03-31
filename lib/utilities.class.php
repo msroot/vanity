@@ -674,7 +674,7 @@ class Util
 	 */
 	public static function strip_whitespace($buffer)
 	{
-		// @todo: Strip whitespace from HTML while respecting <pre> tags.
+		// return HTMLCompressor::compress($buffer);
 		return $buffer;
 	}
 }

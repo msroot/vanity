@@ -50,7 +50,7 @@ class Generator
 	 * @param string $fname (Optional) The file path to write the contents of the buffer to.
 	 * @return void
 	 */
-	public static function end($fname = null)
+	public static function end($fname = null, $compress = true)
 	{
 		if (!is_writable(dirname($fname)))
 		{
@@ -61,9 +61,13 @@ class Generator
 		$contents = ob_get_contents();
 		ob_end_clean();
 
-		if ($fname)
+		if ($fname && $compress)
 		{
 			file_put_contents($fname, Util::strip_whitespace($contents));
+		}
+		elseif ($fname)
+		{
+			file_put_contents($fname, $contents);
 		}
 
 		return $contents;

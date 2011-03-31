@@ -322,11 +322,11 @@ class Template extends Generator
 		// Generate search and browse tree indexes
 		self::start();
 		echo 'var tree = ' . json_encode($STORAGE['tree']);
-		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'tree.js');
+		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'tree.js', false);
 
 		self::start();
 		echo 'var search_data = ' . json_encode($STORAGE['search_index']);
-		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'search_index.js');
+		self::end(HTML_DIR . 'panel' . DIRECTORY_SEPARATOR . 'search_index.js', false);
 
 		echo 'GENERATING SEARCH AND BROWSE TREE INDEXES' . PHP_EOL;
 

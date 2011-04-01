@@ -218,7 +218,7 @@ class Template extends Generator
 			(string) $this->data->class->name, // Class name
 			'',
 			// 'class/' . strtolower((string) $this->data->class->name) . '/index.html', // File location
-			'#i=' . (string) $this->data->class->name, // File location
+			'#i=' . str_replace('\\', '/', (string) $this->data->class->name), // File location
 			'', // After the name
 			strip_tags((string) $this->data->class->description), // Description
 			1 // ?
@@ -233,7 +233,7 @@ class Template extends Generator
 				(string) $constant->name, // Constant name
 				(string) $this->data->class->name, // Class name
 				// 'class/' . strtolower((string) $this->data->class->name) . '/constants.html#' . (string) $constant->name, // File location
-				'#c=' . (string) $this->data->class->name . '/' . (string) $constant->name, // File location
+				'#c=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $constant->name, // File location
 				'', // After the name
 				'', //(string) $property->description->line, // Description
 				1 // ?
@@ -249,7 +249,7 @@ class Template extends Generator
 				(string) $property->name, // Property name
 				(string) $this->data->class->name, // Class name
 				// 'class/' . strtolower((string) $this->data->class->name) . '/properties.html#' . (string) $property->name, // File location
-				'#p=' . (string) $this->data->class->name . '/' . (string) $property->name, // File location
+				'#p=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $property->name, // File location
 				'', // After the name
 				strip_tags((string) $property->description), // Description
 				1 // ?
@@ -265,7 +265,7 @@ class Template extends Generator
 				(string) $method->name . '()', // Property name
 				(string) $this->data->class->name, // Class name
 				// 'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html', // File location
-				'#m=' . (string) $this->data->class->name . '/' . (string) $method->name, // File location
+				'#m=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $method->name, // File location
 				'', // After the name
 				strip_tags((string) $method->description), // Description
 				1 // ?

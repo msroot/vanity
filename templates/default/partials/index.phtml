@@ -1,5 +1,24 @@
-<div class="description">
+<?php
+$native_methods = array();
+$inherited_methods = array();
 
+if (isset($this->data->class->methods->method))
+{
+	foreach ($this->data->class->methods->method as $method)
+	{
+		if (isset($method->inheritance))
+		{
+			$inherited_methods[] = $method;
+		}
+		else
+		{
+			$native_methods[] = $method;
+		}
+	}
+}
+?>
+
+<div class="description">
 	<table border="0" class="class-reference">
 		<tbody>
 			<tr>
@@ -56,10 +75,27 @@
 		<?php echo (string) $this->data->class->description; ?>
 	</div>
 
-	<?php if (isset($this->data->class->methods->method)): ?>
-	<div class="sectiontitle">Methods (<?php echo (string) $this->data->class->methods->attributes()->count; ?>)</div>
+	<?php if ($count = count($native_methods)): ?>
+	<div class="sectiontitle">Native Methods (<?php echo $count; ?>)</div>
 	<dl class="methods">
-		<?php $method_list = Template::group_by_letter($this->data->class->methods->method, 'name'); ?>
+		<?php $method_list = Template::group_by_letter($native_methods, 'name'); ?>
+		<? foreach ($method_list as $letter => $methods): ?>
+			<dt><?php echo strtoupper($letter) ?></dt>
+			<dd>
+				<ul>
+					<? foreach ($methods as $method): ?>
+					<li><a href="<?php echo $method ?>.html" rel="../../index.html#m=<?php echo (string) $this->data->class->name ?>/<?php echo $method ?>"><?php echo $method; ?></a></li>
+					<? endforeach; ?>
+				</ul>
+			</dd>
+		<? endforeach; ?>
+	</dl>
+	<?php endif; ?>
+
+	<?php if ($count = count($inherited_methods)): ?>
+	<div class="sectiontitle">Inherited Methods (<?php echo $count; ?>)</div>
+	<dl class="methods">
+		<?php $method_list = Template::group_by_letter($inherited_methods, 'name'); ?>
 		<? foreach ($method_list as $letter => $methods): ?>
 			<dt><?php echo strtoupper($letter) ?></dt>
 			<dd>

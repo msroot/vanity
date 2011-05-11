@@ -140,6 +140,18 @@ class Template extends Generator
 	 */
 	public function build_tree()
 	{
+		$native_methods = array();
+		if (isset($this->data->class->methods->method))
+		{
+			foreach ($this->data->class->methods->method as $method)
+			{
+				if (!isset($method->inheritance))
+				{
+					$native_methods[] = $method;
+				}
+			}
+		}
+
 		/*
 		var tree = [
 			["CGI", "", " < Object", [
@@ -162,7 +174,8 @@ class Template extends Generator
 		$tree_node[3][] = array('Constants', '#c=' . (string) $this->data->class->name, '', array());
 		$tree_node[3][] = array('Properties', '#p=' . (string) $this->data->class->name, '', array());
 
-		foreach ($this->data->class->methods->method as $method)
+		// foreach ($this->data->class->methods->method as $method)
+		foreach ($native_methods as $method)
 		{
 			$tree_node[3][] = array(
 				(string) $method->name,
@@ -211,6 +224,18 @@ class Template extends Generator
 	 */
 	public function build_search_index()
 	{
+		$native_methods = array();
+		if (isset($this->data->class->methods->method))
+		{
+			foreach ($this->data->class->methods->method as $method)
+			{
+				if (!isset($method->inheritance))
+				{
+					$native_methods[] = $method;
+				}
+			}
+		}
+
 		// Collect class name
 		$this->storage['search_index']->index->searchIndex[] = strtolower((string) $this->data->class->name);
 		$this->storage['search_index']->index->longSearchIndex[] = '';
@@ -257,7 +282,8 @@ class Template extends Generator
 		}
 
 		// Collect methods
-		foreach ($this->data->class->methods->method as $method)
+		// foreach ($this->data->class->methods->method as $method)
+		foreach ($native_methods as $method)
 		{
 			$this->storage['search_index']->index->searchIndex[] = strtolower((string) $method->name);
 			$this->storage['search_index']->index->longSearchIndex[] = strtolower((string) $this->data->class->name);

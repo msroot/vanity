@@ -396,10 +396,13 @@ class Vanity_Lexer
 						$return_comment = implode("\n", $return_comment);
 					}
 
-					$ptags['return'] = array(
-						'type' => Util::elongate_type((string) $return_type[0]),
-						'description' => $return_comment,
-					);
+					if (is_array($return_type) && isset($return_type[0]))
+					{
+						$ptags['return'] = array(
+							'type' => Util::elongate_type((string) $return_type[0]),
+							'description' => $return_comment,
+						);
+					}
 
 					// Description
 					$paras = $method_xml->xpath('descendant-or-self::refsect1[@role="description"]/para');
@@ -1158,6 +1161,14 @@ class Vanity_Lexer
 		$sphp_output = serialize(json_decode($json_output, true));
 		$sphp_write_path = $dir_output . 'php' . DIRECTORY_SEPARATOR;
 
+		// Handle folders for namespaces.
+		$namespace_path = null;
+		if (strpos($class_name, '\\') !== false)
+		{
+			$namespace_path = explode('\\', $class_name);
+			$class_name = array_pop($namespace_path);
+		}
+
 		if (!is_writable($xml_write_path))
 		{
 			mkdir($xml_write_path, 0777, true);
@@ -1174,6 +1185,35 @@ class Vanity_Lexer
 		{
 			mkdir($sphp_write_path, 0777, true);
 			chmod($sphp_write_path, 0777);
+		}
+
+		// Generate more namespace directories.
+		if ($namespace_path && is_array($namespace_path))
+		{
+			foreach ($namespace_path as $namespace)
+			{
+				$xml_write_path .= $namespace . DIRECTORY_SEPARATOR;
+				$json_write_path .= $namespace . DIRECTORY_SEPARATOR;
+				$sphp_write_path .= $namespace . DIRECTORY_SEPARATOR;
+
+				if (!is_writable($xml_write_path))
+				{
+					mkdir($xml_write_path, 0777, true);
+					chmod($xml_write_path, 0777);
+				}
+
+				if (!is_writable($json_write_path))
+				{
+					mkdir($json_write_path, 0777, true);
+					chmod($json_write_path, 0777);
+				}
+
+				if (!is_writable($sphp_write_path))
+				{
+					mkdir($sphp_write_path, 0777, true);
+					chmod($sphp_write_path, 0777);
+				}
+			}
 		}
 
 		$xml_path = $xml_write_path . $class_name . '.xml';

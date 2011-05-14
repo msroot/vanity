@@ -104,9 +104,9 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html');
+		self::end(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/index.html');
 
-		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/index.html');
+		$this->output_success(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/index.html');
 	}
 
 	/**
@@ -125,9 +125,9 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/constants.html');
+		self::end(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/constants.html');
 
-		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/constants.html');
+		$this->output_success(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/constants.html');
 	}
 
 	/**
@@ -146,9 +146,9 @@ class Generator
 
 		self::start();
 		include TEMPLATE_DIR . 'layout.phtml';
-		self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/properties.html');
+		self::end(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/properties.html');
 
-		$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/properties.html');
+		$this->output_success(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/properties.html');
 	}
 
 	/**
@@ -170,9 +170,9 @@ class Generator
 
 			self::start();
 			include TEMPLATE_DIR . 'layout.phtml';
-			self::end(HTML_DIR . 'class/' . strtolower($this->classname) . '/' . strtolower((string) $method->name) . '.html');
+			self::end(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/' . strtolower((string) $method->name) . '.html');
 
-			$this->output_success(HTML_DIR . 'class/' . strtolower($this->classname) . '/' . strtolower((string) $method->name) . '.html');
+			$this->output_success(HTML_DIR . 'class/' . str_replace('\\', '/', strtolower($this->classname)) . '/' . strtolower((string) $method->name) . '.html');
 		}
 	}
 

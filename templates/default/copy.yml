@@ -7,8 +7,6 @@
 
 # FILES
 - README.md
-- scripts/frame-loader.min.js
-- scripts/frameset.min.js
 - scripts/panel.min.js
 - scripts/production.min.js
 - scripts/searchdoc.js

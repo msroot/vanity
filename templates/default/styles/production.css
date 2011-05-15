@@ -5,6 +5,7 @@
 @import "base/banner.css";
 @import "base/grid.css";
 @import "base/overlay.css";
+@import "base/layout.css";
 
 /* Syntax Highlighter */
 @import "syntaxhighlighter/shCore.css";

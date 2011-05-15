@@ -163,24 +163,20 @@ class Template extends Generator
 
 		$tree_node = array(
 			(string) $this->data->class->name,
-			// 'class/' . strtolower((string) $this->data->class->name) . '/index.html',
-			'#i=' . (string) $this->data->class->name,
+			'class/' . strtolower((string) $this->data->class->name) . '/index.html',
 			'',
 			array()
 		);
 
-		// $tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->data->class->name) . '/constants.html', '', array());
-		// $tree_node[3][] = array('Properties', 'class/' . strtolower((string) $this->data->class->name) . '/properties.html', '', array());
-		$tree_node[3][] = array('Constants', '#c=' . (string) $this->data->class->name, '', array());
-		$tree_node[3][] = array('Properties', '#p=' . (string) $this->data->class->name, '', array());
+		$tree_node[3][] = array('Constants', 'class/' . strtolower((string) $this->data->class->name) . '/constants.html', '', array());
+		$tree_node[3][] = array('Properties', 'class/' . strtolower((string) $this->data->class->name) . '/properties.html', '', array());
 
 		// foreach ($this->data->class->methods->method as $method)
 		foreach ($native_methods as $method)
 		{
 			$tree_node[3][] = array(
 				(string) $method->name,
-				// 'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html',
-				'#m=' . (string) $this->data->class->name . '/' . strtolower((string) $method->name),
+				'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html',
 				'',
 				array()
 			);
@@ -242,8 +238,7 @@ class Template extends Generator
 		$this->storage['search_index']->index->info[] = array(
 			(string) $this->data->class->name, // Class name
 			'',
-			// 'class/' . strtolower((string) $this->data->class->name) . '/index.html', // File location
-			'#i=' . str_replace('\\', '/', (string) $this->data->class->name), // File location
+			'class/' . str_replace('\\', '/', strtolower((string) $this->data->class->name)) . '/index.html', // File location
 			'', // After the name
 			strip_tags((string) $this->data->class->description), // Description
 			1 // ?
@@ -257,8 +252,7 @@ class Template extends Generator
 			$this->storage['search_index']->index->info[] = array(
 				(string) $constant->name, // Constant name
 				(string) $this->data->class->name, // Class name
-				// 'class/' . strtolower((string) $this->data->class->name) . '/constants.html#' . (string) $constant->name, // File location
-				'#c=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $constant->name, // File location
+				'class/' . str_replace('\\', '/', strtolower((string) $this->data->class->name)) . '/constants.html#' . (string) $constant->name, // File location
 				'', // After the name
 				'', //(string) $property->description->line, // Description
 				1 // ?
@@ -273,8 +267,7 @@ class Template extends Generator
 			$this->storage['search_index']->index->info[] = array(
 				(string) $property->name, // Property name
 				(string) $this->data->class->name, // Class name
-				// 'class/' . strtolower((string) $this->data->class->name) . '/properties.html#' . (string) $property->name, // File location
-				'#p=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $property->name, // File location
+				'class/' . str_replace('\\', '/', strtolower((string) $this->data->class->name)) . '/properties.html#' . (string) $property->name, // File location
 				'', // After the name
 				strip_tags((string) $property->description), // Description
 				1 // ?
@@ -290,8 +283,7 @@ class Template extends Generator
 			$this->storage['search_index']->index->info[] = array(
 				(string) $method->name . '()', // Property name
 				(string) $this->data->class->name, // Class name
-				// 'class/' . strtolower((string) $this->data->class->name) . '/' . strtolower((string) $method->name) . '.html', // File location
-				'#m=' . str_replace('\\', '/', (string) $this->data->class->name) . '/' . (string) $method->name, // File location
+				'class/' . str_replace('\\', '/', strtolower((string) $this->data->class->name)) . '/' . strtolower((string) $method->name) . '.html', // File location
 				'', // After the name
 				strip_tags((string) $method->description), // Description
 				1 // ?
@@ -313,15 +305,15 @@ class Template extends Generator
 		$STORAGE = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
 
 		// Generate frame
-		echo 'GENERATING FRAMESET' . PHP_EOL;
-		self::start();
-		include TEMPLATE_DIR . 'index.phtml';
-		self::end(HTML_DIR . 'index.html');
-
-		$path = HTML_DIR . 'index.html';
-		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
-		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
-		echo PHP_EOL;
+		// echo 'GENERATING FRAMESET' . PHP_EOL;
+		// self::start();
+		// include TEMPLATE_DIR . 'index.phtml';
+		// self::end(HTML_DIR . 'index.html');
+		//
+		// $path = HTML_DIR . 'index.html';
+		// if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
+		// else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
+		// echo PHP_EOL;
 
 		// Add groups to the tree
 		if (isset($STORAGE['tree-nodes']) && is_array($STORAGE['tree-nodes']))

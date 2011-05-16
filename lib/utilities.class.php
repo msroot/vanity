@@ -538,11 +538,11 @@ class Util
 				if (strpos($pieces[0], 'php:') !== false)
 				{
 					$pieces[0] = str_replace('php:', '', $pieces[0]);
-					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($pieces[0]) . '.' . str_replace('()', '', strtolower($pieces[1])) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . strtolower($pieces[0]) . '.' . str_replace('()', '', strtolower($pieces[1])) . '" class="code"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$pieces[0]][$pieces[1]]))
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$pieces[0]][$pieces[1]]) . '" rel="../../index.html' . strtolower($map['altmap'][$pieces[0]][$pieces[1]]) . '"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$pieces[0]][$pieces[1]]) . '" class="code"><code>' . $pieces[0] . '::' . $pieces[1] . '</code></a>', $s);
 				}
 			}
 			else
@@ -550,15 +550,15 @@ class Util
 				if (strpos($match, 'php:') !== false)
 				{
 					$match = str_replace('php:', '', $match);
-					$s = str_replace($m[0][$i], '<a href="http://php.net/' . str_replace('()', '', strtolower($match)) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="http://php.net/' . str_replace('()', '', strtolower($match)) . '" class="code"><code>' . $match . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$current][$match])) // Match same-class methods
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$current][$match]) . '" rel="../../index.html' . strtolower($map['altmap'][$current][$match]) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$current][$match]) . '" class="code"><code>' . $match . '</code></a>', $s);
 				}
 				elseif (isset($map['map'][$match]['index'])) // Match same class index
 				{
-					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$match]['index']) . '" rel="../../index.html' . strtolower($map['altmap'][$match]['index']) . '"><code>' . $match . '</code></a>', $s);
+					$s = str_replace($m[0][$i], '<a href="../' . strtolower($map['map'][$match]['index']) . '" class="code"><code>' . $match . '</code></a>', $s);
 				}
 			}
 

@@ -9,9 +9,9 @@
  * @depend fancybox/jquery.fancybox-1.3.4.js
  * @depend dombuilder.min.js
  * @depend main.js
- * @depend layout.js
  * @depend global-search.js
  * @depend syntaxhighlighter/shCore.js
  * @depend syntaxhighlighter/shBrushPhp.js
  * @depend syntaxhighlighter/shBrushPlain.js
+ * @depend layout.js
  */

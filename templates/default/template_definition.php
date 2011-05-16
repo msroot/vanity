@@ -301,19 +301,26 @@ class Template extends Generator
 	 */
 	public static function fire_last()
 	{
-		$OPTIONS = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
-		$STORAGE = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		$OPTIONS = $STORAGE = array();
+		if (file_exists(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'))
+		{
+			$OPTIONS = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.options'));
+		}
+		if (file_exists(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'))
+		{
+			$STORAGE = unserialize(file_get_contents(VANITY_CACHE_DIR . sha1(CONFIG_DIR) . '.storage'));
+		}
 
-		// Generate frame
-		// echo 'GENERATING FRAMESET' . PHP_EOL;
-		// self::start();
-		// include TEMPLATE_DIR . 'index.phtml';
-		// self::end(HTML_DIR . 'index.html');
-		//
-		// $path = HTML_DIR . 'index.html';
-		// if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
-		// else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
-		// echo PHP_EOL;
+		// Copy over redirect to README.
+		echo 'COPY INDEX.HTML' . PHP_EOL;
+		self::start();
+		include TEMPLATE_DIR . 'index.html';
+		self::end(HTML_DIR . 'index.html');
+
+		$path = HTML_DIR . 'index.html';
+		if (file_exists($path)) echo TAB . 'Created ' . $path . PHP_EOL;
+		else echo TAB . '!!!!!!! ' . $path . PHP_EOL;
+		echo PHP_EOL;
 
 		// Add groups to the tree
 		if (isset($STORAGE['tree-nodes']) && is_array($STORAGE['tree-nodes']))
@@ -330,12 +337,12 @@ class Template extends Generator
 			foreach ($OPTIONS['add-files'] as $key => $file)
 			{
 				$filename = pathinfo($file, PATHINFO_FILENAME);
-				$STORAGE['tree'][] = array($key, 'd=' . $filename . '', '', array());
+				$STORAGE['tree'][] = array($key, 'files/included/' . strtolower($filename) . '.html', '', array());
 			}
 		}
 
 		// Add the README
-		$STORAGE['tree'][] = array('README', 'd=README', '', array());
+		$STORAGE['tree'][] = array('README', 'files/included/readme.html', '', array());
 
 		// Generate search and browse tree indexes
 		self::start();

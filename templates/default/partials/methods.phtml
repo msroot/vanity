@@ -55,6 +55,18 @@ if (isset($method->parameters->parameter))
 ?>
 
 <div class="method">
+	<?php if (isset($method->modifier) && stripos((string) $method->modifier, 'protected') !== false): ?>
+	<div class="notification-bar blue">
+		<p>This is a protected method.</p>
+	</div>
+	<?php endif; ?>
+
+	<?php if (isset($method->modifier) && stripos((string) $method->modifier, 'static') !== false): ?>
+	<div class="notification-bar green">
+		<p>This is a static method.</p>
+	</div>
+	<?php endif; ?>
+
 	<div class="title container" id="<?php echo $method->name ?>">
 		<a name="<?php echo $method->name ?>" id="<?php echo $method->name ?>"></a><strong><?php echo $method->name ?></strong> (<?php echo $inline_params; ?>)
 	</div>
@@ -62,13 +74,6 @@ if (isset($method->parameters->parameter))
 	<div class="description">
 		<?php if (isset($method->description)): ?>
 			<?php echo (string) $method->description; ?>
-		<?php endif; ?>
-
-		<?php if (isset($method->modifier)): ?>
-		<h4>Access</h4>
-		<div class="description">
-			<p><?php echo (string) $method->modifier; ?></p>
-		</div>
 		<?php endif; ?>
 
 		<?php if (isset($method->parameters->parameter)): ?>

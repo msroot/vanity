@@ -1,6 +1,5 @@
 $(function () {
     var panel = new Searchdoc.Panel($('#panel'), search_data, tree);
-    $('#search').focus();
 
 	// Scroll position
 	if ($('li.current:first').length) {

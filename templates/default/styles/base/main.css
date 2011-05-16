@@ -52,6 +52,27 @@ pre {
 	background: #fffde8;
 }
 
+a.code {
+	color: inherit;
+	padding: 0;
+	text-decoration: none;
+
+	-webkit-border-radius: none;
+	-moz-border-radius: none;
+	border-radius: none;
+}
+
+code a.code code {
+	background-color: inherit;
+    border: none;
+	font-size: 1em;
+    padding: 0;
+
+	-webkit-border-radius: none;
+	-moz-border-radius: none;
+	border-radius: none;
+}
+
 .hide {
 	display: none;
 }

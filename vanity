@@ -14,7 +14,7 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 0);
 ini_set('html_errors', 0);
 
-define('VERSION', '2.0');
+define('VERSION', '(Milestone 1)');
 define('TAB', '    ');
 define('VANITY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 define('VANITY_CACHE_DIR', VANITY_DIR . 'cache' . DIRECTORY_SEPARATOR);
@@ -45,66 +45,121 @@ include 'lib/smartypants.php';
 include 'lib/spyc.php';
 include 'lib/templatexml.class.php';
 include 'lib/utilities.class.php';
+include 'lib/Zend/Console/Getopt.php';
 
 
 /********************************************************/
 // GENERATE HELP
 
 $help = array(
-	'match:' => '(Required; Optional if defined in config) The file pattern to recursively match. Defaults to *.php.',
+	'match|m=s' => '(Required; Optional if defined in config) The file pattern to recursively match. Defaults to *.php.',
 
-	'product-name:' => '(Required; Optional if defined in config) The product name to use for the README page.',
-	'product-version:' => '(Required; Optional if defined in config) The product version to use for the README page.',
+	'product-name|N=s' => '(Required; Optional if defined in config) The product name to use for the README page.',
+	'product-version|V=s' => '(Required; Optional if defined in config) The product version to use for the README page.',
 
-	'exclude-access:' => '(Optional) Access types to exclude. Use this option multiple times to set multiple values. (e.g., public, protected, private)',
-	'exclude-classes:' => '(Optional) The classname pattern to exclude. Use this option multiple times to set multiple values.',
-	'exclude-methods:' => '(Optional) The method name pattern to exclude. Use this option multiple times to set multiple values.',
+	'exclude-access|A=s' => '(Optional) Access types to exclude. Use this option multiple times to set multiple values. (e.g., public, protected, private)',
+	'exclude-classes|C=s' => '(Optional) The classname pattern to exclude. Use this option multiple times to set multiple values.',
+	'exclude-methods|M=s' => '(Optional) The method name pattern to exclude. Use this option multiple times to set multiple values.',
 
-	// 'cache:' => '(Optional) The location to use for cache files. Set to `false` to disable caching.',
-	'output:' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
-	'readme:' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
-	'template:' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
+	'output|o=s' => '(Optional) The location to output the raw XML lexer output. Defaults to `output`.',
+	'readme|r=s' => '(Optional) The location of the file to use for the body of the README. Will be parsed with Markdown. Uses built-in default README if not set.',
+	'template|t=s' => '(Optional) The location of the directory that contains your `template_definition.php` file. Defaults to `template`.',
 
-	'github:' => '(Optional) If the project is hosted on GitHub (e.g., github.com/<username>/<projectname>), pass the <username>/<projectname> (e.g., skyzyx/vanity).',
+	'github|g=s' => '(Optional) If the project is hosted on GitHub (e.g., github.com/<username>/<projectname>), pass the <username>/<projectname> (e.g., skyzyx/vanity).',
 
-	'skip-lexer' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
-	'skip-update' => '(Optional) Skips the attempt to update the internal PHP reference from Subversion.',
-	'skip-offline' => '(Optional) Skips the process of generating offline archives of documentation.',
-	// 'fresh' => '(Optional) Delete any existing cache files before processing so that the generation is fresh.',
+	'skip-lexer|L' => '(Optional) Skips the lexer & reflection engine. Assumes that the XML output is already available to generate docs from.',
+	'skip-update|U' => '(Optional) Skips the attempt to update the internal PHP reference from Subversion.',
+	'skip-offline|O' => '(Optional) Skips the process of generating offline archives of documentation.',
 
-	'help' => 'This help documentation.',
-	'version' => 'The version number.',
+	'help|h' => 'This help documentation.',
+	'version|v' => 'The version number.',
 );
 
-$console_options = getopt('', array_keys($help));
+try {
+	$opts = new Zend_Console_Getopt($help);
+	$opts->setOption('ignoreCase', false);
+	$opts->parse();
+}
+catch (Exception $e) {
+	echo $e->getUsageMessage();
+	exit;
+}
 
-if (isset($console_options['version']))
+$options = array();
+
+if ($opts->getOption('version'))
 {
 	echo 'Vanity ' . VERSION . PHP_EOL;
 	die();
 }
-elseif (isset($console_options['help']))
+elseif ($opts->getOption('help'))
 {
 	echo PHP_EOL;
-	echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
-	echo TAB . "API reference generator for PHP." . PHP_EOL;
+	echo 'Vanity ' . VERSION . ':' . PHP_EOL .
+	     TAB . 'An API reference generator for PHP.' . PHP_EOL .
+	     TAB . 'By Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+	echo PHP_EOL;
+	echo 'Usage: vanity [options]' . PHP_EOL;
 	echo PHP_EOL;
 
 	ksort($help);
+	$last = 0;
 
 	foreach ($help as $k => $v)
 	{
-		echo '--' . preg_replace('/(:*)/', '', $k) . PHP_EOL;
-		echo TAB . TAB . $v . PHP_EOL;
+		$long = $short = null;
+		$file = '';
+
+		$opt = explode('=', $k);
+		if (isset($opt[1])) $file = ' ...';
+		$opt = explode('|', $opt[0]);
+		if (isset($opt[1])) $short = $opt[1];
+		$long = $opt[0];
+
+		$options[] = array(
+			'long' => $long . $file,
+			'short' => $short,
+			'desc' => $v
+		);
+
+		if (($len = strlen($long . $file)) > $last)
+		{
+			$last = $len;
+		}
+	}
+
+	foreach ($options as $opt)
+	{
+		echo '  ' . (isset($opt['short']) ? ('-'. $opt['short']) : '  ') . ' --' . str_pad($opt['long'], $last) . ' ' . $opt['desc'] . PHP_EOL;
 	}
 
 	echo PHP_EOL . PHP_EOL;
 
 	die();
 }
+else
+{
+	$console_options = array();
+	foreach ($help as $k => $v)
+	{
+		$long = null;
+
+		$opt = explode('=', $k);
+		if (isset($opt[1])) $file = ' ...';
+		$opt = explode('|', $opt[0]);
+		$long = $opt[0];
+
+		if ($value = $opts->getOption($long))
+		{
+			$console_options[$long] = $value;
+		}
+	}
+}
 
 echo PHP_EOL;
-echo 'Vanity ' . VERSION . ' by Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+echo 'Vanity ' . VERSION . ':' . PHP_EOL .
+     TAB . 'An API reference generator for PHP.' . PHP_EOL .
+     TAB . 'By Ryan Parman <http://ryanparman.com>' . PHP_EOL;
 echo PHP_EOL;
 
 
@@ -126,7 +181,7 @@ $OPTIONS = $default_options = array(
 );
 
 // Create CONFIG_DIR if it doesn't exist.
-if (realpath(CONFIG_DIR) == '')
+if (realpath(CONFIG_DIR) === '')
 {
 	shell_exec('mkdir -p ' . CONFIG_DIR);
 	file_put_contents(CONFIG_DIR . 'README.txt', 'This is a special directory used by Vanity to read custom configurations, or to use for caching and other features.' . PHP_EOL . PHP_EOL . 'See https://github.com/skyzyx/vanity/wiki for more information.');
@@ -152,14 +207,6 @@ echo PHP_EOL;
 /********************************************************/
 // NORMALIZE PATHS
 
-if (isset($OPTIONS['cache']))
-{
-	if (strpos($OPTIONS['cache'], '/') !== 0)
-	{
-		$OPTIONS['cache'] = Util::normalize_path(CONFIG_DIR . $OPTIONS['cache']);
-	}
-}
-
 if (isset($OPTIONS['output']))
 {
 	if (strpos($OPTIONS['output'], '/') !== 0)
@@ -174,11 +221,6 @@ if (isset($OPTIONS['template']))
 	{
 		$OPTIONS['template'] = Util::normalize_path(VANITY_DIR . 'templates/' . $OPTIONS['template']);
 	}
-}
-
-if (isset($OPTIONS['fresh']))
-{
-	$OPTIONS['fresh'] = true;
 }
 
 if (isset($OPTIONS['skip-lexer']))
@@ -229,18 +271,6 @@ echo TAB . 'TEMPLATE_DIR:      ' . TEMPLATE_DIR . PHP_EOL;
 
 echo TAB . 'WORKING_DIR:       ' . WORKING_DIR . PHP_EOL;
 echo TAB . 'CONFIG_DIR:        ' . CONFIG_DIR . PHP_EOL;
-
-// Cache
-if (isset($OPTIONS['cache']))
-{
-	if (realpath($OPTIONS['cache']) == '')
-	{
-		shell_exec('mkdir -p ' . $OPTIONS['cache']);
-	}
-	define('CACHE_DIR', realpath($OPTIONS['cache']) . DIRECTORY_SEPARATOR);
-	echo TAB . 'CACHE_DIR:         ' . CACHE_DIR . PHP_EOL;
-}
-
 echo TAB . 'PARTIALS_DIR:      ' . PARTIALS_DIR . PHP_EOL;
 
 // Output

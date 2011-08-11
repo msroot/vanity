@@ -1,10 +1,10 @@
-# Vanity 2 (Beta): Now with less suck!
+# Vanity (Milestone 1)
 
 **Vanity generates API reference documentation from PHP source code, and is intended to be a replacement for PHPDocumentor.**
 
 Vanity was born out of a need to provide users of my [CloudFusion](http://getcloudfusion.com) project a vastly improved
 documentation experience. After jumping from PHPDocumentor, to Doxygen, to NaturalDocs, I decided to sit down and write
-something completely from scratch. Thus, Vanity 1.0 was born.
+something completely from scratch. Thus, Vanity was born.
 
 The biggest problem I had with existing API reference generators was the inability to write my own templates. Most of them
 offer alternate "styles" (as in, different CSS files). PHPDocumentor supposedly enabled users to write custom templates, but
@@ -12,8 +12,8 @@ the documentation was so obtuse that I gave up after a couple of weeks of trying
 
 During this time, I learned a lot about how to make a better documentation generator. At the same time,
 [Amazon Web Services](http://aws.amazon.com) forked CloudFusion and hired me to work on the
-[AWS SDK for PHP](http://aws.amazon.com/sdkforphp). As the software grew, Vanity 1.0 started showing its cracks. So I took
-the lessons I'd learned the first time around, and built something better. I call this **Vanity 2**.
+[AWS SDK for PHP](http://aws.amazon.com/sdkforphp). As the software grew, Vanity started showing its cracks. So I took
+the lessons I'd learned the first time around, and built something better. This is the result of the work so far.
 
 I would encourage you to peruse the [wiki](https://github.com/skyzyx/vanity/wiki) for deeper details.
 

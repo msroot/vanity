@@ -10,6 +10,7 @@ class Util
 		$path = str_replace(array('//', '/./'), '/', $path);
 		return $path;
 	}
+
 	/**
 	 *
 	 */
@@ -318,7 +319,7 @@ class Util
 	public static function get_parent_classes($rclass)
 	{
 		$class_list = array();
-		$rclass = new ReflectionClass($rclass);
+		$rclass = new Zend_Reflection_Class($rclass);
 
 		while ($parent_class = $rclass->getParentClass())
 		{
@@ -525,6 +526,27 @@ class Util
 	 */
 	public static function apply_linkmap($current, $s, $linkmap = null)
 	{
+		if (!is_string($s))
+		{
+			if ($s instanceof Zend_Reflection_Docblock)
+			{
+				$s = trim($s->getShortDescription() . PHP_EOL . PHP_EOL . $s->getLongDescription());
+			}
+			elseif ($s instanceof Zend_Reflection_Docblock_Tag)
+			{
+				$s = $s->getDescription();
+			}
+			elseif (is_array($s))
+			{
+				$s = $s['description'];
+			}
+			else
+			{
+				print_r($s);
+			}
+		}
+
+
 		$i = 0;
 		$map = $linkmap ? $linkmap : $GLOBALS['LINKMAP'];
 		$matches = preg_match_all('/<([^>]*)>/', $s, $m);
@@ -676,5 +698,53 @@ class Util
 	{
 		// return HTMLCompressor::compress($buffer);
 		return $buffer;
+	}
+
+	/**
+	 *
+	 */
+	public static function index_by_key($data, $method = 'getName')
+	{
+		$collect = array();
+
+		foreach ($data as $k => $item)
+		{
+			$count = 0;
+
+			if (method_exists($item, $method))
+			{
+				$key = $item->$method();
+			}
+			elseif (isset($item[$method]))
+			{
+				$key = $item[$method];
+			}
+			else
+			{
+				$key = $k;
+			}
+
+			if (!isset($collect[$key]))
+			{
+				$collect[$key] = array();
+			}
+
+			if ($item instanceof Zend_Reflection_Docblock_Tag)
+			{
+				$result = array();
+				if (method_exists($item, 'getName')) $result['name'] = $item->getName();
+				if (method_exists($item, 'getType')) $result['type'] = $item->getType();
+				if (method_exists($item, 'getDescription')) $result['description'] = $item->getDescription();
+				if (method_exists($item, 'getVariableName')) $result['variableName'] = str_replace('$', '', $item->getVariableName());
+
+				$collect[$key][] = $result;
+			}
+			else
+			{
+				$collect[$key] = $item;
+			}
+		}
+
+		return $collect;
 	}
 }

@@ -19,9 +19,6 @@
  * @version    $Id: Param.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-/** Zend_Reflection_Docblock_Tag */
-require_once 'Zend/Reflection/Docblock/Tag.php';
-
 /**
  * @category   Zend
  * @package    Zend_Reflection
@@ -50,20 +47,18 @@ class Zend_Reflection_Docblock_Tag_Param extends Zend_Reflection_Docblock_Tag
         $matches = array();
 
         if (!preg_match('#^@(\w+)\s+([\w|\\\]+)(?:\s+(\$\S+))?(?:\s+(.*))?#s', $tagDocblockLine, $matches)) {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('Provided docblock line is does not contain a valid tag');
+            // throw new Exception('Provided docblock line is does not contain a valid tag');
         }
 
-        if ($matches[1] != 'param') {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('Provided docblock line is does not contain a valid @param tag');
+        if (isset($matches[1]) && $matches[1] != 'param') {
+            // throw new Exception('Provided docblock line is does not contain a valid @param tag');
         }
 
         $this->_name = 'param';
-        $this->_type = $matches[2];
+        $this->_type = isset($matches[2]) ? $matches[2] : null;
 
         if (isset($matches[3])) {
-            $this->_variableName = $matches[3];
+            $this->_variableName = isset($matches[3]) ? $matches[3] : null;
         }
 
         if (isset($matches[4])) {

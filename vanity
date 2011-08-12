@@ -32,7 +32,7 @@ define('PARTIALS_DIR', CONFIG_DIR . 'partials' . DIRECTORY_SEPARATOR);
 include 'lib/cachecore/icachecore.interface.php';
 include 'lib/cachecore/cachecore.class.php';
 include 'lib/cachecore/cachefile.class.php';
-include 'lib/DocumentingReflectionMethod/DocumentingReflectionMethod.inc.php';
+include 'lib/docblock.class.php';
 include 'lib/example.class.php';
 include 'lib/examplify.class.php';
 include 'lib/generator.class.php';
@@ -46,6 +46,17 @@ include 'lib/spyc.php';
 include 'lib/templatexml.class.php';
 include 'lib/utilities.class.php';
 include 'lib/Zend/Console/Getopt.php';
+include 'lib/Zend/Reflection/Class.php';
+include 'lib/Zend/Reflection/Docblock.php';
+include 'lib/Zend/Reflection/Docblock/Tag.php';
+include 'lib/Zend/Reflection/Docblock/Tag/Param.php';
+include 'lib/Zend/Reflection/Docblock/Tag/Return.php';
+include 'lib/Zend/Reflection/Extension.php';
+include 'lib/Zend/Reflection/File.php';
+include 'lib/Zend/Reflection/Function.php';
+include 'lib/Zend/Reflection/Method.php';
+include 'lib/Zend/Reflection/Parameter.php';
+include 'lib/Zend/Reflection/Property.php';
 
 
 /********************************************************/
@@ -261,7 +272,7 @@ echo TAB . 'VANITY_DIR:        ' . VANITY_DIR . PHP_EOL;
 echo TAB . 'VANITY_CACHE_DIR:  ' . VANITY_CACHE_DIR . PHP_EOL;
 
 // Template
-if (realpath($OPTIONS['template']) == '')
+if (realpath($OPTIONS['template']) === '')
 {
 	echo PHP_EOL . 'FATAL: The requested template directory does not exist.' . PHP_EOL . PHP_EOL;
 	die();
@@ -525,7 +536,7 @@ echo PHP_EOL;
 // COPYING DOCUMENTATION FILES FROM PROJECT
 
 echo "COPYING DOCUMENTATION FILES FROM PROJECT" . PHP_EOL;
-if (realpath(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included') == '')
+if (realpath(HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included') === '')
 {
 	shell_exec('mkdir -p ' . HTML_DIR . 'files' . DIRECTORY_SEPARATOR . 'included');
 }

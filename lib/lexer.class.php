@@ -42,7 +42,7 @@ class Vanity_Lexer
 		{
 			foreach ($this->linkmap['map'] as $key => $value)
 			{
-				$class = new ReflectionClass($key);
+				$class = new Zend_Reflection_Class($key);
 				if ($filepath = $class->getFileName())
 				{
 					$this->documents[$class->getName()] = file($filepath);
@@ -106,7 +106,7 @@ class Vanity_Lexer
 		$xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><vanity xmlns="http://vanitydoc.org"></vanity>', 'Vanity_SimpleXMLExtended', LIBXML_NOCDATA);
 
 		// Collect class data
-		$rclass = new ReflectionClass($class_name);
+		$rclass = new Zend_Reflection_Class($class_name);
 		$rclass_properties = $rclass->getDefaultProperties();
 		$rclass_constants = $rclass->getConstants();
 		$rclass_methods = $rclass->getMethods();
@@ -180,18 +180,24 @@ class Vanity_Lexer
 			$xclass->addChild('url', $url);
 
 			// <description />
-			$pclassdescription = new DocblockParser($rclass->getDocComment());
+			$pclassdescription = $rclass->getDocComment() ? $rclass->getDocblock() : false;
 			$xclassdescription = $xclass->addChild('description');
-			$pclasscomments = Util::apply_linkmap($rclass->name, $pclassdescription->getComments());
+			$pclasscomments = Util::apply_linkmap($rclass->name,
+				($pclassdescription instanceof Zend_Reflection_Docblock)
+					? ($pclassdescription->getShortDescription() . PHP_EOL . PHP_EOL . $pclassdescription->getLongDescription())
+					: ''
+			);
 			$xclassdescription->addCDATA(SmartyPants(Util::htmlify_text($pclasscomments)));
 
 			// <metadata />
-			$xtags = $pclassdescription->getTags();
+			$xtags = ($pclassdescription instanceof Zend_Reflection_Docblock) ? $pclassdescription->getTags() : false;
 			if (is_array($xtags))
 			{
 				$xmetadata = $xclass->addChild('metadata');
-				foreach ($xtags as $tag => $value)
+				foreach ($xtags as $tag)
 				{
+					$value = $tag->getDescription();
+
 					if (is_string($value))
 					{
 						$value = array($value);
@@ -199,14 +205,14 @@ class Vanity_Lexer
 
 					foreach ($value as $val)
 					{
-						if (trim($tag) !== '')
+						if (trim($tag->getName()) !== '')
 						{
-							$xtag = $xmetadata->addChild($tag);
+							$xtag = $xmetadata->addChild($tag->getName());
 
 							// Handle special cases
 							if ($tag === 'author')
 							{
-								$value = DocblockParser::parse_author($val);
+								$val = DocblockParser::parse_author($val);
 							}
 
 							$xtag->addCDATA($val);
@@ -229,7 +235,7 @@ class Vanity_Lexer
 					$xinheritanceclass = $xinheritance->addChild('class');
 					$xinheritanceclass->addChild('name', $pclass);
 
-					$rclass_lookup = new ReflectionClass($pclass);
+					$rclass_lookup = new Zend_Reflection_Class($pclass);
 					if ($rclass_file = $rclass_lookup->getFileName())
 					{
 						$xinheritanceclass->addChild('file', str_replace(WORKING_DIR, '', $rclass_file));
@@ -434,82 +440,64 @@ class Vanity_Lexer
 				}
 
 				// Handle hand-written docblocks containing information
-				elseif ($rcomment = $rmethod->getDocComment())
+				elseif ($rcomment = $rmethod->getDocComment() ? $rmethod->getDocblock() : false)
 				{
-					$pcomment = new DocblockParser($rcomment);
-					$ptags = $pcomment->getTags();
+					$pcomment = $rcomment;
 
-					if (isset($ptags['see']))
+					if ($pcomment->getTags())
 					{
-						if (is_string($ptags['see']))
-						{
-							$ptags['see'] = array($ptags['see']);
-						}
+						$ptags = Util::index_by_key($pcomment->getTags());
 
-						$a = array();
-
-						foreach ($ptags['see'] as $see)
+						if (isset($ptags['see']))
 						{
-							// If this is `Class::method()` syntax pointing to the same class, remove the `Class::`.
-							if (strpos($see, '::') !== false)
+							if (is_string($ptags['see']))
 							{
-								$t = explode('::', $see);
-								if (in_array($t[0], Util::get_parent_classes($rclass->name)))
+								$ptags['see'] = array($ptags['see']);
+							}
+
+							$a = array();
+
+							foreach ($ptags['see'] as $see)
+							{
+								// If this is `Class::method()` syntax pointing to the same class, remove the `Class::`.
+								if (strpos($see, '::') !== false)
 								{
-									$a[] = $t[1];
+									$t = explode('::', $see);
+									if (in_array($t[0], Util::get_parent_classes($rclass->name)))
+									{
+										$a[] = $t[1];
+									}
+								}
+								else
+								{
+									$a[] = $see;
 								}
 							}
-							else
+
+							$ptags['see'] = $a;
+						}
+
+						if (isset($ptags['author']))
+						{
+							if (is_string($ptags['author']))
 							{
-								$a[] = $see;
+								$ptags['author'] = array($ptags['author']);
 							}
+
+							$tarray = array();
+							foreach ($ptags['author'] as $tparam)
+							{
+								$tarray[] = DocblockParser::parse_author($tparam);
+							}
+
+							$ptags['author'] = $tarray;
+							unset($tarray);
 						}
 
-						$ptags['see'] = $a;
+						$pcomment = Util::htmlify_text(
+							Util::apply_linkmap($rclass->name, $pcomment->getShortDescription() . PHP_EOL . PHP_EOL . $pcomment->getLongDescription())
+						);
 					}
-
-					if (isset($ptags['return']))
-					{
-						$ptags['return'] = DocblockParser::parse_return($ptags['return']);
-					}
-
-					if (isset($ptags['param']))
-					{
-						if (is_string($ptags['param']))
-						{
-							$ptags['param'] = array($ptags['param']);
-						}
-
-						foreach ($ptags['param'] as $tparam)
-						{
-							$tparam = DocblockParser::parse_param($tparam);
-							$tarray[$tparam['name']] = $tparam;
-							unset($tarray[$tparam['name']]['name']);
-						}
-						$ptags['param'] = $tarray;
-						unset($tarray);
-					}
-
-					if (isset($ptags['author']))
-					{
-						if (is_string($ptags['author']))
-						{
-							$ptags['author'] = array($ptags['author']);
-						}
-
-						$tarray = array();
-						foreach ($ptags['author'] as $tparam)
-						{
-							$tarray[] = DocblockParser::parse_author($tparam);
-						}
-
-						$ptags['author'] = $tarray;
-						unset($tarray);
-					}
-
-					$pcomment = Util::htmlify_text(
-						Util::apply_linkmap($rclass->name, $pcomment->getComments())
-					);
 				}
 
 				// Convert any strings to arrays
@@ -693,26 +681,30 @@ class Vanity_Lexer
 								$xname = $xparameter->addChild('name', $rparameter->getName());
 
 								// <type />
-								if (isset($ptags['param']) &&
-								    isset($ptags['param'][$rparameter->getName()]) &&
-								    isset($ptags['param'][$rparameter->getName()]['type'])
-								)
+								if (isset($ptags['param']))
 								{
-									$ttypes = $ptags['param'][$rparameter->getName()]['type'];
-									$ttypes = explode('|', $ttypes);
-									$new_ttypes = array();
+									$ptags['param'] = Util::index_by_key($ptags['param'], 'variableName');
 
-									if (is_string($ttypes))
+									if (isset($ptags['param'][$rparameter->getName()]) &&
+									    isset($ptags['param'][$rparameter->getName()]['type'])
+									)
 									{
-										$ttypes = array($ttypes);
-									}
+										$ttypes = $ptags['param'][$rparameter->getName()]['type'];
+										$ttypes = explode('|', $ttypes);
+										$new_ttypes = array();
 
-									foreach ($ttypes as $ttype)
-									{
-										$new_ttypes[] = Util::elongate_type($ttype);
-									}
+										if (is_string($ttypes))
+										{
+											$ttypes = array($ttypes);
+										}
 
-									$xparameter->addChild('type', implode('|', $new_ttypes));
+										foreach ($ttypes as $ttype)
+										{
+											$new_ttypes[] = Util::elongate_type($ttype);
+										}
+
+										$xparameter->addChild('type', implode('|', $new_ttypes));
+									}
 								}
 
 								// <description />
@@ -1043,7 +1035,7 @@ class Vanity_Lexer
 
 			foreach ($rclass_properties as $rproperty => $rvalue)
 			{
-				$rproperty = new ReflectionProperty($rclass->name, $rproperty);
+				$rproperty = new Zend_Reflection_Property($rclass->name, $rproperty);
 
 				// <property />
 				$xproperty = $xproperties->addChild('property');
@@ -1106,10 +1098,10 @@ class Vanity_Lexer
 
 					if ($rcomment = $rproperty->getDocComment())
 					{
-						$property_docs = new DocblockParser($rproperty->getDocComment());
+						$property_docs = $rproperty->getDocComment();
 
 						// <metadata />
-						$xtags = $property_docs->getTags();
+						$xtags = Util::index_by_key($property_docs->getTags());
 						if (is_array($xtags))
 						{
 							$xmetadata = $xproperty->addChild('metadata');
@@ -1132,7 +1124,7 @@ class Vanity_Lexer
 						}
 
 						// <description />
-						$tcomments = $property_docs->getComments();
+						$tcomments = $property_docs->getShortDescription();
 						if (trim($tcomments) !== '')
 						{
 							$xdescription = $xproperty->addChild('description');

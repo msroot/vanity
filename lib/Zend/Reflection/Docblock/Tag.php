@@ -19,9 +19,6 @@
  * @version    $Id: Tag.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-/** Zend_Loader */
-require_once 'Zend/Loader.php';
-
 /**
  * @category   Zend
  * @package    Zend_Reflection
@@ -59,8 +56,7 @@ class Zend_Reflection_Docblock_Tag implements Reflector
         $matches = array();
 
         if (!preg_match('#^@(\w+)(\s|$)#', $tagDocblockLine, $matches)) {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('No valid tag name found within provided docblock line.');
+            throw new Exception('No valid tag name found within provided docblock line.');
         }
 
         $tagName = $matches[1];
@@ -113,8 +109,7 @@ class Zend_Reflection_Docblock_Tag implements Reflector
 
         // find the line
         if (!preg_match('#^@(\w+)(?:\s+([^\s].*)|$)?#', $tagDocblockLine, $matches)) {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('Provided docblock line does not contain a valid tag');
+            throw new Exception('Provided docblock line does not contain a valid tag');
         }
 
         $this->_name = $matches[1];

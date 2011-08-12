@@ -19,9 +19,6 @@
  * @version    $Id: Return.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-/** Zend_Reflection_Docblock_Tag */
-require_once 'Zend/Reflection/Docblock/Tag.php';
-
 /**
  * @category   Zend
  * @package    Zend_Reflection
@@ -44,17 +41,15 @@ class Zend_Reflection_Docblock_Tag_Return extends Zend_Reflection_Docblock_Tag
     public function __construct($tagDocblockLine)
     {
         if (!preg_match('#^@(\w+)\s+([\w|\\\]+)(?:\s+(.*))?#', $tagDocblockLine, $matches)) {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('Provided docblock line is does not contain a valid tag');
+            // throw new Exception('Provided docblock line is does not contain a valid tag');
         }
 
-        if ($matches[1] != 'return') {
-            require_once 'Zend/Reflection/Exception.php';
-            throw new Zend_Reflection_Exception('Provided docblock line is does not contain a valid @return tag');
+        if (isset($matches[1]) && $matches[1] != 'return') {
+            // throw new Exception('Provided docblock line is does not contain a valid @return tag');
         }
 
         $this->_name = 'return';
-        $this->_type = $matches[2];
+        $this->_type = isset($matches[2]) ? $matches[2] : null;
         if (isset($matches[3])) {
             $this->_description = $matches[3];
         }

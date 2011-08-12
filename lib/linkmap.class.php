@@ -34,7 +34,7 @@ class Vanity_LinkMap
 		{
 			foreach ($this->classes as $class)
 			{
-				$rclass = new ReflectionClass($class);
+				$rclass = new Zend_Reflection_Class($class);
 				$rclass_properties = $rclass->getDefaultProperties();
 				$rclass_constants = $rclass->getConstants();
 				$rclass_methods = $rclass->getMethods();

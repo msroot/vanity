@@ -20,16 +20,6 @@
  */
 
 /**
- * @see Zend_Reflection_Class
- */
-require_once 'Zend/Reflection/Class.php';
-
-/**
- * @see Zend_Reflection_Function
- */
-require_once 'Zend/Reflection/Function.php';
-
-/**
  * @category   Zend
  * @package    Zend_Reflection
  * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
@@ -50,8 +40,7 @@ class Zend_Reflection_Extension extends ReflectionExtension
         while ($phpReflections && ($phpReflection = array_shift($phpReflections))) {
             $instance = new $reflectionClass($phpReflection->getName());
             if (!$instance instanceof Zend_Reflection_Function) {
-                require_once 'Zend/Reflection/Exception.php';
-                throw new Zend_Reflection_Exception('Invalid reflection class provided; must extend Zend_Reflection_Function');
+                throw new Exception('Invalid reflection class provided; must extend Zend_Reflection_Function');
             }
             $zendReflections[] = $instance;
             unset($phpReflection);
@@ -73,8 +62,7 @@ class Zend_Reflection_Extension extends ReflectionExtension
         while ($phpReflections && ($phpReflection = array_shift($phpReflections))) {
             $instance = new $reflectionClass($phpReflection->getName());
             if (!$instance instanceof Zend_Reflection_Class) {
-                require_once 'Zend/Reflection/Exception.php';
-                throw new Zend_Reflection_Exception('Invalid reflection class provided; must extend Zend_Reflection_Class');
+                throw new Exception('Invalid reflection class provided; must extend Zend_Reflection_Class');
             }
             $zendReflections[] = $instance;
             unset($phpReflection);

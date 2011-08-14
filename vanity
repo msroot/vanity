@@ -46,17 +46,31 @@ include 'lib/spyc.php';
 include 'lib/templatexml.class.php';
 include 'lib/utilities.class.php';
 include 'lib/Zend/Console/Getopt.php';
-include 'lib/Zend/Reflection/Class.php';
-include 'lib/Zend/Reflection/Docblock.php';
-include 'lib/Zend/Reflection/Docblock/Tag.php';
-include 'lib/Zend/Reflection/Docblock/Tag/Param.php';
-include 'lib/Zend/Reflection/Docblock/Tag/Return.php';
-include 'lib/Zend/Reflection/Extension.php';
-include 'lib/Zend/Reflection/File.php';
-include 'lib/Zend/Reflection/Function.php';
-include 'lib/Zend/Reflection/Method.php';
-include 'lib/Zend/Reflection/Parameter.php';
-include 'lib/Zend/Reflection/Property.php';
+include 'lib/DocBlox/Core/Abstract.php';
+include 'lib/DocBlox/Reflection/Abstract.php';
+include 'lib/DocBlox/Reflection/Argument.php';
+include 'lib/DocBlox/Reflection/DocBlockedAbstract.php';
+include 'lib/DocBlox/Reflection/BracesAbstract.php';
+include 'lib/DocBlox/Reflection/Interface.php';
+include 'lib/DocBlox/Reflection/Class.php';
+include 'lib/DocBlox/Reflection/Constant.php';
+include 'lib/DocBlox/Reflection/Exception.php';
+include 'lib/DocBlox/Reflection/File.php';
+include 'lib/DocBlox/Reflection/Function.php';
+include 'lib/DocBlox/Reflection/Include.php';
+include 'lib/DocBlox/Reflection/Method.php';
+include 'lib/DocBlox/Reflection/Variable.php';
+include 'lib/DocBlox/Reflection/Property.php';
+include 'lib/DocBlox/Reflection/DocBlock.php';
+include 'lib/DocBlox/Reflection/DocBlock/LongDescription.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Interface.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Link.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Param.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Return.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Throw.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Throws.php';
+include 'lib/DocBlox/Reflection/DocBlock/Tag/Var.php';
 
 
 /********************************************************/
@@ -106,11 +120,11 @@ if ($opts->getOption('version'))
 elseif ($opts->getOption('help'))
 {
 	echo PHP_EOL;
-	echo 'Vanity ' . VERSION . ':' . PHP_EOL .
+	echo "\033[1;37m\033[44m " . 'Vanity ' . VERSION . ':' . " \033[0m" . PHP_EOL .
 	     TAB . 'An API reference generator for PHP.' . PHP_EOL .
-	     TAB . 'By Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+	     TAB . 'http://vanitydoc.org' . PHP_EOL;
 	echo PHP_EOL;
-	echo 'Usage: vanity [options]' . PHP_EOL;
+	echo "\033[01;32m" . 'Usage: vanity [options]' . "\033[0m" . PHP_EOL;
 	echo PHP_EOL;
 
 	ksort($help);
@@ -141,7 +155,39 @@ elseif ($opts->getOption('help'))
 
 	foreach ($options as $opt)
 	{
-		echo '  ' . (isset($opt['short']) ? ('-'. $opt['short']) : '  ') . ' --' . str_pad($opt['long'], $last) . ' ' . $opt['desc'] . PHP_EOL;
+		$description = $opt['desc'];
+		$count = 0;
+		$line_length = 100;
+
+		echo '  ' . (isset($opt['short']) ? ('-'. $opt['short']) : '  ') . ' --' . str_pad($opt['long'], $last) . ' ';
+
+		while (strlen($description) > $line_length)
+		{
+			$inspect = substr($description, 0, $line_length);
+			$position = strrpos($inspect, ' ');
+			$line = substr($description, 0, $position);
+			$description = substr($description, $position);
+
+			if ($count === 0)
+			{
+				echo trim($line) . PHP_EOL;
+			}
+			else
+			{
+				echo str_pad('', $last + 8) . trim($line) . PHP_EOL;
+			}
+
+			$count++;
+		}
+
+		if ($count === 0)
+		{
+			echo trim($description) . PHP_EOL;
+		}
+		else
+		{
+			echo str_pad('', $last + 8) . trim($description) . PHP_EOL;
+		}
 	}
 
 	echo PHP_EOL . PHP_EOL;
@@ -170,7 +216,7 @@ else
 echo PHP_EOL;
 echo 'Vanity ' . VERSION . ':' . PHP_EOL .
      TAB . 'An API reference generator for PHP.' . PHP_EOL .
-     TAB . 'By Ryan Parman <http://ryanparman.com>' . PHP_EOL;
+     TAB . 'http://vanitydoc.org' . PHP_EOL;
 echo PHP_EOL;
 
 

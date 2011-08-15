@@ -1,6 +1,18 @@
 # Vanity (Milestone 1)
 
-**Vanity generates API reference documentation from PHP source code, and is intended to be a replacement for PHPDocumentor.**
+**Vanity is a tool for generating high-quality, user-friendly documentation from PHP source code.** Vanity was
+written to address the user-hostile and generally unhelpful output that most existing documentation tools generate.
+
+Vanity came from the experience of working alongside users over nearly a decade of open-source software development,
+and has been heavily inspired by [Rails API](http://railsapi.com), [jQ API](http://jqapi.com),
+[jQuery source viewer](http://james.padolsey.com/jquery/),
+[Cocoa Developer Reference](http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/Foundation/Classes/NSArray_Class/NSArray.html)
+and [Ingredients.app](http://fileability.net/ingredients/).
+
+Follow progress at [@vanitydoc](http://twitter.com/vanitydoc).
+
+
+## Why?
 
 Vanity was born out of a need to provide users of my [CloudFusion](http://getcloudfusion.com) project a vastly improved
 documentation experience. After jumping from PHPDocumentor, to Doxygen, to NaturalDocs, I decided to sit down and write

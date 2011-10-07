@@ -1,3 +1,0 @@
-#! /usr/bin/env sh
-juicer merge --force --skip-verification -o scripts/production.min.js $1 scripts/production.js
-juicer merge --force --skip-verification -o scripts/panel.min.js $1 scripts/panel.js

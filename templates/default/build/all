@@ -1,2 +1,0 @@
-#! /usr/bin/env sh
-./build/css $1 && ./build/js $1

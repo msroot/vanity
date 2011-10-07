@@ -1,3 +1,0 @@
-#! /usr/bin/env sh
-juicer merge --force --cache-buster none -o styles/production.min.css $1 styles/production.css &&
-juicer merge --force --cache-buster none -o styles/panel.min.css $1 styles/panel.css

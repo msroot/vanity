@@ -23,33 +23,11 @@
  * <http://www.opensource.org/licenses/mit-license.php>
  */
 
-/*
 
-CLI/Config Options:
+namespace Vanity\Archiver
+{
+	interface Archiver
+	{
 
---use-config
---use-config-dir
---use-groups
---use-bootstrap
-
---exclude-access(=private)
---exclude-classes(=*Exception)
---exclude-methods(=__*)
-
---output(=./output)
---readme(=./README.md)
---templates(=all)
-
---update-phpref(=true)
---archives(=zip)
-
---match(=*.php)
-
---github
-
---skip-lexer(=true)
-
---help
---version
-
-*/
+	}
+}

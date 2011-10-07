@@ -24,9 +24,11 @@
  */
 
 
-namespace Vanity\Archiver
+namespace Vanity\Archiver\Format
 {
-	class GZip
+	use Vanity\Archiver\Archiver;
+
+	class BZip2 extends Archiver
 	{
 
 	}

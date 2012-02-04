@@ -28,15 +28,15 @@
 require_once dirname(__DIR__) . '/src/bootstrap.php';
 
 use Symfony\Component\Console\Application,
-	Symfony\Component\Console\Input\InputInterface,
-	Symfony\Component\Console\Input\InputArgument,
-	Symfony\Component\Console\Input\InputOption,
-	Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\EventDispatcher\Event,
     Symfony\Component\EventDispatcher\EventDispatcher,
     Symfony\Component\Filesystem\Filesystem,
-	Symfony\Component\Process\Process,
-	Vanity\Event\Base as EventBase;
+    Symfony\Component\Process\Process,
+    Vanity\Event\Base as EventBase;
 
 $console = new Application();
 

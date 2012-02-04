@@ -1,7 +1,8 @@
 #! /usr/bin/env php
 <?php
 /**
- * Copyright (c) 2009-2012 Ryan Parman and contributors.
+ * Copyright (c) 2009-2012 [Ryan Parman](http://ryanparman.com)
+ * Copyright (c) 2011-2012 [Ryan McCue](http://ryanmccue.info)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,3 +24,109 @@
  *
  * <http://www.opensource.org/licenses/mit-license.php>
  */
+
+require_once dirname(__DIR__) . '/src/bootstrap.php';
+
+use Symfony\Component\Console\Application,
+	Symfony\Component\Console\Input\InputInterface,
+	Symfony\Component\Console\Input\InputArgument,
+	Symfony\Component\Console\Input\InputOption,
+	Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\EventDispatcher\Event,
+    Symfony\Component\EventDispatcher\EventDispatcher,
+    Symfony\Component\Filesystem\Filesystem,
+	Symfony\Component\Process\Process,
+	Vanity\Event\Base as EventBase;
+
+$console = new Application();
+
+# version
+$console
+	->register('version')
+	->setDescription('Displays the version number of the software.')
+	->setCode(function (InputInterface $input, OutputInterface $output)
+	{
+		$output->writeln(sprintf('Vanity %s', VANITY_VERSION));
+	});
+
+# fetch
+$console
+	->register('fetch')
+	->setDescription('Fetches a copy of the PHP API Reference from PHP.net.')
+	->setCode(function (InputInterface $input, OutputInterface $output)
+	{
+		$filesystem = new Filesystem();
+
+		if (!is_dir(VANITY_CACHE_DIR))
+		{
+			$output->writeln('CHECKOUT');
+			$output->writeln('Downloading the PHP API reference for the first time. This may take a few minutes.');
+			$output->writeln('');
+
+			if ($filesystem->mkdir(VANITY_CACHE_DIR, 0777))
+			{
+				$output->writeln('http://svn.php.net/repository/phpdoc/en/trunk/reference/');
+				$process = new Process('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . VANITY_PHPREF_DIR);
+				$process->run(function ($type, $buffer) use (&$output)
+				{
+					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+					else { $output->writeln(TAB . trim($buffer)); }
+				});
+				unset($process);
+				$output->writeln('');
+
+				$output->writeln('http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/');
+				$process = new Process('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . VANITY_ENTITY_GLOBAL_DIR);
+				$process->run(function ($type, $buffer) use (&$output)
+				{
+					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+					else { $output->writeln(TAB . trim($buffer)); }
+				});
+				unset($process);
+				$output->writeln('');
+
+				$output->writeln('http://svn.php.net/repository/phpdoc/en/trunk/');
+				$process = new Process('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . VANITY_ENTITY_LANG_DIR . ' --depth files');
+				$process->run(function ($type, $buffer) use (&$output)
+				{
+					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+					else { $output->writeln(TAB . trim($buffer)); }
+				});
+				unset($process);
+				$output->writeln('');
+			}
+		}
+		else
+		{
+			$output->writeln('UPDATING INTERNAL PHP REFERENCE');
+
+			$process = new Process('svn up ' . VANITY_PHPREF_DIR);
+			$process->run(function ($type, $buffer) use (&$output)
+			{
+				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+				else { $output->writeln(TAB . trim($buffer)); }
+			});
+			unset($process);
+			$output->writeln('');
+
+			$process = new Process('svn up ' . VANITY_ENTITY_GLOBAL_DIR);
+			$process->run(function ($type, $buffer) use (&$output)
+			{
+				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+				else { $output->writeln(TAB . trim($buffer)); }
+			});
+			unset($process);
+			$output->writeln('');
+
+			$process = new Process('svn up ' . VANITY_ENTITY_LANG_DIR . ' --depth files');
+			$process->run(function ($type, $buffer) use (&$output)
+			{
+				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
+				else { $output->writeln(TAB . trim($buffer)); }
+			});
+			unset($process);
+			$output->writeln('');
+		}
+	});
+
+$console->run();

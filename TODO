@@ -17,7 +17,6 @@
 #	modified:   src/Vanity/Archiver/Format/LZMA2.class.php
 #	modified:   src/Vanity/Archiver/Format/LZMA_7z.class.php
 #	modified:   src/Vanity/Archiver/Format/Zip.class.php
-#	modified:   src/Vanity/Common/Glob.class.php
 #	modified:   src/Vanity/Generator/Helper/Tooltip.class.php
 #	modified:   src/Vanity/Generator/Index.class.php
 #	modified:   src/Vanity/Generator/Page.class.php

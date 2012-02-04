@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>Home</title>
+		<style type="text/css" media="screen">
+		/*********************************************
+		BASE
+		*********************************************/
+
+		body {
+	        font: 14px/1.4 "Lucida Grande", "Helvetica Neue", Arial, sans-serif;
+			padding: 50px 10%;
+			max-width: 1000px;
+			margin: 0 auto;
+			color: #080000;
+			background-color: #fbfbf9;
+		}
+
+		code {
+			font-family: "Panic Sans", "Bitstream Vera Sans Mono", Monaco, Consolas, Andale Mono, monospace;
+
+			background-color: #f0f0f0;
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
+			border-radius: 3px;
+			padding: 0 3px;
+		}
+
+		pre {
+			font-family: "Panic Sans", "Bitstream Vera Sans Mono", Monaco, Consolas, Andale Mono, monospace;
+			font-size: 12px;
+			line-height: 1.5em;
+
+	        margin: 15px 0;
+	        padding: 15px;
+	        border: 1px solid #eee;
+			background-color: #f0f0ff;
+		}
+
+		pre code {
+			font-family: inherit;
+			font-size: inherit;
+			background-color: inherit;
+			color: inherit;
+			padding: 0;
+
+			border: none;
+			border-radius: none;
+			-webkit-border-radius: none;
+			-moz-border-radius: none;
+		}
+
+		a {
+			color: #326EA1;
+			text-decoration: underline;
+			padding: 1px 2px;
+			-webkit-transition: background-color 0.15s;
+			-webkit-transition: color 0.15s;
+			-moz-transition: background-color 0.15s;
+			-moz-transition: color 0.15s;
+			transition: background-color 0.15s;
+			transition: color 0.15s;
+			-webkit-border-radius: 2px;
+			-moz-border-radius: 2px;
+			border-radius: 2px;
+		}
+
+		a:hover, a.hover {
+			color: #fff;
+			background-color: #333;
+			text-decoration: none;
+			padding: 1px 2px;
+		}
+
+		a.active {
+			font-weight: bold;
+		}
+
+		a.indexterm, a:empty {
+			position: absolute;
+			left: -1000em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			padding: 0.8em 0 0.2em 0;
+			margin: 0;
+		}
+
+		h2 {
+			margin: 30px 0 7px 0;
+			padding: 15px 0 5px 0;
+			font-size: 1.8em;
+			line-height: 1.3em;
+			border-bottom: 3px solid #cdcdcc;
+		}
+
+		h3 {
+			margin: 10px 0 7px 0;
+			padding: 15px 0 5px 0;
+			font-size: 1.5em;
+			line-height: 1.3em;
+		}
+
+		h4 {
+			margin: 10px 0 7px 0;
+			padding: 15px 0 5px 0;
+			font-size: 1.2em;
+			line-height: 1.3em;
+		}
+
+		li {
+			margin: 0;
+			padding: 0;
+		}
+
+		em, i {
+			font-style: italic;
+		}
+
+		strong, b {
+			font-weight: bold;
+			color: #000;
+		}
+
+		p {
+			margin: 0;
+			padding: 0.5em 0;
+		}
+
+		img {
+			max-width: 100%;
+		}
+
+		table.display {
+			margin: 10px 0;
+			border-collapse: collapse;
+		}
+
+		table.display td {
+			padding: 5px 10px;
+		}
+
+		table.display td code {
+			line-height: 1.5em;
+		}
+
+		table.display thead tr,
+		table.display thead tr td {
+			border-top: 1px dotted #ccc;
+			background-color: #eee;
+			font-weight: bold;
+		}
+
+		table.display tbody tr td {
+			border: 1px dotted #ccc;
+			border-width: 1px 0;
+		}
+
+
+		/*********************************************
+		CONTAINER
+		*********************************************/
+		.container {
+			zoom: 1;
+		}
+
+		.container:after {
+		    content: ".";
+		    display: block;
+		    height: 0;
+		    clear: both;
+		    visibility: hidden;
+		}
+
+		.left {
+			float: left !important;
+		}
+
+		.right {
+			float: right !important;
+		}
+
+		.hide {
+			position: absolute;
+			top: 0;
+			left: -1000em;
+		}
+
+		.block {
+			display: block !important;
+		}
+
+		.iblock {
+			/* Cross-browser inline-block */
+			display: -moz-inline-stack;
+			display: inline-block;
+			vertical-align: top;
+			zoom: 1;
+			*display: inline;
+			min-height: 0;
+			_height: 0;
+		}
+
+		div.footnotes {
+			font: 11px/1.3em verdana;
+			color: #999;
+			background-color: #eee;
+			margin-top: 5em;
+			padding: 10px;
+		}
+		</style>
+	</head>
+
+	<body>
+
+		<div id="header-wrapper">
+			<div id="header">
+				<h1>Signing up for Amazon Web Services</h1>
+			</div>
+		</div>
+
+		<div id="body-wrapper">
+			<div id="body">
+				<h2>Signing up for services</h2>
+
+				<p>Before you can begin using Amazon Web Services, you must sign up for each service you want to use.</p>
+
+				<ol>
+				<li><p>Go to the home page for the service and click the Sign Up button on the upper-right corner of the page. A list of services and their descriptions can be found at <a href="http://aws.amazon.com/products">http://aws.amazon.com/products</a>.</p>
+
+				<p> Figure 2.1. Detail page for Amazon S3.</p></li>
+				<li><p>You will be asked to sign into your AWS account. If you don&rsquo;t already have one, you will be prompted to create one as part of the sign up process.</p>
+
+				<p> Figure 2.2. Signing into AWS.</p></li>
+				<li><p>Follow the on-screen instructions, ending with completing the signup.</p>
+
+				<p> Figure 2.3. Completing the Amazon S3 signup process.</p></li>
+				<li><p>AWS sends you a confirmation e-mail after the sign-up process is complete. At any time, you can view your current account activity and manage your account by going to aws.amazon.com and clicking Your Account.</p></li>
+				</ol>
+
+
+				<h2>The Importance of Your Keys</h2>
+
+				<p>Your keys are important. Your keys are valuable. They are the keys to the kingdom. Everywhere you look, there are vandals, thieves and shifty eyes as far as the eye can see. These vandals, thieves and shifty-eyed folks want nothing more than to steal your keys, rack up a bunch of charges on your AWS account, and put Baby in the corner. Nobody puts Baby in the corner.</p>
+
+				<p><strong>Don&rsquo;t let this happen to you! Protect your keys at all costs!</strong></p>
+
+				<h2>Getting your AWS Security Credentials</h2>
+
+				<p>AWS uses several different kinds of credentials for various features; the most important of which are the Key and Secret Key. At a minimum, you&rsquo;ll need these two credentials for everything in the SDK.</p>
+
+				<p>The SDK ships with a configuration file called config-sample.inc.php which is intended to store your various credentials as constants for use with the SDK. Rename config-sample.inc.php to config.inc.php, then open the file for editing.</p>
+
+				<ol>
+				<li><p>In the main toolbar, click Account → Security Credentials.</p>
+
+				<p> Figure 2.4. Finding your security credentials.</p></li>
+				<li><p>This is the Security Credentials page.</p>
+
+				<p> Figure 2.5. The Security Credentials page.</p></li>
+				<li><p>Scroll down the page. Find the key and secret key, and set them as the values for the AWS_KEY and AWS_SECRET_KEY constants in the config.inc.php file.</p>
+
+				<p> Figure 2.6. The Key and Secret Key.</p></li>
+				<li><p>(Optional) CloudFront has a feature which allows you to sign private URLs. This feature requires a keypair and its corresponding private key (.pem) file. Clicking on Create a New Key Pair will create a new keypair, then immediately begin downloading a the corresponding private key.</p>
+
+				<p> Amazon does not keep a copy of the private key. This means that if you lose it, there is no way to retrieve a copy.
+				Add the keypair ID to the <code>AWS_CLOUDFRONT_KEYPAIR_ID</code> constant, and the contents of the private key in the <code>AWS_CLOUDFRONT_PRIVATE_KEY_PEM</code> constant.</p>
+
+				<p>  Figure 2.7. Getting CloudFront and EC2 keypairs.</p></li>
+				<li><p>(Optional) Amazon has a feature called AWS Multi-Factor Authentication. This is an optional credential that allows you to increase the level of your account security. To add this security option to your account, you will need to purchase a compatible authentication device from Gemalto, a third-party provider.</p>
+
+				<p> To save yourself some typing, you can add the serial number for the Gemalto device to the AWS_MFA_SERIAL constant in the config.inc.php file.</p>
+
+				<p> Figure 2.8. Enable AWS Multi-Factor Authentication.</p></li>
+				<li><p>The AWS account and canonical IDs are used in Amazon EC2 and Amazon S3, respectively. Add the AWS account ID to the AWS_ACCOUNT_ID constant, and the AWS canonical ID to the AWS_CANONICAL_ID constant in the config.inc.php file.</p>
+
+				<p> Figure 2.9. AWS Account and Canonical IDs.</p></li>
+				<li><p>The last piece of information that the configuration file needs is the AWS_CANONICAL_NAME constant. Unfortunately, this isn&rsquo;t as easy to find as the other pieces of information, but you can get it with the SDK.</p></li>
+				</ol>
+
+
+				<p>We&rsquo;re jumping a little ahead of ourselves with this, but if you already know how to use the SDK, you can do the following.</p>
+
+				<pre><code>$s3 = new AmazonS3();
+print_r($s3-&gt;get_canonical_id());
+</code></pre>
+
+				<p>If you don&rsquo;t quite know what this code means, that&rsquo;s OK. We can tackle this later.</p>
+			</div>
+		</div>
+
+		<div id="footer-wrapper">
+			<div id="footer">
+
+			</div>
+		</div>
+
+	</body>
+</html>

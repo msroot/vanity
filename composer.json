@@ -1,0 +1,49 @@
+{
+	"name": "vanity/vanity",
+	"type": "library",
+	"description": "Templatable documentation generator for PHP.",
+	"keywords": ["docs", "documentation", "reference", "api"],
+	"homepage": "http://github.com/skyzyx/vanity",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Ryan Parman",
+			"homepage": "http://ryanparman.com"
+		},
+		{
+			"name": "Ryan McCue",
+			"homepage": "http://ryanmccue.info"
+		},
+		{
+			"name": "Contributors",
+			"homepage": "https://github.com/amazonwebservices/aws-sdk-for-php/contributors"
+		}
+	],
+	"config": {
+		"vendor-dir": "src/vendor/"
+	},
+	"require": {
+		"php": ">=5.3.2",
+
+		"ext-simplexml": "*",
+		"ext-dom": "*",
+		"ext-json": "*",
+		"ext-pcre": "*",
+
+		"symfony/class-loader": ">2.0",
+		"symfony/config": ">2.0",
+		"symfony/console": ">2.0",
+		"symfony/event-dispatcher": ">2.0",
+		"symfony/filesystem": ">2.0",
+		"symfony/finder": ">2.0",
+		"symfony/process": ">2.0",
+		"symfony/templating": ">2.0",
+		"symfony/validator": ">2.0",
+		"symfony/yaml": ">2.0"
+	},
+	"autoload": {
+		"psr-0": {
+			"Vanity": "src/"
+		}
+	}
+}

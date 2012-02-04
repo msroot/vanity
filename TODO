@@ -1,0 +1,75 @@
+# TODO
+
+* Composer package
+* Phar generation
+
+* Markdown
+* SmartyPants
+
+* jQuery
+* DOMBuilder
+
+--------
+
+#	modified:   src/Vanity/Archiver/Archiver.interface.php
+#	modified:   src/Vanity/Archiver/Format/BZip2.class.php
+#	modified:   src/Vanity/Archiver/Format/Gzip.class.php
+#	modified:   src/Vanity/Archiver/Format/LZMA2.class.php
+#	modified:   src/Vanity/Archiver/Format/LZMA_7z.class.php
+#	modified:   src/Vanity/Archiver/Format/Zip.class.php
+#	modified:   src/Vanity/Common/Glob.class.php
+#	modified:   src/Vanity/Generator/Helper/Tooltip.class.php
+#	modified:   src/Vanity/Generator/Index.class.php
+#	modified:   src/Vanity/Generator/Page.class.php
+#	modified:   src/Vanity/Handler/Bootstrap.class.php
+#	modified:   src/Vanity/Handler/CLI.class.php
+#	modified:   src/Vanity/Handler/Changelog.class.php
+#	modified:   src/Vanity/Handler/Config.class.php
+#	modified:   src/Vanity/Handler/Example.class.php
+#	modified:   src/Vanity/Handler/Group.class.php
+#	modified:   src/Vanity/Mapper/Changelog.class.php
+#	modified:   src/Vanity/Mapper/Example/PHPT.class.php
+#	modified:   src/Vanity/Mapper/Group.class.php
+#	modified:   src/Vanity/Parser/Class.class.php
+#	modified:   src/Vanity/Parser/Constant.class.php
+#	modified:   src/Vanity/Parser/Docblock/Description.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/AliasOf.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Author.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Changelog.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Copyright.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Deprecated.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Example.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Ignore.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/License.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Link.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Option.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Param.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Return.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/See.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Since.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Todo.class.php
+#	modified:   src/Vanity/Parser/Docblock/Tag/Var.class.php
+#	modified:   src/Vanity/Parser/File.class.php
+#	modified:   src/Vanity/Parser/Interface.class.php
+#	modified:   src/Vanity/Parser/Method.class.php
+#	modified:   src/Vanity/Parser/Namespace.class.php
+#	modified:   src/Vanity/Parser/Property.class.php
+#	modified:   src/Vanity/Parser/Trait.class.php
+#	modified:   src/Vanity/Template/Document/ODT.class.php
+#	modified:   src/Vanity/Template/Document/RTF.class.php
+#	modified:   src/Vanity/Template/HTML/CHM.class.php
+#	modified:   src/Vanity/Template/HTML/Desktop.class.php
+#	modified:   src/Vanity/Template/HTML/Mobile.class.php
+#	modified:   src/Vanity/Template/Text/Manpage.class.php
+#	modified:   src/Vanity/Template/Text/Markdown.class.php
+#	modified:   src/Vanity/Template/Text/Mediawiki.class.php
+#	modified:   src/Vanity/Template/XML/Docbook.class.php
+#	modified:   src/Vanity/Template/XML/Kindle.class.php
+#	modified:   src/Vanity/Template/XML/PDF.class.php
+#	modified:   src/Vanity/Template/XML/ePub.class.php
+#	modified:   src/Vanity/Writer/JSON.class.php
+#	modified:   src/Vanity/Writer/PHP.class.php
+#	modified:   src/Vanity/Writer/XML.class.php
+#	deleted:    src/Vanity/bin/vanity
+#	modified:   src/vanity.bootstrap.php
+#	modified:   src/vanity.class.php

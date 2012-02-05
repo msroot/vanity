@@ -28,20 +28,24 @@ namespace Vanity\Event
 {
 	use Symfony\Component\EventDispatcher\EventDispatcher;
 
-	class Base
+	class Dispatcher
 	{
+		/**
+		 * Stores the Event Dispatcher.
+		 */
 		private static $dispatcher;
 
-		public function __construct()
-		{
-			# code...
-		}
-
+		/**
+		 * Retrieve the Event Dispatcher.
+		 */
 		public static function get_dispatcher()
 		{
 			return self::$dispatcher;
 		}
 
+		/**
+		 * Set the Event Dispatcher.
+		 */
 		public static function set_dispatcher(EventDispatcher $dispatcher)
 		{
 			self::$dispatcher = $dispatcher;

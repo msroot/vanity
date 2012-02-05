@@ -85,7 +85,7 @@ else
 }
 
 $loader->registerNamespaces(array(
-	'Vanity'                               => __DIR__ . '/src',
+	'Vanity'                               => __DIR__,
 	'Symfony\\Component\\ClassLoader'      => VANITY_VENDOR . '/symfony/class-loader',
 	'Symfony\\Component\\Console'          => VANITY_VENDOR . '/symfony/console',
 	'Symfony\\Component\\EventDispatcher'  => VANITY_VENDOR . '/symfony/event-dispatcher',

@@ -28,6 +28,7 @@
 require_once dirname(__DIR__) . '/src/bootstrap.php';
 
 use Symfony\Component\Console\Application,
+    Symfony\Component\Console\Formatter\OutputFormatterStyle as ConsoleFormat,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputOption,
@@ -35,98 +36,150 @@ use Symfony\Component\Console\Application,
     Symfony\Component\EventDispatcher\Event,
     Symfony\Component\EventDispatcher\EventDispatcher,
     Symfony\Component\Filesystem\Filesystem,
-    Symfony\Component\Process\Process,
-    Vanity\Event\Base as EventBase;
+    Vanity\Event\Console,
+    Vanity\Event\Dispatcher;
 
-$console = new Application();
+$vanity_console = new Application('Vanity', VANITY_VERSION);
+Dispatcher::set_dispatcher(new EventDispatcher());
 
 # version
-$console
+$vanity_console
 	->register('version')
 	->setDescription('Displays the version number of the software.')
-	->setCode(function (InputInterface $input, OutputInterface $output)
+	->setCode(function(InputInterface $input, OutputInterface $output)
 	{
 		$output->writeln(sprintf('Vanity %s', VANITY_VERSION));
 	});
 
 # fetch
-$console
+$vanity_console
 	->register('fetch')
-	->setDescription('Fetches a copy of the PHP API Reference from PHP.net.')
-	->setCode(function (InputInterface $input, OutputInterface $output)
+	->setDescription('Fetches a copy of the latest PHP API Reference from PHP.net. Useful when extending PHP\'s base classes.')
+	->setCode(function(InputInterface $input, OutputInterface $output)
 	{
+		Vanity\Event\Register::fetch();
 		$filesystem = new Filesystem();
 
 		if (!is_dir(VANITY_CACHE_DIR))
 		{
-			$output->writeln('CHECKOUT');
-			$output->writeln('Downloading the PHP API reference for the first time. This may take a few minutes.');
-			$output->writeln('');
-
 			if ($filesystem->mkdir(VANITY_CACHE_DIR, 0777))
 			{
-				$output->writeln('http://svn.php.net/repository/phpdoc/en/trunk/reference/');
-				$process = new Process('svn co http://svn.php.net/repository/phpdoc/en/trunk/reference/ ' . VANITY_PHPREF_DIR);
-				$process->run(function ($type, $buffer) use (&$output)
-				{
-					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-					else { $output->writeln(TAB . trim($buffer)); }
-				});
-				unset($process);
-				$output->writeln('');
-
-				$output->writeln('http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/');
-				$process = new Process('svn co http://svn.php.net/repository/phpdoc/doc-base/trunk/entities/ ' . VANITY_ENTITY_GLOBAL_DIR);
-				$process->run(function ($type, $buffer) use (&$output)
-				{
-					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-					else { $output->writeln(TAB . trim($buffer)); }
-				});
-				unset($process);
-				$output->writeln('');
-
-				$output->writeln('http://svn.php.net/repository/phpdoc/en/trunk/');
-				$process = new Process('svn co http://svn.php.net/repository/phpdoc/en/trunk/ ' . VANITY_ENTITY_LANG_DIR . ' --depth files');
-				$process->run(function ($type, $buffer) use (&$output)
-				{
-					if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-					else { $output->writeln(TAB . trim($buffer)); }
-				});
-				unset($process);
-				$output->writeln('');
+				Dispatcher::get_dispatcher()->dispatch(Console::FETCH_CHECKOUT, new Console\FetchEvent($output));
 			}
 		}
 		else
 		{
-			$output->writeln('UPDATING INTERNAL PHP REFERENCE');
-
-			$process = new Process('svn up ' . VANITY_PHPREF_DIR);
-			$process->run(function ($type, $buffer) use (&$output)
-			{
-				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-				else { $output->writeln(TAB . trim($buffer)); }
-			});
-			unset($process);
-			$output->writeln('');
-
-			$process = new Process('svn up ' . VANITY_ENTITY_GLOBAL_DIR);
-			$process->run(function ($type, $buffer) use (&$output)
-			{
-				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-				else { $output->writeln(TAB . trim($buffer)); }
-			});
-			unset($process);
-			$output->writeln('');
-
-			$process = new Process('svn up ' . VANITY_ENTITY_LANG_DIR . ' --depth files');
-			$process->run(function ($type, $buffer) use (&$output)
-			{
-				if ($type === 'err') { $output->writeln('ERR > ' . $buffer); }
-				else { $output->writeln(TAB . trim($buffer)); }
-			});
-			unset($process);
-			$output->writeln('');
+			Dispatcher::get_dispatcher()->dispatch(Console::FETCH_UPDATE, new Console\FetchEvent($output));
 		}
 	});
 
-$console->run();
+# parse
+$vanity_console
+	->register('parse')
+	->setDescription('Parses the PHP project, producing intermediary JSON definitions. Must be run before `vanity generate`.')
+	->setDefinition(array(
+		// What do we call it?
+		new InputOption('product-name', 'n', InputOption::VALUE_REQUIRED, 'The name of the product.', null),
+		new InputOption('product-version', 'v', InputOption::VALUE_REQUIRED, 'The version of the product.', null),
+
+		// How do we parse this thing?
+		new InputOption('bootstrap', 'b', InputOption::VALUE_OPTIONAL, 'The bootstrap file which informs how the classes should be autoloaded.', null),
+		new InputOption('match', 'm', InputOption::VALUE_OPTIONAL, 'The pattern of file names to match.', '*.php'),
+
+		// Types of data to exclude?
+		new InputOption('exclude-access', 'A', InputOption::VALUE_OPTIONAL, 'Comma-separated list of the access types to exclude (i.e., private, protected, public, static, final).', 'private'),
+		new InputOption('exclude-classes', 'C', InputOption::VALUE_OPTIONAL, 'Comma-separated list of classname patterns to exclude.', '/Exception/i'),
+		new InputOption('exclude-methods', 'M', InputOption::VALUE_OPTIONAL, 'Comma-separated list of method patterns to exclude.', '/__([a-z]+)/i'),
+
+		// Additional definitions
+		new InputOption('use-changelog', null, InputOption::VALUE_OPTIONAL, 'The name of the CHANGELOG definition to use.', 'changelog.yml'),
+		new InputOption('use-groups', null, InputOption::VALUE_OPTIONAL, 'The name of the method grouping definition to use.', 'groups.yml'),
+		new InputOption('use-seealso', null, InputOption::VALUE_OPTIONAL, 'The name of the "see also" definition to use.', 'seealso.yml'),
+
+		// Extra generation
+		new InputOption('generate-indexes', 'i', InputOption::VALUE_OPTIONAL, 'Whether or not to generate indexes for the source.', 'true'),
+		new InputOption('generate-todos', 't', InputOption::VALUE_OPTIONAL, 'Whether or not to generate TODOs for the source.', 'true'),
+		new InputOption('pattern-todos', null, InputOption::VALUE_OPTIONAL, 'The regex pattern to use for determining TODOs.', '/@?\s*todo(:|\s)+/i'),
+
+		// Warnings
+		new InputOption('warn-todo', 'W', InputOption::VALUE_OPTIONAL, 'Whether or not to display a warning on the CLI about TODOs in the source code.', 'false'),
+		new InputOption('warn-groups', 'G', InputOption::VALUE_OPTIONAL, 'Whether or not to display a warning on the CLI about ungrouped methods in the `groups.yml` file.', 'true'),
+
+		// Project site integration
+		new InputOption('github', null, InputOption::VALUE_OPTIONAL, 'The pattern of your GitHub project: {user}:{repository}:{tag-branch-or-commit} (e.g., skyzyx:vanity:master).'),
+		new InputOption('google-code', null, InputOption::VALUE_OPTIONAL, 'The name of your Google Code project: {project}:{path-to-project-source} (e.g., pubsubhubbub:branches/perl-stable).'),
+
+		// Project stage
+		new InputOption('stage', 's', InputOption::VALUE_OPTIONAL, 'The stage that the project is currently in (e.g., development, alpha, beta, rc, production).', 'production'),
+	))
+	->setCode(function(InputInterface $input, OutputInterface $output)
+	{
+		# config.read
+		# config.apply
+		# config.display
+
+		# parser.find.path_root
+
+		# parser.lexer.map_entities
+		# parser.lexer.load_partials
+		# parser.lexer.get_class_list
+		# parser.lexer.linkify
+
+		# parser.wiki.open
+		# parser.wiki.read
+		# parser.wiki.convert_to_html
+		# parser.wiki.linkify
+
+		# parser.writer.clean_output_dir
+		# parser.writer.definitions
+		# parser.writer.todos
+		# parser.writer.indexes
+		# parser.writer.manifest
+		# parser.writer.search
+		# parser.writer.browse
+		# parser.writer.wiki
+	});
+
+# generate
+$vanity_console
+	->register('generate')
+	->setDescription('Reads the JSON definitions and merges them with templates to produce the output.')
+	->setCode(function(InputInterface $input, OutputInterface $output)
+	{
+		# config.read
+		# config.apply
+		# config.display
+
+		# generator.templates.find
+		# generator.templates.copy_static
+
+		# generator.format.annotated
+		# generator.format.chm
+		# generator.format.docbook
+		# generator.format.epub
+		# generator.format.html.desktop
+		# generator.format.html.mobile
+		# generator.format.kindle
+		# generator.format.manpage
+		# generator.format.markdown
+		# generator.format.mediawiki
+		# generator.format.odt
+		# generator.format.pdf
+		# generator.format.php
+		# generator.format.rtf
+		# generator.format.xml
+
+		# generator.format.alt1
+		# generator.format.alt2
+		# generator.format.alt3
+		# generator.format.alt4
+		# generator.format.alt5
+
+		# generator.archive.lzma.7z
+		# generator.archive.lzma.xz
+		# generator.archive.tar.bz2
+		# generator.archive.tar.gz
+		# generator.archive.zip
+	});
+
+$vanity_console->run();

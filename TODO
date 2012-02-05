@@ -11,12 +11,6 @@
 
 --------
 
-#	modified:   src/Vanity/Archiver/Archiver.interface.php
-#	modified:   src/Vanity/Archiver/Format/BZip2.class.php
-#	modified:   src/Vanity/Archiver/Format/Gzip.class.php
-#	modified:   src/Vanity/Archiver/Format/LZMA2.class.php
-#	modified:   src/Vanity/Archiver/Format/LZMA_7z.class.php
-#	modified:   src/Vanity/Archiver/Format/Zip.class.php
 #	modified:   src/Vanity/Generator/Helper/Tooltip.class.php
 #	modified:   src/Vanity/Generator/Index.class.php
 #	modified:   src/Vanity/Generator/Page.class.php
@@ -54,21 +48,3 @@
 #	modified:   src/Vanity/Parser/Namespace.class.php
 #	modified:   src/Vanity/Parser/Property.class.php
 #	modified:   src/Vanity/Parser/Trait.class.php
-#	modified:   src/Vanity/Template/Document/ODT.class.php
-#	modified:   src/Vanity/Template/Document/RTF.class.php
-#	modified:   src/Vanity/Template/HTML/CHM.class.php
-#	modified:   src/Vanity/Template/HTML/Desktop.class.php
-#	modified:   src/Vanity/Template/HTML/Mobile.class.php
-#	modified:   src/Vanity/Template/Text/Manpage.class.php
-#	modified:   src/Vanity/Template/Text/Markdown.class.php
-#	modified:   src/Vanity/Template/Text/Mediawiki.class.php
-#	modified:   src/Vanity/Template/XML/Docbook.class.php
-#	modified:   src/Vanity/Template/XML/Kindle.class.php
-#	modified:   src/Vanity/Template/XML/PDF.class.php
-#	modified:   src/Vanity/Template/XML/ePub.class.php
-#	modified:   src/Vanity/Writer/JSON.class.php
-#	modified:   src/Vanity/Writer/PHP.class.php
-#	modified:   src/Vanity/Writer/XML.class.php
-#	deleted:    src/Vanity/bin/vanity
-#	modified:   src/vanity.bootstrap.php
-#	modified:   src/vanity.class.php

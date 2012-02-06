@@ -13,19 +13,19 @@ While these configuration files are not strictly required, they certainly simpli
 
 A typical Vanity configuration directory looks something like this:
 
-* `project/`
-	* `src/`
-	* `tests/`
-	* ...
-	* `_vanity/`
-		* `config.yml`
-		* `changelog.yml`
-		* `groups.yml`
-		* `wiki/`
-			* `chapter-01.md`
-			* ...
-			* `chapter-xx.md`
-			* `chapters.yml`
+	* project/
+		* src/
+		* tests/
+		* ...
+		* _vanity/
+			* config.yml
+			* changelog.yml
+			* groups.yml
+			* wiki/
+				* chapter-01.md
+				* ...
+				* chapter-xx.md
+				* chapters.yml
 
 
 ## Installation
@@ -53,10 +53,10 @@ This software is **optional**, and is only used if you need to generate addition
 * Make the phar executable: `chmod a+x vanity.phar`
 * Rename vanity: `mv vanity.phar vanity`
 * Change into a project directory: `cd /path/to/my/project`
-* Use Vanity as you normally would. composer.phar install
+* Use Vanity as you normally would.
 
 ### Global installation of composer (via Homebrew)
-Installing via this homebrew formula will always get you the latest composer version.
+Installing with this Homebrew formula will always get you the latest version.
 
 	brew uninstall vanity &&
 	brew install --HEAD https://{domain}/brew/vanity.rb

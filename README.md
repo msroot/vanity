@@ -1,7 +1,7 @@
 # Vanity ∞
 Re-designing Vanity. Again.
 
-Vanity enables you to create wonderfully useful documentation for your projects. Designed from the ground-up to support templates and all sorts of other customizations, Vanity makes it easy for any developer to provide a world-class documentation experience for their customers.
+**Vanity enables you to create wonderfully useful documentation for your projects.** Designed from the ground-up to support templates and all sorts of other customizations, Vanity makes it easy for any developer to provide a world-class documentation experience for their customers.
 
 Vanity supports a complete documentation experience, and supports the generation of an API reference, user guides, cookbooks & tutorials, screencasts and more! Vanity also supports full-text search of all of your documentation content.
 
@@ -17,7 +17,7 @@ A typical Vanity configuration directory looks something like this:
 		* src/
 		* tests/
 		* ...
-		* _vanity/
+		* _vanity/  <-------------------- Here is where our configurations go!
 			* config.yml
 			* changelog.yml
 			* groups.yml

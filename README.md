@@ -47,6 +47,14 @@ This software is **optional**, and is only used if you need to generate addition
 
 	wget --quiet http://vanitydoc.org/-/vanity.phar
 
+### Global installation (via Homebrew)
+Installing with this Homebrew formula will always get you the latest version.
+
+	brew uninstall vanity &&
+	brew install --HEAD https://{domain}/brew/vanity.rb
+
+_You will see a warning "Warning: Cannot verify package integrity"; however, this is benign and expected._
+
 ### Global installation (manual)
 * Change into a directory in your path like `cd /usr/local/bin` or `cd /opt/local/bin`
 * Get Vanity: `http://vanitydoc.org/-/vanity.phar`
@@ -54,14 +62,6 @@ This software is **optional**, and is only used if you need to generate addition
 * Rename vanity: `mv vanity.phar vanity`
 * Change into a project directory: `cd /path/to/my/project`
 * Use Vanity as you normally would.
-
-### Global installation of composer (via Homebrew)
-Installing with this Homebrew formula will always get you the latest version.
-
-	brew uninstall vanity &&
-	brew install --HEAD https://{domain}/brew/vanity.rb
-
-_You will see a warning "Warning: Cannot verify package integrity"; however, this is benign and expected._
 
 
 ## Development

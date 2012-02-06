@@ -47,7 +47,7 @@ This software is **optional**, and is only used if you need to generate addition
 
 	wget --quiet http://vanitydoc.org/-/vanity.phar
 
-## Global installation (manual)
+### Global installation (manual)
 * Change into a directory in your path like `cd /usr/local/bin` or `cd /opt/local/bin`
 * Get Vanity: `http://vanitydoc.org/-/vanity.phar`
 * Make the phar executable: `chmod a+x vanity.phar`
@@ -55,7 +55,7 @@ This software is **optional**, and is only used if you need to generate addition
 * Change into a project directory: `cd /path/to/my/project`
 * Use Vanity as you normally would.
 
-## Global installation of composer (via Homebrew)
+### Global installation of composer (via Homebrew)
 Installing with this Homebrew formula will always get you the latest version.
 
 	brew uninstall vanity &&

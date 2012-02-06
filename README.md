@@ -28,8 +28,7 @@ A typical Vanity configuration directory looks something like this:
 				* chapters.yml
 
 
-## Installation
-
+## Requirements
 ### Required
 The following software is **required** for Vanity to run:
 
@@ -42,12 +41,13 @@ This software is **optional**, and is only used if you need to generate addition
 * [pdfTeX](http://www.tug.org/applications/pdftex/) (for generating PDFs)
 * [KindleGen](http://www.amazon.com/gp/feature.html?ie=UTF8&docId=1000234621) (for generating Kindle-compatible eBooks)
 
-### Installing
-#### For current user
+
+## Installation
+### For current user
 
 	wget --quiet http://vanitydoc.org/-/vanity.phar
 
-### Global installation (manual)
+## Global installation (manual)
 * Change into a directory in your path like `cd /usr/local/bin` or `cd /opt/local/bin`
 * Get Vanity: `http://vanitydoc.org/-/vanity.phar`
 * Make the phar executable: `chmod a+x vanity.phar`
@@ -55,7 +55,7 @@ This software is **optional**, and is only used if you need to generate addition
 * Change into a project directory: `cd /path/to/my/project`
 * Use Vanity as you normally would.
 
-### Global installation of composer (via Homebrew)
+## Global installation of composer (via Homebrew)
 Installing with this Homebrew formula will always get you the latest version.
 
 	brew uninstall vanity &&

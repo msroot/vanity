@@ -1,6 +1,8 @@
 .build
-dist
+.DS_Store
 .tmp
+composer.lock
+dist
 nbproject
 review
-vendor
+src/vendor

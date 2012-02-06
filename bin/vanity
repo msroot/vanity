@@ -88,8 +88,8 @@ $vanity_console
 
 		// Types of data to exclude?
 		new InputOption('exclude-access', 'A', InputOption::VALUE_OPTIONAL, 'Comma-separated list of the access types to exclude (i.e., private, protected, public, static, final).', 'private'),
-		new InputOption('exclude-classes', 'C', InputOption::VALUE_OPTIONAL, 'Comma-separated list of classname patterns to exclude.', '/Exception/i'),
-		new InputOption('exclude-methods', 'M', InputOption::VALUE_OPTIONAL, 'Comma-separated list of method patterns to exclude.', '/__([a-z]+)/i'),
+		new InputOption('exclude-classes', 'C', InputOption::VALUE_OPTIONAL, 'Regex pattern of class names to exclude', '/Exception/i'),
+		new InputOption('exclude-methods', 'M', InputOption::VALUE_OPTIONAL, 'Regex pattern of method names to exclude', '/__([a-z]+)/i'),
 
 		// Additional definitions
 		new InputOption('use-changelog', null, InputOption::VALUE_OPTIONAL, 'The name of the CHANGELOG definition to use.', 'changelog.yml'),
@@ -97,8 +97,8 @@ $vanity_console
 		new InputOption('use-seealso', null, InputOption::VALUE_OPTIONAL, 'The name of the "see also" definition to use.', 'seealso.yml'),
 
 		// Extra generation
-		new InputOption('generate-indexes', 'i', InputOption::VALUE_OPTIONAL, 'Whether or not to generate indexes for the source.', 'true'),
-		new InputOption('generate-todos', 't', InputOption::VALUE_OPTIONAL, 'Whether or not to generate TODOs for the source.', 'true'),
+		new InputOption('create-indexes', 'i', InputOption::VALUE_OPTIONAL, 'Whether or not to generate indexes for the source.', 'true'),
+		new InputOption('create-todos', 't', InputOption::VALUE_OPTIONAL, 'Whether or not to generate TODOs for the source.', 'true'),
 		new InputOption('pattern-todos', null, InputOption::VALUE_OPTIONAL, 'The regex pattern to use for determining TODOs.', '/@?\s*todo(:|\s)+/i'),
 
 		// Warnings
@@ -168,12 +168,6 @@ $vanity_console
 		# generator.format.php
 		# generator.format.rtf
 		# generator.format.xml
-
-		# generator.format.alt1
-		# generator.format.alt2
-		# generator.format.alt3
-		# generator.format.alt4
-		# generator.format.alt5
 
 		# generator.archive.lzma.7z
 		# generator.archive.lzma.xz

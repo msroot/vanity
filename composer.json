@@ -56,6 +56,11 @@
 
 		"docblox/docblox": "0.18.1",
 		"docblox/parallel": "*",
+
+		"skyzyx/examplify": ">=1.1",
+		"skyzyx/phpt": ">=1.1",
+		"skyzyx/transmogrifier": ">=1.0",
+
 		"symfony/class-loader": ">2.0",
 		"symfony/config": ">2.0",
 		"symfony/console": ">2.0",

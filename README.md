@@ -21,16 +21,16 @@ The following software is required for Vanity to run:
 
 This is how your project should organize Vanity assets.
 
-	{Project}:
-	    - _vanity:
-	        - config.yml
-	        - bootstrap.php
-	        - groups.yml
-	        - toolbar.html
-	        - wiki:
-	            - index.md
-	            - other.md
-	            - chapters.yml
-	    - tests:
-	        - {directory}:
-	            - examples.yml
+  {Project}:
+      - _vanity:
+          - config.yml
+          - bootstrap.php
+          - groups.yml
+          - toolbar.html
+          - wiki:
+              - index.md
+              - other.md
+              - chapters.yml
+      - tests:
+          - {directory}:
+              - examples.yml

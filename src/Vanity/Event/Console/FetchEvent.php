@@ -39,12 +39,12 @@ namespace Vanity\Event\Console
 		/**
 		 * Stores the output object.
 		 */
-		private $output;
+		public $output;
 
 		/**
 		 * Stores the Console Output Formatter object.
 		 */
-		private $formatter;
+		public $formatter;
 
 		/**
 		 * The PHP subversion repositories to pull from.

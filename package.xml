@@ -11,7 +11,7 @@
     <active>yes</active>
   </lead>
   <date>2012-02-08</date>
-  <time>09:34:20</time>
+  <time>09:35:20</time>
   <version>
     <release>3.0.0</release>
     <api>3.0.0</api>
@@ -24,6 +24,7 @@
   <notes>-</notes>
   <contents>
     <dir name="/">
+      <file name="doc/.empty" role="doc" md5sum="d41d8cd98f00b204e9800998ecf8427e"/>
       <file name="src/.DS_Store" role="php" md5sum="d759ede18e641ca1d44fe60f0ab9c43c"/>
       <file name="src/bootstrap.php" role="php" md5sum="2b3eaac771045dbd72fcae8c8ed65713"/>
       <file name="src/Vanity/.DS_Store" role="php" md5sum="194577a7e20bdcc7afbb718f502c134c"/>
@@ -1549,6 +1550,7 @@
   </dependencies>
   <phprelease>
     <filelist>
+      <install name="doc/.empty" as=".empty"/>
       <install name="src/.DS_Store" as=".DS_Store"/>
       <install name="src/bootstrap.php" as="bootstrap.php"/>
       <install name="src/Vanity/.DS_Store" as="Vanity/.DS_Store"/>

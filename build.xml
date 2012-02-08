@@ -2,7 +2,6 @@
 <project default="help" basedir=".">
 
 	<!-- Human-readable info about our component -->
-	<property file="build.properties" />
 	<taskdef name="now" classname="Phix_Project.ComponentManager.Phing.NowTask" />
 	<now name="date.now"/>
 	<if>
@@ -42,17 +41,6 @@
 	<property name="project.tarfile"           value="${project.distdir}/${project.tarfilename}" />
 	<property name="project.zipfile"           value="${project.distdir}/${project.zipfilename}" />
 
-	<!-- what was the last PEAR package we created, if any? -->
-	<if>
-		<available file="${project.distdir.lastBuilt}"/>
-		<then>
-			<property file="${project.distdir.lastBuilt}"/>
-		</then>
-		<else>
-			<property name="project.lastBuiltTarfile" value="false"/>
-		</else>
-	</if>
-
 	<!-- override this if you want to run additional PEAR commands -->
 	<property name="pear.cmd" value="" override="true" />
 
@@ -70,11 +58,11 @@
 
 	<!-- Tell the user what this build file supports -->
 	<target name="help">
-		<echo message="${project.name} ${project.version}: build.xml targets:" />
+		<echo message="build.xml targets:" />
 		<echo message="" />
 		<echo message="Setup your dev environment:" />
 		<echo message="" />
-		<echo message="    vendor" />
+		<echo message="    composer" />
 		<echo message="        Run `composer install` to install all dependencies using Composer." />
 		<echo message="" />
 		<echo message="Develop your code:" />
@@ -96,11 +84,13 @@
 		<echo message="Publish your component:" />
 		<echo message="" />
 		<echo message="    pear-package" />
-		<echo message="        Create a PEAR-compatible package." />
-		<echo message="    publish-local" />
+		<echo message="        Run `onion build` to create a PEAR/Pyrus-compatible package.xml file." />
+<!--
+ 		<echo message="    publish-local" />
 		<echo message="        Publish your PEAR-compatible package into a local copy" />
 		<echo message="        of your PEAR channel" />
-		<echo message=""/>
+ -->
+ 		<echo message=""/>
 		<echo message="Additional targets:" />
 		<echo message=""/>
 		<echo message="    clean" />
@@ -202,52 +192,7 @@
 
 	<!-- Create the PEAR package, ready for release -->
 	<target name="pear-package">
-		<echo>Building release directory</echo>
-		<delete dir="${project.builddir}" />
-		<mkdir dir="${project.pkgdir}" />
-		<if>
-			<available file="${project.srcdir}"/>
-			<then>
-				<copy todir="${project.pkgdir}">
-					<fileset refid="allfiles"/>
-				</copy>
-			</then>
-		</if>
-		<copy todir="${project.pkgdir}">
-			<fileset refid="allfiles"/>
-		</copy>
-		<copy todir="${project.builddir}">
-			<fileset dir=".">
-				<include name="package.xml" />
-			</fileset>
-		</copy>
-
-		<exec command="phix pear:expand-package-xml" checkreturn="yes" logoutput="yes"/>
-
-		<echo>Creating ${project.tarfile} PEAR package</echo>
-
-		<mkdir dir="${project.distdir}" />
-		<delete file="${project.tarfile}" />
-		<tar destfile="${project.tarfile}" compression="gzip">
-			<fileset dir="${project.builddir}">
-				<include name="**/**" />
-			</fileset>
-		</tar>
-		<!--
- 		<zip destfile="${project.zipfile}">
-			<fileset dir="${project.builddir}">
-				<include name="**/**" />
-			</fileset>
-		</zip>
-		-->
-
-		<!-- remember the tarball we have just built -->
-		<property name="project.lastBuiltTarfile" value="${project.tarfile}" override="true"/>
-		<echo file="${project.distdir.lastBuilt}" append="false">project.lastBuiltTarfile=${project.tarfile}</echo>
-
-		<!-- write a message to say which file we built last -->
-		<echo>Your PEAR package is in ${project.tarfile}</echo>
-		<phingcallifexists target="local.pear-package"/>
+		<exec command="onion build" logoutput="true" />
 	</target>
 
 	<!-- Publish to local copy of PEAR channel -->
@@ -285,13 +230,8 @@
 		<exec command="pirum remove ${pear.local} ${packagefile}" logoutput="true" checkreturn="true" />
 	</target>
 
-	<target name="vendor">
+	<target name="composer">
 		<exec command="composer install" logoutput="true" checkreturn="true" />
-	</target>
-
-	<!-- Run additional PEAR commands in the vendor folder -->
-	<target name="vendor-pear">
-		<exec command="pear -c ${project.tmpdir}/pear-config ${pear.cmd}" logoutput="true" checkreturn="true" />
 	</target>
 
 	<!-- Clean up the mess -->

@@ -733,33 +733,33 @@ class Vanity_Lexer
 								//   <type>string</type>
 								//   <value>mystring</value>
 								// </initializer>
-								if ($rparameter->isDefaultValueAvailable())
-								{
-									$dvalue = $rparameter->getDefaultValue();
-									$dtype = strtolower(gettype($dvalue));
-									switch ($dtype)
-									{
-										case 'boolean':
-											$dvalue = ($dvalue === 1) ? 'true' : 'false';
-											break;
+								// if ($rparameter->isDefaultValueAvailable())
+								// {
+								// 	$dvalue = $rparameter->getDefaultValue();
+								// 	$dtype = strtolower(gettype($dvalue));
+								// 	switch ($dtype)
+								// 	{
+								// 		case 'boolean':
+								// 			$dvalue = ($dvalue === 1) ? 'true' : 'false';
+								// 			break;
 
-										case 'null':
-											$dvalue = 'null';
-											break;
+								// 		case 'null':
+								// 			$dvalue = 'null';
+								// 			break;
 
-										case 'string':
-											$adjusted_rvalue = '"' . $dvalue . '"';
-											break;
+								// 		case 'string':
+								// 			$adjusted_rvalue = '"' . $dvalue . '"';
+								// 			break;
 
-										case 'array':
-											$dvalue = Util::unwrap_array($dvalue);
-											break;
-									}
+								// 		case 'array':
+								// 			$dvalue = Util::unwrap_array($dvalue);
+								// 			break;
+								// 	}
 
-									$xinitializer = $xparameter->addChild('initializer');
-									$xinitializervalue = $xinitializer->addChild('value', $dvalue);
-									$xinitializervalue->addAttribute('type', $dtype);
-								}
+								// 	$xinitializer = $xparameter->addChild('initializer');
+								// 	$xinitializervalue = $xinitializer->addChild('value', $dvalue);
+								// 	$xinitializervalue->addAttribute('type', $dtype);
+								// }
 						}
 					}
 
